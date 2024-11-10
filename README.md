@@ -5,6 +5,8 @@
 ---------------------
 
 * [Introduction](#introduction)
+* [Cloning the Repository](#cloning-the-repository)
+* [Dependencies](#dependencies)
 * [Building the Project](#building-the-project)
 	+ [Setting the Build Type](#setting-the-build-type)
 	+ [Available Build Targets](#available-build-targets)
@@ -29,7 +31,7 @@ A first-person shooter game built using the Entity-Component-System (ECS) archit
 To clone the repository, run the following command in your terminal:
 
 ```bash
-git clone --recurse-submodules https://github.com/VexilophrygmaticZynglethorpean/RivalGrounds.git
+git clone --recurse-submodules https://github.com/VexilophragmaticZynglethorpean/RivalGrounds.git
 ```
 
 This will clone the repository and initialize all submodules.
@@ -80,8 +82,10 @@ Note:
 
 ### Running Unit Tests
 
-* Navigate to `build` directory
-* ```bash ctest --rerun-failed --output-on-failure```
+* Navigate to `build` directory and then:
+```bash
+ctest --rerun-failed --output-on-failure
+```
 
 Note: Make sure to set build type as `Debug`. Some functions from the source code are enabled only in Debug mode.
 
@@ -107,7 +111,8 @@ To run the project, follow these steps:
 
 1. Navigate to the `build` directory
 2. Navigate to the `Release` or `Debug` directory
-3. Run the executable (suitable for your operating system) to launch the game
+3. Navigate to the directory of target operating system
+4. Run the `RivalGrounds` executable to launch the game
 
 **Option 2**: Find the suitable executable for your operating system from the `Releases` section of the GitHub repository.
 
