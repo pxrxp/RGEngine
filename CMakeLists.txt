@@ -15,11 +15,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-find_package(PythonInterp REQUIRED)
+find_package(Python REQUIRED COMPONENTS Interpreter)
 
 file(GLOB_RECURSE PYTHON_SCRIPTS "src/*.py")
 foreach(script ${PYTHON_SCRIPTS})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${script})
+    execute_process(COMMAND ${Python_EXECUTABLE} ${script})
 endforeach()
 
 add_subdirectory(external/glad/cmake)
