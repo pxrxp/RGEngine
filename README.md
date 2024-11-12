@@ -6,10 +6,10 @@
 
 * [Introduction](#introduction)
 * [Cloning the Repository](#cloning-the-repository)
+* [Prerequisites](#prerequisites)
 * [Dependencies](#dependencies)
 * [Building the Project](#building-the-project)
-	+ [Setting the Build Type](#setting-the-build-type)
-	+ [Available Build Targets](#available-build-targets)
+	+ [Build Commands](#build-commands)
 	+ [Running Unit Tests](#running-unit-tests)
 * [Running the Project](#running-the-project)
 * [Project Structure](#project-structure)
@@ -36,6 +36,15 @@ git clone --recurse-submodules https://github.com/VexilophragmaticZynglethorpean
 
 This will clone the repository and initialize all submodules.
 
+## Prerequisites
+----------------
+
+Before you begin, ensure you have the following installed:
+
+- CMake
+- A C++ compiler that supports C++20
+- Python
+
 
 ## Dependencies
 ------------
@@ -48,37 +57,26 @@ This project depends on the following libraries:
 
 ## Building the Project
 ---------------------
+### Build Commands
 
-### Setting the Build Type
+Make sure you are in the project root directory.
 
-To set the build type, use the following command:
+* **For initial configuration:**
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=<build_type>
 ```
+* **For all subsequent builds:**
+```bash
+cmake --build build
+```
 Replace `<build_type>` with one of the following options:
 
-* `Debug`: Build the project with debug symbols and optimizations disabled.
-* `Release`: Build the project with optimizations enabled and debug symbols disabled.
+* `Debug`: For development and debugging, no optimizations.
+* `Release`: For production, with optimizations enabled.
+* `RelWithDebInfo`: For debugging optimized code, includes debug symbols.
+* `MinSizeRel`: For minimizing binary size, with optimizations for size.
 
-Note: If not specified, defaults to `Release`
-
-### Available Build Targets
-
-Once you have set the build type, you can build the project using the following command:
-```bash
-cmake --build build --target <target>
-```
-Replace `<target>` with one of the following options:
-
-* `build`: Build the project for your current operating system.
-* `build_all`: Build the project for all supported platforms, including:
-	+ Win32 (32-bit Windows)
-	+ Win64 (64-bit Windows)
-	+ Linux (64-bit)
-
-Note:
-* The `build_all` target will build the project for all platforms in the same directory.
-* MacOS is not supported currently.
+Note: If not specified, defaults to `MinSizeRel`
 
 ### Running Unit Tests
 
@@ -94,14 +92,15 @@ Note: Make sure to set build type as `Debug`. Some functions from the source cod
 * Build the project for your current operating system:
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target build
-```
-* Build the project for all supported platforms:
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target build_all
+cmake --build build
 ```
 
+* Build the project for Windows from Linux
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=<arch>-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=<arch>-w64-mingw32-g++ -DCMAKE_RC_COMPILER=<arch>-w64-mingw32-windres
+cmake --build build
+```
+Replace `<arch>` with `i686` for x86, `x86_64` for x64
 
 ## Running the Project
 ----------------------
@@ -110,9 +109,8 @@ cmake --build build --target build_all
 To run the project, follow these steps:
 
 1. Navigate to the `build` directory
-2. Navigate to the `Release` or `Debug` directory
-3. Navigate to the directory of target operating system
-4. Run the `RivalGrounds` executable to launch the game
+2. Navigate to the `Release`, `Debug`, `MinSizeRel` or `RelWithDebInfo` directory
+3. Run the `RivalGrounds` executable to launch the game
 
 **Option 2**: Find the suitable executable for your operating system from the `Releases` section of the GitHub repository.
 
@@ -133,5 +131,4 @@ Contributions are welcome! If you'd like to contribute to the project, please fo
 ## License
 -------
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
+This project is licensed under the [MIT License](LICENSE).
