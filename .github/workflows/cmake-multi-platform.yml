@@ -66,7 +66,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         python -m pip install --upgrade pip
-        pip install jinja2
+        sudo pip install jinja2
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
