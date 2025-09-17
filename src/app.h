@@ -16,6 +16,7 @@ private:
 public:
   int get_width() { return width; }
   int get_height() { return height; }
+  void swap_buffers() { glfwSwapBuffers(this->raw_window); }
 
   friend class App;
 };

@@ -1,18 +1,19 @@
 #include "app.h"
 
 int main() {
- App app;
- app.init_window();
+  App app;
+  app.init_window();
 
- while(app.is_running()) {
-   glfwPollEvents();
+  while (app.is_running()) {
+    glfwPollEvents();
 
-   app.update();
+    app.update();
 
-   glClearColor(0, 0, 0, 1);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
- } 
+    app.get_window().swap_buffers();
+  }
 
- app.terminate_window();
+  app.terminate_window();
 }

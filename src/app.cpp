@@ -1,5 +1,4 @@
 #include "app.h"
-#include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <iostream>
 
@@ -20,16 +19,17 @@ void App::init_window() {
   this->window.height = video_mode->height / 2;
   this->window.title = "RivalGrounds";
 
-  GLFWwindow *window =
+  this->window.raw_window =
       glfwCreateWindow(this->window.width, this->window.height,
                        this->window.title.c_str(), nullptr, nullptr);
-  if (!window) {
+
+  if (!this->window.raw_window) {
     std::cerr << "Failed to create GLFW window\n";
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
 
-  glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent(this->window.raw_window);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
