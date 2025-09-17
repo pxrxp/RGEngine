@@ -1,5 +1,5 @@
 {
   "name": "rival-grounds",
   "version": "0.1.0",
-  "dependencies": ["glfw3", "glad", "imgui", "opengl"]
+  "dependencies": ["glfw3", "glad", "imgui", "opengl", "glm"]
 }
