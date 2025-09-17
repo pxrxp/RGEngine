@@ -1,8 +1,9 @@
 if [ ! -d "./vcpkg" ]; then
     git clone https://github.com/microsoft/vcpkg.git ./vcpkg
     ./vcpkg/bootstrap-vcpkg.sh
-    ./vcpkg/vcpkg install
 fi
-rm -rf build
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build build
+[ -f build/CMakeCache.txt ] && rm build/CMakeCache.txt
+[ -d build/CMakeFiles ] && rm -rf build/CMakeFiles
+
+cmake --preset vcpkg-release
+cmake --build build --preset build-release
