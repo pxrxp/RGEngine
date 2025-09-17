@@ -1,0 +1,7 @@
+vcpkg_installed
+vcpkg
+vcpkg-manifest-install.log
+CMakeCache.txt
+build.ninja
+cmake_install.cmake
+CMakeFiles
