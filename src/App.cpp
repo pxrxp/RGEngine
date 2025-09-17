@@ -8,6 +8,7 @@ void App::init_window() {
     exit(EXIT_FAILURE);
   }
 
+  glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -30,12 +31,18 @@ void App::init_window() {
   }
 
   glfwMakeContextCurrent(this->window.raw_window);
+  glfwSwapInterval(1);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
     exit(EXIT_FAILURE);
   }
-}
+
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_BLEND);
+ 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+ }
 
 bool App::is_running() {
   return !glfwWindowShouldClose(this->window.raw_window);
