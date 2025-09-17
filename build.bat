@@ -33,7 +33,8 @@ cmake -B build -S . ^
     -DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake ^
     -DVCPKG_TARGET_TRIPLET=%TRIPLET% ^
     -DVCPKG_HOST_TRIPLET=%TRIPLET% ^
-    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+    -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 REM Build
 cmake --build build
