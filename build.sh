@@ -1,14 +1,38 @@
 #!/bin/bash
- 
-export VCPKG_DEFAULT_TRIPLET=x64-linux
-export BUILD_TYPE=release
+set -e
 
+# ----------------------------
+# Usage:
+#   TRIPLET=x64-mingw-dynamic ./build.sh
+# ----------------------------
+
+# Require user to set TRIPLET
+if [ -z "$TRIPLET" ]; then
+    echo "Error: TRIPLET environment variable not set."
+    echo "Example: TRIPLET=x64-mingw-dynamic ./build.sh"
+    exit 1
+fi
+
+# Optional: choose build type
+BUILD_TYPE=${BUILD_TYPE:-Release}
+
+# Bootstrap vcpkg if missing
 if [ ! -d "./vcpkg" ]; then
-    git clone https://github.com/microsoft/vcpkg.git ./vcpkg
+    git clone https://github.com/microsoft/vcpkg.git vcpkg
     ./vcpkg/bootstrap-vcpkg.sh
 fi
-[ -f build/CMakeCache.txt ] && rm build/CMakeCache.txt
-[ -d build/CMakeFiles ] && rm -rf build/CMakeFiles
 
-cmake --preset vcpkg-$BUILD_TYPE
-cmake --build build --preset build-$BUILD_TYPE
+
+# Remove CMake cache files
+[ -f build/CMakeCache.txt ] && rm build/CMakeCache.txt
+[ -d build/CMakeFiles ] && rm -rf build/CMakeFiles# Create build directory if missing
+
+# Run CMake configure using toolchain and triplet
+cmake -B build -S . \
+    -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake \
+    -DVCPKG_TARGET_TRIPLET="$TRIPLET" \
+    -DVCPKG_HOST_TRIPLET="$TRIPLET" \
+    -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+
+# Build
+cmake --build build
