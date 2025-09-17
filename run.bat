@@ -1,4 +1,11 @@
 @echo off
+
+REM Save current directory
+set "ORIGINAL_DIR=%CD%"
+
+REM Move to the directory of this batch file
+cd /d "%~dp0"
+
 set BINARY=build\RivalGrounds.exe
 
 IF EXIST "%BINARY%" (
@@ -10,3 +17,5 @@ IF EXIST "%BINARY%" (
     echo Running %BINARY%...
     "%BINARY%"
 )
+
+cd /d "%ORIGINAL_DIR%"

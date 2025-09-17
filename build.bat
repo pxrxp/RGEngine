@@ -7,6 +7,12 @@ REM   set TRIPLET=x64-mingw-dynamic
 REM   build.bat [-c]
 REM ----------------------------
 
+REM Save current directory
+set "ORIGINAL_DIR=%CD%"
+
+REM Move to the directory of this batch file
+cd /d "%~dp0"
+
 set CLEAN=false
 if "%1"=="-c" set CLEAN=true
 
@@ -47,6 +53,8 @@ IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (
 
 echo Building...
 cmake --build "%BUILD_DIR%" --parallel %NUMBER_OF_PROCESSORS%
+
+cd /d "%ORIGINAL_DIR%"
 
 endlocal
 

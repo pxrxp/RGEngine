@@ -36,3 +36,5 @@ SpaceBeforeParens: ControlStatements
 # Initializer lists / vectors
 AllowShortVectorsOnASingleLine: false
 
+SortIncludes: false
+IncludeBlocks: Preserve

@@ -6,6 +6,10 @@ set -e
 #   TRIPLET=x64-mingw-dynamic ./build.sh [-c]
 # ----------------------------
 
+# Save current dir, move to script dir
+ORIGINAL_DIR="$(pwd)"
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
 CLEAN=false
 while getopts "c" opt; do
     case $opt in
@@ -51,3 +55,4 @@ fi
 echo "Building..."
 cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 
+cd "$ORIGINAL_DIR"
