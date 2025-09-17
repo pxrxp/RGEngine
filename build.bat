@@ -24,6 +24,7 @@ if "%TRIPLET%"=="" (
 )
 
 IF "%BUILD_TYPE%"=="" SET BUILD_TYPE=Release
+echo Building for %BUILD_TYPE%...
 
 REM Bootstrap vcpkg if missing
 IF NOT EXIST ".\vcpkg" (
@@ -32,6 +33,7 @@ IF NOT EXIST ".\vcpkg" (
 )
 
 SET BUILD_DIR=build
+SET SRC_DIR=src
 IF NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 
 REM Clean only CMake cache/files if requested
@@ -53,6 +55,15 @@ IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (
 
 echo Building...
 cmake --build "%BUILD_DIR%" --parallel %NUMBER_OF_PROCESSORS%
+
+echo Copying shaders...
+REM Remove the build shaders folder if it exists
+if exist "%BUILD_DIR%\shaders" (
+    rmdir /s /q "%BUILD_DIR%\shaders"
+)
+
+REM Copy shaders folder recursively
+xcopy "%SRC_DIR%\shaders" "%BUILD_DIR%\shaders" /E /I /Y
 
 cd /d "%ORIGINAL_DIR%"
 

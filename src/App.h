@@ -17,6 +17,10 @@ public:
   int get_width() { return width; }
   int get_height() { return height; }
   void swap_buffers() { glfwSwapBuffers(this->raw_window); }
+  void clear(GLfloat color_r, GLfloat color_g, GLfloat color_b, GLfloat color_a, GLbitfield mask) {
+    glClearColor(color_r, color_g, color_b, color_a);
+    glClear(mask);
+  }
 
   friend class App;
 };

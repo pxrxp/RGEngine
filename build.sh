@@ -25,6 +25,7 @@ if [ -z "$TRIPLET" ]; then
 fi
 
 BUILD_TYPE=${BUILD_TYPE:-Release}
+echo "Building for $BUILD_TYPE..."
 
 # Bootstrap vcpkg if missing
 if [ ! -d "./vcpkg" ]; then
@@ -33,6 +34,7 @@ if [ ! -d "./vcpkg" ]; then
 fi
 
 BUILD_DIR="build"
+SRC_DIR="src"
 
 # Clean only CMake cache/files if requested
 if [ "$CLEAN" = true ]; then
@@ -54,5 +56,8 @@ fi
 
 echo "Building..."
 cmake --build "$BUILD_DIR" --parallel "$(nproc)"
+echo "Copying shaders..."
+[ -d "$BUILD_DIR/shaders" ] && rm -rf "$BUILD_DIR/shaders"
+cp "$SRC_DIR/shaders" "$BUILD_DIR/shaders" -r
 
 cd "$ORIGINAL_DIR"
