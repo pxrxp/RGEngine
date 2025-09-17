@@ -116,6 +116,14 @@ void ShaderProgram::set_uniform(const char* name, const glm::vec4& v, bool bind_
     if (bind_program) glUseProgram(0);
 }
 
+void ShaderProgram::set_uniform(const char* name, const glm::mat3& m, bool bind_program) const {
+    if (bind_program) glUseProgram(this->id);
+    GLint loc = glGetUniformLocation(this->id, name);
+    if (loc != -1) glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(m));
+    else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
+    if (bind_program) glUseProgram(0);
+}
+
 void ShaderProgram::set_uniform(const char* name, const glm::mat4& m, bool bind_program) const {
     if (bind_program) glUseProgram(this->id);
     GLint loc = glGetUniformLocation(this->id, name);

@@ -42,8 +42,8 @@ int main() {
     //   glm::sin(glm::radians(30.0f)), glm::cos(glm::radians(30.0f)), 0.0f,
     //   0.0f, 0.0f, 1.0f
     // );
-    // glm::mat3 m(1.0f);
-    // program.set_uniform("mat", m);
+    glm::mat3 m(1.0f);
+    program.set_uniform("matr", m);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     program.unbind();
