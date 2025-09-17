@@ -22,11 +22,6 @@ if [ ! -d "./vcpkg" ]; then
     ./vcpkg/bootstrap-vcpkg.sh
 fi
 
-
-# Remove CMake cache files
-[ -f build/CMakeCache.txt ] && rm build/CMakeCache.txt
-[ -d build/CMakeFiles ] && rm -rf build/CMakeFiles# Create build directory if missing
-
 # Run CMake configure using toolchain and triplet
 cmake -B build -S . \
     -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake \

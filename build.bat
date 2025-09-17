@@ -24,10 +24,6 @@ IF NOT EXIST ".\vcpkg" (
 REM Create build directory if missing
 IF NOT EXIST "build" mkdir build
 
-REM Remove old cache to ensure toolchain is applied
-IF EXIST build\CMakeCache.txt del /f build\CMakeCache.txt
-IF EXIST build\CMakeFiles rd /s /q build\CMakeFiles
-
 REM Configure CMake
 cmake -B build -S . ^
     -DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake ^
