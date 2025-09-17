@@ -30,19 +30,22 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
+  float angle = 0;
+
   while (app.is_running()) {
     glfwPollEvents();
     app.update();
 
     app.get_window().clear(PINK, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    angle += 0.1;
+
     program.bind();
-    // glm::mat3 m(
-    //   glm::cos(glm::radians(30.0f)), -glm::sin(glm::radians(30.0f)), 0.0f,
-    //   glm::sin(glm::radians(30.0f)), glm::cos(glm::radians(30.0f)), 0.0f,
-    //   0.0f, 0.0f, 1.0f
-    // );
-    glm::mat3 m(1.0f);
+    glm::mat3 m(
+      glm::cos(glm::radians(angle)), -glm::sin(glm::radians(angle)), 0.0f,
+      glm::sin(glm::radians(angle)), glm::cos(glm::radians(angle)), 0.0f,
+      0.0f, 0.0f, 1.0f
+    );
     program.set_uniform("matr", m);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
