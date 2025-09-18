@@ -13,6 +13,12 @@
 #include <unistd.h>
 #endif
 
+#ifndef NDEBUG
+#include <glm/glm.hpp>
+#include <imgui.h>
+#include <cstring>
+#endif
+
 inline std::string getExeDir() {
   std::string exePath;
 #if defined(_WIN32)
@@ -48,3 +54,50 @@ inline std::string read_file(const std::string &relativePath) {
   ss << file.rdbuf();
   return ss.str();
 }
+
+#ifndef NDEBUG
+struct MatrixEditor {
+    glm::mat4& mat;
+    float buf[16];
+    bool dirty = false;
+    bool initialized = false;
+
+    MatrixEditor(glm::mat4& m) : mat(m) {}
+
+    bool Draw(const char* label) {
+        if (!initialized) {
+            std::memcpy(buf, &mat, sizeof(buf));
+            initialized = true;
+        }
+
+        ImGui::PushID(label);
+        bool changed = false;
+
+        for (int row = 0; row < 4; ++row) {
+            char rowLabel[16];
+            snprintf(rowLabel, sizeof(rowLabel), "Row %d", row);
+            changed |= ImGui::InputFloat4(rowLabel, &buf[row * 4]);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Apply")) {
+            std::memcpy(&mat, buf, sizeof(buf));
+            changed = true;
+            dirty = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset")) {
+            mat = glm::mat4(1.f);
+            std::memcpy(buf, &mat, sizeof(buf));
+            changed = true;
+            dirty = false;
+        }
+
+        ImGui::PopID();
+
+        dirty |= changed;
+        return changed;
+    }
+};
+#endif

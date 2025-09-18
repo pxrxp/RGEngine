@@ -44,10 +44,6 @@ GLuint ShaderRepo::get_shader(std::string path) {
   }
 }
 
-ShaderProgram::ShaderProgram() {
-  this->id = glCreateProgram();
-}
-
 void ShaderProgram::bind() {
   glUseProgram(this->id);
 }
@@ -61,6 +57,10 @@ ShaderProgram::~ShaderProgram() {
 }
 
 void ShaderProgram::load_shaders(std::initializer_list<std::string> paths) {
+  if (this->id == 0) {
+    this->id = glCreateProgram();
+  }
+
   for (const auto& path: paths) {
     GLuint shader = repo.get_shader(path);
     glAttachShader(this->id, shader);

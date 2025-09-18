@@ -1,6 +1,17 @@
 #include "App.h"
+#include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <iostream>
+
+#ifndef NDEBUG
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#endif
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+  glViewport(0, 0, width, height);
+}
 
 void App::init_window() {
   if (!glfwInit()) {
@@ -31,6 +42,7 @@ void App::init_window() {
   }
 
   glfwMakeContextCurrent(this->window.raw_window);
+  glfwSetFramebufferSizeCallback(this->window.raw_window, framebuffer_size_callback);
   glfwSwapInterval(1);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -40,23 +52,67 @@ void App::init_window() {
 
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+
+	#ifndef NDEBUG
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImGui::StyleColorsDark();
+  ImGui_ImplGlfw_InitForOpenGL(this->window.raw_window, true);
+  ImGui_ImplOpenGL3_Init("#version 330");
+  this->imgui_initialized = true;
+  #endif
  }
 
-bool App::is_running() {
-  return !glfwWindowShouldClose(this->window.raw_window);
+bool App::is_running() const {
+  if (this->window.raw_window)
+    return !glfwWindowShouldClose(this->window.raw_window);
+  return false;
 }
 
 Window &App::get_window() { return this->window; }
 
-void App::terminate_window() {
-  glfwDestroyWindow(this->window.raw_window);
+App::~App() {
+  #ifndef NDEBUG
+  if (imgui_initialized) {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+  }
+  #endif
+  
+  if (this->window.raw_window)
+    glfwDestroyWindow(this->window.raw_window);
+
   glfwTerminate();
   exit(EXIT_SUCCESS);
 }
 
-void App::update() {
+
+void App::update_window() {
+  if (!this->window.raw_window) return;
+  glfwPollEvents();
   glfwGetWindowSize(this->window.raw_window, &this->window.width,
                     &this->window.height);
+}
+
+void App::init_debug_gui() {
+  #ifndef NDEBUG
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+  #endif
+}
+
+void App::render_debug_gui() {
+  #ifndef NDEBUG
+  glDisable(GL_DEPTH_TEST);
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  glEnable(GL_DEPTH_TEST);
+  #endif
 }

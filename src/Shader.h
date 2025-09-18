@@ -6,10 +6,9 @@
 
 class ShaderProgram {
 private:
-  unsigned int id;
+  unsigned int id = 0;
 
 public:
-  ShaderProgram();
   ~ShaderProgram();
  
   void load_shaders(std::initializer_list<std::string> paths);

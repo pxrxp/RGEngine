@@ -1,5 +1,5 @@
 #include "Mesh.h"
-#include <glad/glad.h>
+#include "opengl.h"
 
 static int layout_sum(const std::vector<int>& layout) {
     int sum = 0;
