@@ -17,14 +17,27 @@ int main() {
   ShaderProgram program;
   program.load_shaders({"triangle.vert.glsl", "triangle.frag.glsl"});
 
-  Mesh triangle;
-  triangle.setup(
+  Mesh cube;
+  cube.setup(
       {
-          -0.5f, -0.5f, 0.0f, // left
-          0.5f, -0.5f, 0.0f,  // right
-          0.0f, 0.5f, 0.0f    // top
+        0.f, 0.f, -1.f,
+        1.f, 0.f, -1.f,
+        1.f, 1.f, -1.f,
+        0.f, 1.f, -1.f,
+
+        0.f, 0.f, -2.f,
+        1.f, 0.f, -2.f,
+        1.f, 1.f, -2.f,
+        0.f, 1.f, -2.f
       },
-      {}, {3});
+      {
+        0,1,2,3, // Front
+        4,7,6,5,  // Back
+        0,4,7,1, // Left
+        1,5,6,2, // Right
+        3, 2, 6, 7, // Top
+        4, 0, 1, 5 // Bottom
+      }, {3});
 
   glm::mat4 model(1.f), view(1.f), proj(1.f);
   #ifndef NDEBUG
@@ -47,7 +60,7 @@ int main() {
     program.set_uniform("model", model);
     program.set_uniform("view", view);
     program.set_uniform("proj", proj);
-    triangle.draw();
+    cube.draw();
     program.unbind();
 
     app.render_debug_gui();

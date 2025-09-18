@@ -15,6 +15,8 @@
 
 #ifndef NDEBUG
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <cstring>
 #endif
@@ -66,7 +68,7 @@ struct MatrixEditor {
 
     bool Draw(const char* label) {
         if (!initialized) {
-            std::memcpy(buf, &mat, sizeof(buf));
+            std::memcpy(buf, glm::value_ptr(glm::transpose(mat)), sizeof(buf));
             initialized = true;
         }
 
@@ -82,20 +84,19 @@ struct MatrixEditor {
         ImGui::Separator();
 
         if (ImGui::Button("Apply")) {
-            std::memcpy(&mat, buf, sizeof(buf));
+            mat = glm::transpose(glm::make_mat4(buf));
             changed = true;
             dirty = false;
         }
         ImGui::SameLine();
         if (ImGui::Button("Reset")) {
             mat = glm::mat4(1.f);
-            std::memcpy(buf, &mat, sizeof(buf));
+            std::memcpy(buf, glm::value_ptr(glm::transpose(mat)), sizeof(buf));
             changed = true;
             dirty = false;
         }
 
         ImGui::PopID();
-
         dirty |= changed;
         return changed;
     }
