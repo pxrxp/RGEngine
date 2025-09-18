@@ -1,8 +1,12 @@
+#include "Shader.h"
 #include "opengl.h"
 #include "util.h"
-#include <iostream>
-#include "Shader.h"
+#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <initializer_list>
+#include <string>
+#include <unordered_map>
+#include <iostream>
 
 std::unordered_map<char, int> shader_map =
 { {'t', GL_VERTEX_SHADER},         // .vert

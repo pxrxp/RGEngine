@@ -1,8 +1,6 @@
 #pragma once
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
-#include <string>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -16,9 +14,7 @@
 #ifndef NDEBUG
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
-#include <cstring>
 #endif
 
 inline std::string getExeDir() {
@@ -55,6 +51,12 @@ inline std::string read_file(const std::string &relativePath) {
   std::stringstream ss;
   ss << file.rdbuf();
   return ss.str();
+}
+
+inline float clamp_map(float x, float in_min, float in_max, float out_min, float out_max) {
+    if (x < in_min) x = in_min;
+    else if (x > in_max) x = in_max;
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 #ifndef NDEBUG
