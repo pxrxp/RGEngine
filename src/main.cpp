@@ -3,6 +3,9 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "util.h"
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/trigonometric.hpp>
 #include <vector>
 
@@ -20,15 +23,15 @@ int main() {
   Mesh cube;
   cube.setup(
       {
-        0.f, 0.f, -1.f,
-        1.f, 0.f, -1.f,
-        1.f, 1.f, -1.f,
-        0.f, 1.f, -1.f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
 
-        0.f, 0.f, -2.f,
-        1.f, 0.f, -2.f,
-        1.f, 1.f, -2.f,
-        0.f, 1.f, -2.f
+        -0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
       },
       {
         // Front
@@ -57,7 +60,10 @@ int main() {
      
       }, {3});
 
-  glm::mat4 model(1.f), view(1.f), proj(1.f);
+  glm::mat4 model(1.f);
+  glm::mat4 view(1.f);
+  glm::mat4 proj = glm::perspective(glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
+
   #ifndef NDEBUG
   MatrixEditor model_editor(model), view_editor(view), proj_editor(proj);
   #endif
