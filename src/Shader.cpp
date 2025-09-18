@@ -18,7 +18,7 @@ ShaderRepo repo;
 GLuint ShaderRepo::load_and_store_shader(std::string path) {
     std::string shader_src = read_file("shaders/" + path);
     const char *shader_src_cstr = shader_src.c_str();
-    GLuint shader = glCreateShader(shader_map[path.back()]);
+    GLuint shader = glCreateShader(shader_map[path[path.size()-6]]);
 
     GLint success;
     glShaderSource(shader, 1, &shader_src_cstr, nullptr);

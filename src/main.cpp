@@ -10,7 +10,7 @@ int main() {
   app.init_window();
 
   ShaderProgram program;
-  program.load_shaders({"triangle.vert", "triangle.frag"});
+  program.load_shaders({"triangle.vert.glsl", "triangle.frag.glsl"});
 
   Mesh triangle;
   triangle.setup(
