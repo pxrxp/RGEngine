@@ -60,45 +60,38 @@ inline std::string read_file(const std::string &relativePath) {
 #ifndef NDEBUG
 class MatrixEditors {
 private:
-  struct EditorData {
-    glm::mat4 *matrix_ptr;
-    float buffer[16];
-    bool is_initialized = false;
-  };
-
-  std::map<std::string, EditorData> m_editors;
+  std::map<std::string, glm::mat4*> m_editors;
 
 public:
   void add(const std::string &name, glm::mat4 &matrix) {
-    m_editors[name].matrix_ptr = &matrix;
+    m_editors[name] = &matrix;
   }
 
   void draw() {
-    for (auto &[name, editor] : m_editors) {
+    for (auto const&[name, matrix_ptr] : m_editors) {
       if (!ImGui::CollapsingHeader(name.c_str())) {
         continue;
       }
 
-      std::memcpy(editor.buffer,
-                  glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
-                  sizeof(editor.buffer));
-
       ImGui::PushID(name.c_str());
 
+      float buffer[16];
+      std::memcpy(buffer, glm::value_ptr(glm::transpose(*matrix_ptr)), sizeof(buffer));
+
+      bool value_changed = false;
       for (int i = 0; i < 4; ++i) {
-        ImGui::InputFloat4(("##Row" + std::to_string(i)).c_str(),
-                           &editor.buffer[i * 4], "%.3f");
+        if (ImGui::InputFloat4(("##Row" + std::to_string(i)).c_str(),
+                               &buffer[i * 4], "%.3f")) {
+          value_changed = true;
+        }
       }
 
-      if (ImGui::Button("Apply")) {
-        *editor.matrix_ptr = glm::transpose(glm::make_mat4(editor.buffer));
+      if (value_changed) {
+        *matrix_ptr = glm::transpose(glm::make_mat4(buffer));
       }
-      ImGui::SameLine();
+
       if (ImGui::Button("Reset")) {
-        *editor.matrix_ptr = glm::mat4(1.0f);
-        std::memcpy(editor.buffer,
-                    glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
-                    sizeof(editor.buffer));
+        *matrix_ptr = glm::mat4(1.0f);
       }
 
       ImGui::PopID();
