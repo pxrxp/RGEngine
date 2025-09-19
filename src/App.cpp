@@ -31,17 +31,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void cursor_enter_callback(GLFWwindow *window, int entered) {
-  App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  if (!app)
-    return;
-
-  app->set_cursor_inside(static_cast<bool>(entered));
-}
-
 float App::get_delta_time() const { return this->delta_time; }
-bool App::is_cursor_inside() const { return this->cursor_inside; }
-void App::set_cursor_inside(bool inside) { this->cursor_inside = inside; std::cout << "imin\n";}
 
 void App::init() {
   if (!glfwInit()) {

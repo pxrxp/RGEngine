@@ -7,7 +7,6 @@ private:
   Window window;
   Camera camera;
   bool imgui_initialized = false;
-  bool cursor_inside = false;
 
   float delta_time;
   double last_frame_time, current_frame_time;
@@ -31,7 +30,4 @@ public:
   void render_debug_gui();
 
   float get_delta_time() const;
-
-  bool is_cursor_inside() const;
-  void set_cursor_inside(bool inside);
 };
