@@ -11,6 +11,11 @@ private:
   float delta_time;
   double last_frame_time, current_frame_time;
 
+  void update_window_size();
+  void update_mouse_position();
+  void update_delta_time();
+  void update_camera();
+
 public:
   ~App();
   void init();

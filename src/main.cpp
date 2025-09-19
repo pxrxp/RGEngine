@@ -1,5 +1,5 @@
 #include "App.h"
-#include "Colors.h"
+#include "definitions.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "util.h"
@@ -48,11 +48,16 @@ int main() {
       {3});
 
   glm::mat4 model(1.f);
-  app.get_camera().setup({2,3,2}, {0,0,0}, app.get_window().get_aspect_ratio());
+  app.get_camera().setup({2.,3.,2.}, {0.,0.,0.}, app.get_window().get_aspect_ratio());
+
+  glm::mat4 temp_view;
+  glm::mat4 temp_proj;
 
 #ifndef NDEBUG
   MatrixEditors all_matrix_editors;
   all_matrix_editors.add("Model", model);
+  all_matrix_editors.add("View (readonly)", temp_view);
+  all_matrix_editors.add("Projection (readonly)", temp_proj);
 #endif
 
   while (app.is_running()) {
@@ -61,15 +66,9 @@ int main() {
 
     auto mouse = app.get_window().get_mouse_pos();
     auto delta_mouse = app.get_window().get_delta_mouse();
-    // auto delta_yaw =
-    //     static_cast<float>(10. * app.get_delta_time() * delta_mouse.x);
-    // auto delta_pitch =
-    //     static_cast<float>(10. * app.get_delta_time() * delta_mouse.y);
 
-    // glm::mat4 rot;
-    // rot = glm::rotate(glm::mat4(1.f), delta_pitch, {1., 0., 0.});
-    // rot = glm::rotate(rot, delta_yaw, {0., 1., 0.});
-    // view = glm::inverse(rot) * view;
+    temp_view = app.get_camera().get_view_matrix();
+    temp_proj = app.get_camera().get_projection_matrix();
 
 #ifndef NDEBUG
     ImGui::Begin("Debug");

@@ -1,6 +1,9 @@
 #include "App.h"
+#include "definitions.h"
 #include "Window.h"
+#include "Camera.h"
 #include "opengl.h"
+#include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
 #ifndef NDEBUG
@@ -98,22 +101,52 @@ App::~App() {
   exit(EXIT_SUCCESS);
 }
 
-void App::update() {
-  if (!this->window.raw_window)
-    return;
-  glfwPollEvents();
+void App::update_window_size() {
   glfwGetWindowSize(this->window.raw_window, &this->window.dimensions.x,
                     &this->window.dimensions.y);
+}
+
+void App::update_mouse_position() {
   this->window.old_mouse = this->window.mouse;
 
   double mousex, mousey;
   glfwGetCursorPos(this->window.raw_window, &mousex,
                    &mousey);
   this->window.mouse = this->window.ndc({mousex, mousey});
+}
 
+void App::update_delta_time() {
   this->current_frame_time = glfwGetTime();
   this->delta_time = static_cast<float> (this->current_frame_time - this->last_frame_time);
   this->last_frame_time = this->current_frame_time;
+}
+
+void App::update_camera() {
+  auto delta_mouse = this->get_window().get_delta_mouse();
+
+  this->camera.yaw += delta_mouse.x * this->camera.sensitivity * this->delta_time;
+  this->camera.pitch += delta_mouse.y * this->camera.sensitivity * this->delta_time;
+
+  this->camera.pitch = glm::clamp(this->camera.pitch, -89.f, +89.f);
+
+  glm::mat4 camera_transform(1.f);
+  camera_transform = glm::rotate(camera_transform, this->camera.yaw, Y_AXIS);
+  camera_transform = glm::rotate(camera_transform, this->camera.pitch, X_AXIS);
+  camera_transform = glm::translate(camera_transform, this->camera.pos);
+
+  this->camera.view = glm::inverse(camera_transform);
+}
+
+void App::update() {
+  if (!this->window.raw_window)
+    return;
+
+  glfwPollEvents();
+
+  this->update_window_size();
+  this->update_mouse_position();
+  this->update_camera();
+  this->update_delta_time();
 }
 
 void App::init_debug_gui() {

@@ -1,5 +1,4 @@
 #pragma once
-#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <sstream>
@@ -60,7 +59,7 @@ inline std::string read_file(const std::string &relativePath) {
 
 template <typename T>
 inline T clamp_map(T x, std::pair<T, T> from_range, std::pair<T, T> to_range) {
-  T clamped_x = std::clamp(x, from_range.first, from_range.second);
+  T clamped_x = glm::clamp(x, from_range.first, from_range.second);
 
   T from_span = from_range.second - from_range.first;
   T to_span = to_range.second - to_range.first;
@@ -97,12 +96,9 @@ public:
         continue;
       }
 
-      if (!editor.is_initialized) {
-        std::memcpy(editor.buffer,
-                    glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
-                    sizeof(editor.buffer));
-        editor.is_initialized = true;
-      }
+      std::memcpy(editor.buffer,
+                  glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
+                  sizeof(editor.buffer));
 
       ImGui::PushID(name.c_str());
 

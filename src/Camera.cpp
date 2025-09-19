@@ -4,7 +4,14 @@
 #include <glm/glm.hpp>
 
 void Camera::setup(glm::vec3 position, glm::vec3 target, float aspect_ratio,
-                   glm::vec3 up, float fovy, float z_near, float z_far) {
+                   float sensitivity, glm::vec3 up, float fovy, float z_near,
+                   float z_far) {
+  this->sensitivity = sensitivity;
+  this->pos = position;
+
+  glm::vec3 forward = glm::normalize(target - position);
+  this->pitch = asin(forward.y);
+  this->yaw = atan2(forward.z, forward.x);
 
   this->view = glm::lookAt(position, target, up);
   this->proj =
