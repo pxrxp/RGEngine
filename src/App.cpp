@@ -12,7 +12,42 @@
 #include <imgui_impl_opengl3.h>
 #endif
 
-float App::get_delta_time() const { return this->delta_time; }
+bool App::is_key_pressed(int key) const {
+  if (!this->window.raw_window)
+    return false;
+
+  return glfwGetKey(this->window.raw_window, key) == GLFW_PRESS;
+}
+
+glm::vec3 App::get_camera_move_dir() const {
+  glm::vec3 direction(0.f);
+
+  bool go_forward =
+      this->is_key_pressed(GLFW_KEY_W) || this->is_key_pressed(GLFW_KEY_UP);
+  bool go_backward =
+      this->is_key_pressed(GLFW_KEY_S) || this->is_key_pressed(GLFW_KEY_DOWN);
+  bool go_left =
+      this->is_key_pressed(GLFW_KEY_A) || this->is_key_pressed(GLFW_KEY_LEFT);
+  bool go_right =
+      this->is_key_pressed(GLFW_KEY_D) || this->is_key_pressed(GLFW_KEY_RIGHT);
+  bool go_up = this->is_key_pressed(GLFW_KEY_Q);
+  bool go_down = this->is_key_pressed(GLFW_KEY_E);
+
+  if (go_forward)
+    direction.z++;
+  if (go_backward)
+    direction.z--;
+  if (go_left)
+    direction.x--;
+  if (go_right)
+    direction.x++;
+  if (go_up)
+    direction.y++;
+  if (go_down)
+    direction.y--;
+
+  return direction;
+}
 
 void App::init() {
   if (!glfwInit()) {
@@ -79,6 +114,7 @@ bool App::is_running() const {
 
 Window &App::get_window() { return this->window; }
 Camera &App::get_camera() { return this->camera; }
+float App::get_delta_time() const { return this->delta_time; }
 
 App::~App() {
 #ifndef NDEBUG
@@ -121,19 +157,24 @@ void App::update_camera() {
   if (this->window.get_cursor_mode() != GLFW_CURSOR_DISABLED)
     return;
 
-  auto delta_mouse = this->window.get_delta_mouse();
-  if (delta_mouse.x == 0. && delta_mouse.y == 0.)
+  if (this->window.dimensions.y <= 0)
     return;
 
-  if (this->window.dimensions.y <= 0)
+  auto delta_mouse = this->window.get_delta_mouse();
+  auto move_dir = this->get_camera_move_dir();
+
+  bool mouse_inactive = delta_mouse.x == 0 && delta_mouse.y == 0;
+  bool keyboard_inactive = move_dir.x == 0 && move_dir.y == 0 && move_dir.z == 0;
+
+  if (mouse_inactive && keyboard_inactive)
     return;
 
   float px_to_rad = this->camera.fovy_rad / this->window.dimensions.y;
 
   this->camera.yaw_rad +=
       delta_mouse.x * px_to_rad * this->camera.sensitivity * this->delta_time;
-  this->camera.pitch_rad -=
-      delta_mouse.y * px_to_rad * this->camera.sensitivity * this->delta_time;
+  this->camera.pitch_rad +=
+      -delta_mouse.y * px_to_rad * this->camera.sensitivity * this->delta_time;
 
   const float max_pitch = glm::radians(89.0f);
   this->camera.pitch_rad =
@@ -145,8 +186,12 @@ void App::update_camera() {
                 sin(this->camera.yaw_rad) * cos(this->camera.pitch_rad)));
   glm::vec3 right = glm::normalize(glm::cross(forward, Y_AXIS));
   glm::vec3 up = glm::normalize(glm::cross(right, forward));
-  glm::vec3 target = this->camera.pos + forward;
 
+  this->camera.pos += this->camera.speed * move_dir.x * right;
+  this->camera.pos += this->camera.speed * move_dir.y * up;
+  this->camera.pos += this->camera.speed * move_dir.z * forward;
+
+  glm::vec3 target = this->camera.pos + forward;
   this->camera.view = glm::lookAt(this->camera.pos, target, up);
 }
 

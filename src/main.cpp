@@ -49,7 +49,8 @@ int main() {
 
   glm::mat4 model(1.f);
   app.get_camera().setup({2., 3., 2.}, {0., 0., 0.},
-                         app.get_window().get_aspect_ratio(), 3.0f);
+                         app.get_window().get_aspect_ratio(), 10.0f,
+                         {0.05f, 0.05f, 0.05f});
 
   glm::mat4 temp_view;
   glm::mat4 temp_proj;

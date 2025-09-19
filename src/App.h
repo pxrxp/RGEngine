@@ -17,6 +17,9 @@ private:
   void update_delta_time();
   void update_camera();
 
+  bool is_key_pressed(int key) const;
+  glm::vec3 get_camera_move_dir() const;
+
   void register_callbacks();
   static void framebuffer_size_callback(GLFWwindow *window, int width,
                                         int height);
