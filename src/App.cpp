@@ -140,12 +140,13 @@ void App::update_camera() {
   this->camera.yaw += delta_mouse.x * this->camera.sensitivity * this->delta_time;
   this->camera.pitch += delta_mouse.y * this->camera.sensitivity * this->delta_time;
 
-  this->camera.pitch = glm::clamp(this->camera.pitch, -89.f, +89.f);
+  const float max_pitch = glm::radians(89.0f);
+  this->camera.pitch = glm::clamp(this->camera.pitch, -max_pitch, max_pitch);
 
   glm::mat4 camera_transform(1.f);
+  camera_transform = glm::translate(camera_transform, this->camera.pos);
   camera_transform = glm::rotate(camera_transform, this->camera.yaw, Y_AXIS);
   camera_transform = glm::rotate(camera_transform, this->camera.pitch, X_AXIS);
-  camera_transform = glm::translate(camera_transform, this->camera.pos);
 
   this->camera.view = glm::inverse(camera_transform);
 }
