@@ -1,6 +1,8 @@
 #pragma once
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <utility>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -53,10 +55,21 @@ inline std::string read_file(const std::string &relativePath) {
   return ss.str();
 }
 
-inline float clamp_map(float x, float in_min, float in_max, float out_min, float out_max) {
-    if (x < in_min) x = in_min;
-    else if (x > in_max) x = in_max;
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+template <typename T>
+inline T clamp_map(T x, std::pair<T, T> from_range, std::pair<T, T> to_range) {
+    T clamped_x = std::clamp(x, from_range.first, from_range.second);
+    
+    T from_span = from_range.second - from_range.first;
+    T to_span = to_range.second - to_range.first;
+
+    if (from_span == 0) {
+        return to_range.first;
+    }
+
+    double normalized_value = static_cast<double>(clamped_x - from_range.first) / 
+                              static_cast<double>(from_span);
+    
+    return static_cast<T>(to_range.first + normalized_value * to_span);
 }
 
 #ifndef NDEBUG

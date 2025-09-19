@@ -49,15 +49,13 @@ int main() {
       },
       {3});
 
-  glm::mat4 model(1.f);
-  glm::mat4 view(1.f);
-  glm::mat4 proj = glm::perspective(
-      glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
-
   glm::vec3 eye(2.f, 3.f, 1.f);
   glm::vec3 target(0.f, 0.f, 0.0f);
 
-  view = glm::lookAt(eye, target, glm::vec3(0.f, 1.f, 0.f));
+  glm::mat4 model(1.f);
+  glm::mat4 view = glm::lookAt(eye, target, {0.f, 1.f, 0.f});
+  glm::mat4 proj = glm::perspective(
+      glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
 
 #ifndef NDEBUG
   MatrixEditor model_editor(model), view_editor(view), proj_editor(proj);
@@ -67,10 +65,20 @@ int main() {
     app.update_window();
     app.init_debug_gui();
 
-    auto mouse = app.get_window().get_mouse_pos_ndc();
+    auto mouse = app.get_window().get_mouse_pos();
+    auto delta_mouse = app.get_window().get_delta_mouse();
+    auto delta_yaw =
+        static_cast<float>(300. * app.get_delta_time() * delta_mouse.x);
+    auto delta_pitch =
+        static_cast<float>(300. * app.get_delta_time() * delta_mouse.x);
+
+    view = glm::rotate(view, delta_pitch, {1., 0., 0.});
+    view = glm::rotate(view, delta_yaw, {0., 0., 1.});
 
 #ifndef NDEBUG
-    ImGui::Text("Mouse: %f, %f", mouse.first, mouse.second);
+    ImGui::Text("Mouse: %f, %f", mouse.x, mouse.y);
+    ImGui::Text("DeltaMouse: %f, %f", delta_mouse.x, delta_mouse.y);
+    ImGui::Text("DeltaTime: %f", app.get_delta_time());
 
     if (ImGui::CollapsingHeader("Model"))
       model_editor.Draw("Model");

@@ -1,6 +1,7 @@
 #include "App.h"
 #include "opengl.h"
 #include "util.h"
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <utility>
 
@@ -14,10 +15,22 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
-std::pair<double, double> Window::get_mouse_pos_ndc() const {
-  double x_ndc = clamp_map(mouse_x, 0, width, -1., 1.);
-  double y_ndc = -clamp_map(mouse_y, 0, height, -1., 1.);
-  return std::make_pair(x_ndc, y_ndc);
+float App::get_delta_time() const {
+  return this->delta_time;
+}
+
+glm::dvec2 Window::get_delta_mouse() const {
+  return this->mouse - this->old_mouse;
+}
+
+glm::dvec2 Window::get_mouse_pos() const {
+  return this->mouse;
+}
+
+glm::dvec2 Window::ndc(glm::dvec2 screen_coords) const {
+  double x_ndc = clamp_map(screen_coords.x, {0, this->dimensions.x}, {-1., 1.});
+  double y_ndc = clamp_map(screen_coords.y, {0, this->dimensions.y}, {1., -1.});
+  return glm::vec2(x_ndc, y_ndc);
 }
 
 void Window::swap_buffers() { glfwSwapBuffers(this->raw_window); }
@@ -41,12 +54,12 @@ void App::init_window() {
   auto primary_monitor = glfwGetPrimaryMonitor();
   auto video_mode = glfwGetVideoMode(primary_monitor);
 
-  this->window.width = video_mode->width / 2;
-  this->window.height = video_mode->height / 2;
+  this->window.dimensions.x = video_mode->width / 2;
+  this->window.dimensions.y = video_mode->height / 2;
   this->window.title = "RivalGrounds";
 
   this->window.raw_window =
-      glfwCreateWindow(this->window.width, this->window.height,
+      glfwCreateWindow(this->window.dimensions.x, this->window.dimensions.y,
                        this->window.title.c_str(), nullptr, nullptr);
 
   if (!this->window.raw_window) {
@@ -111,10 +124,18 @@ void App::update_window() {
   if (!this->window.raw_window)
     return;
   glfwPollEvents();
-  glfwGetWindowSize(this->window.raw_window, &this->window.width,
-                    &this->window.height);
-  glfwGetCursorPos(this->window.raw_window, &this->window.mouse_x,
-                   &this->window.mouse_y);
+  glfwGetWindowSize(this->window.raw_window, &this->window.dimensions.x,
+                    &this->window.dimensions.y);
+  this->window.old_mouse = this->window.mouse;
+
+  double mousex, mousey;
+  glfwGetCursorPos(this->window.raw_window, &mousex,
+                   &mousey);
+  this->window.mouse = this->window.ndc({mousex, mousey});
+
+  this->current_frame_time = glfwGetTime();
+  this->delta_time = static_cast<float> (this->current_frame_time - this->last_frame_time);
+  this->last_frame_time = this->current_frame_time;
 }
 
 void App::init_debug_gui() {
