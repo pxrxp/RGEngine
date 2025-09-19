@@ -132,7 +132,7 @@ void App::update_camera() {
 
   this->camera.yaw_rad +=
       delta_mouse.x * px_to_rad * this->camera.sensitivity * this->delta_time;
-  this->camera.pitch_rad +=
+  this->camera.pitch_rad -=
       delta_mouse.y * px_to_rad * this->camera.sensitivity * this->delta_time;
 
   const float max_pitch = glm::radians(89.0f);
@@ -140,9 +140,9 @@ void App::update_camera() {
       glm::clamp(this->camera.pitch_rad, -max_pitch, max_pitch);
 
   glm::vec3 forward = glm::normalize(
-      glm::vec3(cos(this->camera.yaw_rad) * cos(-this->camera.pitch_rad),
-                sin(-this->camera.pitch_rad),
-                sin(this->camera.yaw_rad) * cos(-this->camera.pitch_rad)));
+      glm::vec3(cos(this->camera.yaw_rad) * cos(this->camera.pitch_rad),
+                sin(this->camera.pitch_rad),
+                sin(this->camera.yaw_rad) * cos(this->camera.pitch_rad)));
   glm::vec3 right = glm::normalize(glm::cross(forward, Y_AXIS));
   glm::vec3 up = glm::normalize(glm::cross(right, forward));
   glm::vec3 target = this->camera.pos + forward;
