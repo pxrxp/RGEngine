@@ -58,7 +58,10 @@ int main() {
       glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
 
 #ifndef NDEBUG
-  MatrixEditor model_editor(model), view_editor(view), proj_editor(proj);
+  MatrixEditors all_matrix_editors;
+  all_matrix_editors.Add("Model", model);
+  all_matrix_editors.Add("View", view);
+  all_matrix_editors.Add("Projection", proj);
 #endif
 
   while (app.is_running()) {
@@ -76,16 +79,13 @@ int main() {
     view = glm::rotate(view, delta_yaw, {0., 0., 1.});
 
 #ifndef NDEBUG
+    ImGui::Begin("Debug");
     ImGui::Text("Mouse: %f, %f", mouse.x, mouse.y);
     ImGui::Text("DeltaMouse: %f, %f", delta_mouse.x, delta_mouse.y);
     ImGui::Text("DeltaTime: %f", app.get_delta_time());
+    all_matrix_editors.Draw();
+    ImGui::End();
 
-    if (ImGui::CollapsingHeader("Model"))
-      model_editor.Draw("Model");
-    if (ImGui::CollapsingHeader("View"))
-      view_editor.Draw("View");
-    if (ImGui::CollapsingHeader("Projection"))
-      proj_editor.Draw("Projection");
 #endif
 
     app.get_window().clear(COLOR_MAROON,

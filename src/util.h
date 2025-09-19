@@ -1,7 +1,9 @@
 #pragma once
+#include <algorithm>
+#include <cstring>
 #include <fstream>
 #include <sstream>
-#include <algorithm>
+#include <string>
 #include <utility>
 
 #if defined(_WIN32)
@@ -17,6 +19,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
+#include <map>
 #endif
 
 inline std::string getExeDir() {
@@ -57,63 +60,70 @@ inline std::string read_file(const std::string &relativePath) {
 
 template <typename T>
 inline T clamp_map(T x, std::pair<T, T> from_range, std::pair<T, T> to_range) {
-    T clamped_x = std::clamp(x, from_range.first, from_range.second);
-    
-    T from_span = from_range.second - from_range.first;
-    T to_span = to_range.second - to_range.first;
+  T clamped_x = std::clamp(x, from_range.first, from_range.second);
 
-    if (from_span == 0) {
-        return to_range.first;
-    }
+  T from_span = from_range.second - from_range.first;
+  T to_span = to_range.second - to_range.first;
 
-    double normalized_value = static_cast<double>(clamped_x - from_range.first) / 
-                              static_cast<double>(from_span);
-    
-    return static_cast<T>(to_range.first + normalized_value * to_span);
+  if (from_span == 0) {
+    return to_range.first;
+  }
+
+  double normalized_value = static_cast<double>(clamped_x - from_range.first) /
+                            static_cast<double>(from_span);
+
+  return static_cast<T>(to_range.first + normalized_value * to_span);
 }
 
 #ifndef NDEBUG
-struct MatrixEditor {
-    glm::mat4& mat;
-    float buf[16];
-    bool dirty = false;
-    bool initialized = false;
+class MatrixEditors {
+private:
+  struct EditorData {
+    glm::mat4 *matrix_ptr;
+    float buffer[16];
+    bool is_initialized = false;
+  };
 
-    MatrixEditor(glm::mat4& m) : mat(m) {}
+  std::map<std::string, EditorData> m_editors;
 
-    bool Draw(const char* label) {
-        if (!initialized) {
-            std::memcpy(buf, glm::value_ptr(glm::transpose(mat)), sizeof(buf));
-            initialized = true;
-        }
+public:
+  void Add(const std::string &name, glm::mat4 &matrix) {
+    m_editors[name].matrix_ptr = &matrix;
+  }
 
-        ImGui::PushID(label);
-        bool changed = false;
+  void Draw() {
+    for (auto &[name, editor] : m_editors) {
+      if (!ImGui::CollapsingHeader(name.c_str())) {
+        continue;
+      }
 
-        for (int row = 0; row < 4; ++row) {
-            char rowLabel[16];
-            snprintf(rowLabel, sizeof(rowLabel), "Row %d", row);
-            changed |= ImGui::InputFloat4(rowLabel, &buf[row * 4]);
-        }
+      if (!editor.is_initialized) {
+        std::memcpy(editor.buffer,
+                    glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
+                    sizeof(editor.buffer));
+        editor.is_initialized = true;
+      }
 
-        ImGui::Separator();
+      ImGui::PushID(name.c_str());
 
-        if (ImGui::Button("Apply")) {
-            mat = glm::transpose(glm::make_mat4(buf));
-            changed = true;
-            dirty = false;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Reset")) {
-            mat = glm::mat4(1.f);
-            std::memcpy(buf, glm::value_ptr(glm::transpose(mat)), sizeof(buf));
-            changed = true;
-            dirty = false;
-        }
+      for (int i = 0; i < 4; ++i) {
+        ImGui::InputFloat4(("##Row" + std::to_string(i)).c_str(),
+                           &editor.buffer[i * 4], "%.3f");
+      }
 
-        ImGui::PopID();
-        dirty |= changed;
-        return changed;
+      if (ImGui::Button("Apply")) {
+        *editor.matrix_ptr = glm::transpose(glm::make_mat4(editor.buffer));
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Reset")) {
+        *editor.matrix_ptr = glm::mat4(1.0f);
+        std::memcpy(editor.buffer,
+                    glm::value_ptr(glm::transpose(*editor.matrix_ptr)),
+                    sizeof(editor.buffer));
+      }
+
+      ImGui::PopID();
     }
+  }
 };
 #endif
