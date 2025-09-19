@@ -1,6 +1,5 @@
 #include "Window.h"
 #include "opengl.h"
-#include "util.h"
 #include <glm/glm.hpp>
 
 glm::dvec2 Window::get_delta_mouse() const {
@@ -11,12 +10,12 @@ glm::dvec2 Window::get_mouse_pos() const {
   return this->mouse;
 }
 
-void Window::lock_cursor() {
-  glfwSetInputMode(this->raw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+void Window::set_cursor_mode(int mode) {
+  glfwSetInputMode(this->raw_window, GLFW_CURSOR, mode);
 }
 
-void Window::unlock_cursor() {
-  glfwSetInputMode(this->raw_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+int Window::get_cursor_mode() {
+  return glfwGetInputMode(this->raw_window, GLFW_CURSOR);
 }
 
 // glm::dvec2 Window::ndc(glm::dvec2 screen_coords) const {

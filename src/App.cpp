@@ -6,6 +6,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/io.hpp>
+
 #ifndef NDEBUG
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -28,7 +31,17 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
+void cursor_enter_callback(GLFWwindow *window, int entered) {
+  App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
+  if (!app)
+    return;
+
+  app->set_cursor_inside(static_cast<bool>(entered));
+}
+
 float App::get_delta_time() const { return this->delta_time; }
+bool App::is_cursor_inside() const { return this->cursor_inside; }
+void App::set_cursor_inside(bool inside) { this->cursor_inside = inside; std::cout << "imin\n";}
 
 void App::init() {
   if (!glfwInit()) {
@@ -133,10 +146,18 @@ void App::update_delta_time() {
       static_cast<float>(this->current_frame_time - this->last_frame_time);
   this->last_frame_time = this->current_frame_time;
 }
+int i = 0;
 
 void App::update_camera() {
+  if (this->window.get_cursor_mode() != GLFW_CURSOR_DISABLED)
+    return;
+
   auto delta_mouse = this->window.get_delta_mouse();
-  if (delta_mouse.x == 0.&& delta_mouse.y == 0.) return;
+  if (delta_mouse.x == 0. && delta_mouse.y == 0.)
+    return;
+
+  if (this->window.dimensions.y <= 0)
+    return;
 
   float px_to_rad = this->camera.fovy_rad / this->window.dimensions.y;
 
@@ -158,6 +179,11 @@ void App::update_camera() {
   glm::vec3 target = this->camera.pos + forward;
 
   this->camera.view = glm::lookAt(this->camera.pos, target, up);
+
+  if (i <= 4) {
+    std::cout << this->camera.view << std::endl;
+    i++;
+  }
 }
 
 void App::update() {
