@@ -1,6 +1,6 @@
 #pragma once
-#include "Window.h"
 #include "Camera.h"
+#include "Window.h"
 
 class App {
 private:
@@ -17,6 +17,13 @@ private:
   void update_delta_time();
   void update_camera();
 
+  void register_callbacks();
+  static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                        int height);
+  static void key_callback(GLFWwindow *window, int key, int scancode,
+                           int action, int mods);
+  static void cursor_enter_callback(GLFWwindow *window, int entered);
+
 public:
   ~App();
   void init();
@@ -31,7 +38,4 @@ public:
   void render_debug_gui();
 
   float get_delta_time() const;
-
-  bool is_cursor_inside() const;
-  void set_cursor_inside(bool inside);
 };

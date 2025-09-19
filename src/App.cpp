@@ -6,42 +6,13 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/io.hpp>
-
 #ifndef NDEBUG
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #endif
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-  glViewport(0, 0, width, height);
-}
-
-void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                  int mods) {
-  if (action != GLFW_PRESS)
-    return;
-
-  if (key == GLFW_KEY_ESCAPE)
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-  if (key == GLFW_KEY_TAB)
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-}
-
-void cursor_enter_callback(GLFWwindow *window, int entered) {
-  App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  if (!app)
-    return;
-
-  app->set_cursor_inside(static_cast<bool>(entered));
-}
-
 float App::get_delta_time() const { return this->delta_time; }
-bool App::is_cursor_inside() const { return this->cursor_inside; }
-void App::set_cursor_inside(bool inside) { this->cursor_inside = inside; std::cout << "imin\n";}
 
 void App::init() {
   if (!glfwInit()) {
@@ -54,8 +25,7 @@ void App::init() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  auto primary_monitor = glfwGetPrimaryMonitor();
-  auto video_mode = glfwGetVideoMode(primary_monitor);
+  auto video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
   this->window.dimensions.x = video_mode->width / 2;
   this->window.dimensions.y = video_mode->height / 2;
@@ -72,12 +42,11 @@ void App::init() {
   }
 
   glfwMakeContextCurrent(this->window.raw_window);
-  glfwSetFramebufferSizeCallback(this->window.raw_window,
-                                 framebuffer_size_callback);
   glfwSwapInterval(1);
   glfwSetWindowUserPointer(this->window.raw_window, this);
-  glfwSetInputMode(this->window.raw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetKeyCallback(this->window.raw_window, key_callback);
+
+  this->window.set_cursor_mode(GLFW_CURSOR_DISABLED);
+  this->register_callbacks();
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
@@ -179,11 +148,6 @@ void App::update_camera() {
   glm::vec3 target = this->camera.pos + forward;
 
   this->camera.view = glm::lookAt(this->camera.pos, target, up);
-
-  if (i <= 4) {
-    std::cout << this->camera.view << std::endl;
-    i++;
-  }
 }
 
 void App::update() {
