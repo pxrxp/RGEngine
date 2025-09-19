@@ -71,12 +71,14 @@ int main() {
     auto mouse = app.get_window().get_mouse_pos();
     auto delta_mouse = app.get_window().get_delta_mouse();
     auto delta_yaw =
-        static_cast<float>(300. * app.get_delta_time() * delta_mouse.x);
+        static_cast<float>(10. * app.get_delta_time() * delta_mouse.x);
     auto delta_pitch =
-        static_cast<float>(300. * app.get_delta_time() * delta_mouse.x);
+        static_cast<float>(10. * app.get_delta_time() * delta_mouse.y);
 
-    view = glm::rotate(view, delta_pitch, {1., 0., 0.});
-    view = glm::rotate(view, delta_yaw, {0., 0., 1.});
+    glm::mat4 rot;
+    rot = glm::rotate(glm::mat4(1.f), delta_pitch, {1., 0., 0.});
+    rot = glm::rotate(rot, delta_yaw, {0., 1., 0.});
+    view = glm::inverse(rot) * view;
 
 #ifndef NDEBUG
     ImGui::Begin("Debug");
