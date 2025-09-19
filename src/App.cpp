@@ -16,6 +16,16 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  if (action != GLFW_PRESS) return;
+
+  if (key == GLFW_KEY_ESCAPE)
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+  if (key == GLFW_KEY_TAB)
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
 float App::get_delta_time() const {
   return this->delta_time;
 }
@@ -52,7 +62,9 @@ void App::init() {
   glfwSetFramebufferSizeCallback(this->window.raw_window,
                                  framebuffer_size_callback);
   glfwSwapInterval(1);
+  glfwSetWindowUserPointer(this->window.raw_window, this);
   glfwSetInputMode(this->window.raw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetKeyCallback(this->window.raw_window, key_callback);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
