@@ -21,6 +21,8 @@ public:
   glm::dvec2 ndc(glm::dvec2 screen_coords) const;
   glm::dvec2 get_delta_mouse() const;
   glm::dvec2 get_mouse_pos() const;
+  void lock_cursor();
+  void unlock_cursor();
   void swap_buffers();
   void clear(GLfloat color_r, GLfloat color_g, GLfloat color_b, GLfloat color_a,
              GLbitfield mask);

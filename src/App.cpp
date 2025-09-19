@@ -52,6 +52,7 @@ void App::init() {
   glfwSetFramebufferSizeCallback(this->window.raw_window,
                                  framebuffer_size_callback);
   glfwSwapInterval(1);
+  glfwSetInputMode(this->window.raw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
