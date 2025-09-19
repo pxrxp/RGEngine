@@ -4,8 +4,6 @@
 #include "Shader.h"
 #include "util.h"
 
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 
 #ifndef NDEBUG
@@ -14,7 +12,7 @@
 
 int main() {
   App app;
-  app.init_window();
+  app.init();
 
   ShaderProgram program;
   program.load_shaders({"triangle.vert.glsl", "triangle.frag.glsl"});
@@ -49,43 +47,36 @@ int main() {
       },
       {3});
 
-  glm::vec3 eye(2.f, 3.f, 1.f);
-  glm::vec3 target(0.f, 0.f, 0.0f);
-
   glm::mat4 model(1.f);
-  glm::mat4 view = glm::lookAt(eye, target, {0.f, 1.f, 0.f});
-  glm::mat4 proj = glm::perspective(
-      glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
+  app.get_camera().setup({2,3,2}, {0,0,0}, app.get_window().get_aspect_ratio());
 
 #ifndef NDEBUG
   MatrixEditors all_matrix_editors;
-  all_matrix_editors.Add("Model", model);
-  all_matrix_editors.Add("View", view);
-  all_matrix_editors.Add("Projection", proj);
+  all_matrix_editors.add("Model", model);
 #endif
 
   while (app.is_running()) {
-    app.update_window();
+    app.update();
     app.init_debug_gui();
 
     auto mouse = app.get_window().get_mouse_pos();
     auto delta_mouse = app.get_window().get_delta_mouse();
-    auto delta_yaw =
-        static_cast<float>(10. * app.get_delta_time() * delta_mouse.x);
-    auto delta_pitch =
-        static_cast<float>(10. * app.get_delta_time() * delta_mouse.y);
+    // auto delta_yaw =
+    //     static_cast<float>(10. * app.get_delta_time() * delta_mouse.x);
+    // auto delta_pitch =
+    //     static_cast<float>(10. * app.get_delta_time() * delta_mouse.y);
 
-    glm::mat4 rot;
-    rot = glm::rotate(glm::mat4(1.f), delta_pitch, {1., 0., 0.});
-    rot = glm::rotate(rot, delta_yaw, {0., 1., 0.});
-    view = glm::inverse(rot) * view;
+    // glm::mat4 rot;
+    // rot = glm::rotate(glm::mat4(1.f), delta_pitch, {1., 0., 0.});
+    // rot = glm::rotate(rot, delta_yaw, {0., 1., 0.});
+    // view = glm::inverse(rot) * view;
 
 #ifndef NDEBUG
     ImGui::Begin("Debug");
     ImGui::Text("Mouse: %f, %f", mouse.x, mouse.y);
     ImGui::Text("DeltaMouse: %f, %f", delta_mouse.x, delta_mouse.y);
     ImGui::Text("DeltaTime: %f", app.get_delta_time());
-    all_matrix_editors.Draw();
+    all_matrix_editors.draw();
     ImGui::End();
 
 #endif
@@ -95,8 +86,8 @@ int main() {
 
     program.bind();
     program.set_uniform("model", model);
-    program.set_uniform("view", view);
-    program.set_uniform("proj", proj);
+    program.set_uniform("view", app.get_camera().get_view_matrix());
+    program.set_uniform("proj", app.get_camera().get_projection_matrix());
     cube.draw();
     program.unbind();
 

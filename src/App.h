@@ -1,9 +1,11 @@
 #pragma once
 #include "Window.h"
+#include "Camera.h"
 
 class App {
 private:
   Window window;
+  Camera camera;
   bool imgui_initialized = false;
 
   float delta_time;
@@ -11,10 +13,11 @@ private:
 
 public:
   ~App();
+  void init();
   bool is_running() const;
-  void init_window();
   Window &get_window();
-  void update_window();
+  Camera &get_camera();
+  void update();
   void init_debug_gui();
   void render_debug_gui();
   float get_delta_time() const;

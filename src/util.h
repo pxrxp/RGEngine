@@ -87,11 +87,11 @@ private:
   std::map<std::string, EditorData> m_editors;
 
 public:
-  void Add(const std::string &name, glm::mat4 &matrix) {
+  void add(const std::string &name, glm::mat4 &matrix) {
     m_editors[name].matrix_ptr = &matrix;
   }
 
-  void Draw() {
+  void draw() {
     for (auto &[name, editor] : m_editors) {
       if (!ImGui::CollapsingHeader(name.c_str())) {
         continue;

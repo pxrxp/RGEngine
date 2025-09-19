@@ -17,7 +17,7 @@ float App::get_delta_time() const {
   return this->delta_time;
 }
 
-void App::init_window() {
+void App::init() {
   if (!glfwInit()) {
     std::cerr << "Failed to initialize GLFW\n";
     exit(EXIT_FAILURE);
@@ -80,6 +80,7 @@ bool App::is_running() const {
 }
 
 Window &App::get_window() { return this->window; }
+Camera &App::get_camera() { return this->camera; }
 
 App::~App() {
 #ifndef NDEBUG
@@ -97,7 +98,7 @@ App::~App() {
   exit(EXIT_SUCCESS);
 }
 
-void App::update_window() {
+void App::update() {
   if (!this->window.raw_window)
     return;
   glfwPollEvents();
