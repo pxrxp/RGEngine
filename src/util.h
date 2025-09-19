@@ -57,23 +57,6 @@ inline std::string read_file(const std::string &relativePath) {
   return ss.str();
 }
 
-template <typename T>
-inline T clamp_map(T x, std::pair<T, T> from_range, std::pair<T, T> to_range) {
-  T clamped_x = glm::clamp(x, from_range.first, from_range.second);
-
-  T from_span = from_range.second - from_range.first;
-  T to_span = to_range.second - to_range.first;
-
-  if (from_span == 0) {
-    return to_range.first;
-  }
-
-  double normalized_value = static_cast<double>(clamped_x - from_range.first) /
-                            static_cast<double>(from_span);
-
-  return static_cast<T>(to_range.first + normalized_value * to_span);
-}
-
 #ifndef NDEBUG
 class MatrixEditors {
 private:
