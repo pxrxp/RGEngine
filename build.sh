@@ -20,11 +20,17 @@ done
 # Require TRIPLET
 if [ -z "$TRIPLET" ]; then
     echo "Error: TRIPLET environment variable not set."
-    echo "Example: TRIPLET=x64-mingw-dynamic ./build.sh"
+    echo "Example: export TRIPLET=x64-mingw-dynamic | x64-linux | ..."
     exit 1
 fi
 
-BUILD_TYPE=${BUILD_TYPE:-Release}
+# Require BUILD_TYPE
+if [ -z "$BUILD_TYPE" ]; then
+    echo "Error: BUILD_TYPE environment variable not set."
+    echo "Example: export BUILD_TYPE=Debug | Release | ..."
+    exit 1
+fi
+
 echo "Building for $BUILD_TYPE..."
 
 # Bootstrap vcpkg if missing

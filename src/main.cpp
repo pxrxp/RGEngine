@@ -54,23 +54,25 @@ int main() {
   glm::mat4 proj = glm::perspective(
       glm::radians(60.f), app.get_window().get_aspect_ratio(), 0.1f, 100.f);
 
-  glm::vec3 eye(0.f, 2.f, -5.f);
+  glm::vec3 eye(2.f, 3.f, 1.f);
   glm::vec3 target(0.f, 0.f, 0.0f);
 
-  glm::vec3 forward, up, right;
+  glm::vec3 forward, up(0.f, 1.f, 0.f), right;
   glm::mat4 to_origin(1.f), to_axes(1.f);
 
-  up = glm::vec3(0.f, 1.f, 0.f);
   forward = glm::normalize(target - eye);
-  right = glm::cross(up, forward);
+  right = glm::normalize(glm::cross(forward, up));
+  up = glm::cross(right, forward);
+
   to_origin = glm::translate(to_origin, -eye);
   to_axes[0] = glm::vec4(right, 0.f);
   to_axes[1] = glm::vec4(up, 0.f);
-  to_axes[2] = glm::vec4(forward, 0.f);
+  to_axes[2] = glm::vec4(-forward, 0.f);
   to_axes = glm::transpose(to_axes);
-  to_axes = glm::rotate(to_axes, glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
 
   view = to_axes * to_origin;
+
+  // view = glm::lookAt(eye, target, glm::vec3(0.f, 1.f, 0.f));
 
 #ifndef NDEBUG
   MatrixEditor model_editor(model), view_editor(view), proj_editor(proj);
@@ -81,22 +83,6 @@ int main() {
     app.init_debug_gui();
 
     auto mouse = app.get_window().get_mouse_pos_ndc();
-    // target = glm::vec3(glm::inverse(view) * glm::inverse(proj) *
-    //                    glm::vec4(mouse.first, mouse.second, -1.f, 1.f));
-
-    // forward = glm::normalize(target - eye);
-    // right = glm::normalize(glm::cross(up, forward));
-    // up = glm::normalize(glm::cross(forward, right));
-
-    // to_origin = glm::translate(to_origin, -eye);
-    // to_axes[0] = glm::vec4(right, 0.f);
-    // to_axes[1] = glm::vec4(up, 0.f);
-    // to_axes[2] = glm::vec4(forward, 0.f);
-    // to_axes = glm::transpose(to_axes);
-    // to_axes =
-    //     glm::rotate(to_axes, glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-
-    // view = to_axes * to_origin;
 
 #ifndef NDEBUG
     ImGui::Text("Mouse: %f, %f", mouse.first, mouse.second);
