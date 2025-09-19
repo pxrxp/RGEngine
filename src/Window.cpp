@@ -19,11 +19,11 @@ void Window::unlock_cursor() {
   glfwSetInputMode(this->raw_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-glm::dvec2 Window::ndc(glm::dvec2 screen_coords) const {
-  double x_ndc = clamp_map(screen_coords.x, {0, this->dimensions.x}, {-1., 1.});
-  double y_ndc = clamp_map(screen_coords.y, {0, this->dimensions.y}, {1., -1.});
-  return glm::vec2(x_ndc, y_ndc);
-}
+// glm::dvec2 Window::ndc(glm::dvec2 screen_coords) const {
+//   double x_ndc = clamp_map(screen_coords.x, {0, this->dimensions.x}, {-1., 1.});
+//   double y_ndc = clamp_map(screen_coords.y, {0, this->dimensions.y}, {1., -1.});
+//   return glm::vec2(x_ndc, y_ndc);
+// }
 
 void Window::swap_buffers() { glfwSwapBuffers(this->raw_window); }
 void Window::clear(GLfloat color_r, GLfloat color_g, GLfloat color_b,

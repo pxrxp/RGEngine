@@ -1,7 +1,7 @@
 #include "App.h"
-#include "definitions.h"
-#include "Window.h"
 #include "Camera.h"
+#include "Window.h"
+#include "definitions.h"
 #include "opengl.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
@@ -16,8 +16,10 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-  if (action != GLFW_PRESS) return;
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  if (action != GLFW_PRESS)
+    return;
 
   if (key == GLFW_KEY_ESCAPE)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -26,9 +28,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-float App::get_delta_time() const {
-  return this->delta_time;
-}
+float App::get_delta_time() const { return this->delta_time; }
 
 void App::init() {
   if (!glfwInit()) {
@@ -123,32 +123,41 @@ void App::update_mouse_position() {
   this->window.old_mouse = this->window.mouse;
 
   double mousex, mousey;
-  glfwGetCursorPos(this->window.raw_window, &mousex,
-                   &mousey);
-  this->window.mouse = this->window.ndc({mousex, mousey});
+  glfwGetCursorPos(this->window.raw_window, &mousex, &mousey);
+  this->window.mouse = {mousex, mousey};
 }
 
 void App::update_delta_time() {
   this->current_frame_time = glfwGetTime();
-  this->delta_time = static_cast<float> (this->current_frame_time - this->last_frame_time);
+  this->delta_time =
+      static_cast<float>(this->current_frame_time - this->last_frame_time);
   this->last_frame_time = this->current_frame_time;
 }
 
 void App::update_camera() {
-  auto delta_mouse = this->get_window().get_delta_mouse();
+  auto delta_mouse = this->window.get_delta_mouse();
+  if (delta_mouse.x == 0.&& delta_mouse.y == 0.) return;
 
-  this->camera.yaw += delta_mouse.x * this->camera.sensitivity * this->delta_time;
-  this->camera.pitch += delta_mouse.y * this->camera.sensitivity * this->delta_time;
+  float px_to_rad = this->camera.fovy_rad / this->window.dimensions.y;
+
+  this->camera.yaw_rad +=
+      delta_mouse.x * px_to_rad * this->camera.sensitivity * this->delta_time;
+  this->camera.pitch_rad +=
+      delta_mouse.y * px_to_rad * this->camera.sensitivity * this->delta_time;
 
   const float max_pitch = glm::radians(89.0f);
-  this->camera.pitch = glm::clamp(this->camera.pitch, -max_pitch, max_pitch);
+  this->camera.pitch_rad =
+      glm::clamp(this->camera.pitch_rad, -max_pitch, max_pitch);
 
-  glm::mat4 camera_transform(1.f);
-  camera_transform = glm::translate(camera_transform, this->camera.pos);
-  camera_transform = glm::rotate(camera_transform, this->camera.yaw, Y_AXIS);
-  camera_transform = glm::rotate(camera_transform, this->camera.pitch, X_AXIS);
+  glm::vec3 forward = glm::normalize(
+      glm::vec3(cos(this->camera.yaw_rad) * cos(this->camera.pitch_rad),
+                sin(this->camera.pitch_rad),
+                sin(this->camera.yaw_rad) * cos(this->camera.pitch_rad)));
+  glm::vec3 right = glm::normalize(glm::cross(forward, Y_AXIS));
+  glm::vec3 up = glm::normalize(glm::cross(right, forward));
+  glm::vec3 target = this->camera.pos + forward;
 
-  this->camera.view = glm::inverse(camera_transform);
+  this->camera.view = glm::lookAt(this->camera.pos, target, up);
 }
 
 void App::update() {

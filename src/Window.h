@@ -18,7 +18,7 @@ public:
   int get_height() const { return dimensions.y; }
   float get_aspect_ratio() const { return (float) dimensions.x / dimensions.y; }
 
-  glm::dvec2 ndc(glm::dvec2 screen_coords) const;
+  // glm::dvec2 ndc(glm::dvec2 screen_coords) const;
   glm::dvec2 get_delta_mouse() const;
   glm::dvec2 get_mouse_pos() const;
   void lock_cursor();
