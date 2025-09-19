@@ -57,22 +57,7 @@ int main() {
   glm::vec3 eye(2.f, 3.f, 1.f);
   glm::vec3 target(0.f, 0.f, 0.0f);
 
-  glm::vec3 forward, up(0.f, 1.f, 0.f), right;
-  glm::mat4 to_origin(1.f), to_axes(1.f);
-
-  forward = glm::normalize(target - eye);
-  right = glm::normalize(glm::cross(forward, up));
-  up = glm::cross(right, forward);
-
-  to_origin = glm::translate(to_origin, -eye);
-  to_axes[0] = glm::vec4(right, 0.f);
-  to_axes[1] = glm::vec4(up, 0.f);
-  to_axes[2] = glm::vec4(-forward, 0.f);
-  to_axes = glm::transpose(to_axes);
-
-  view = to_axes * to_origin;
-
-  // view = glm::lookAt(eye, target, glm::vec3(0.f, 1.f, 0.f));
+  view = glm::lookAt(eye, target, glm::vec3(0.f, 1.f, 0.f));
 
 #ifndef NDEBUG
   MatrixEditor model_editor(model), view_editor(view), proj_editor(proj);
@@ -86,9 +71,6 @@ int main() {
 
 #ifndef NDEBUG
     ImGui::Text("Mouse: %f, %f", mouse.first, mouse.second);
-    ImGui::Text("Forward: %f, %f, %f", forward.x, forward.y, forward.z);
-    ImGui::Text("Up: %f, %f, %f", up.x, up.y, up.z);
-    ImGui::Text("Right: %f, %f, %f", right.x, right.y, right.z);
 
     if (ImGui::CollapsingHeader("Model"))
       model_editor.Draw("Model");
