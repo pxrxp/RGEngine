@@ -27,9 +27,11 @@ private:
 public:
     uint32_t width = 0;
     uint32_t height = 0;
+    std::string file_name;
     std::vector<unsigned char> pixels;
 
     explicit PNGImage(const std::string& relative_path) {
+        this->file_name = relative_path;
         std::vector<unsigned char> png_data;
         try {
             png_data = read_file_bytes("resources/" + relative_path);
