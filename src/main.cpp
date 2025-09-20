@@ -27,7 +27,6 @@ int main() {
   GLuint cubemapTexture;
   glGenTextures(1, &cubemapTexture);
   glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-  glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
   {
     std::vector<PNGImage> faces = {
@@ -38,11 +37,13 @@ int main() {
       if (!faces[i].is_valid()) {
         std::cerr << "Invalid image: " << faces[i].file_name << std::endl;
       }
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB,
-                   faces[i].width, faces[i].height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA,
+                   faces[i].width, faces[i].height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                    faces[i].pixels.data());
     }
   }
+
+  glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -146,15 +147,14 @@ int main() {
     app.init_debug_gui();
 
 #ifndef NDEBUG
+    float sensitivity = app.get_camera().get_sensitivity();
     ImGui::Begin("Debug");
     ImGui::Text("DeltaTime: %f", app.get_delta_time());
-    all_matrix_editors.draw();
-    ImGui::End();
 #endif
 
-    app.get_window().clear(PALETTE_TEAL,
+    app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // app.get_renderer().add(cube);
+    app.get_renderer().add(cube);
     app.get_renderer().add(skybox);
     app.get_renderer().render();
 

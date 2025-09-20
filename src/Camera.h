@@ -22,5 +22,10 @@ public:
   glm::mat4 get_view_matrix() const;
   glm::mat4 get_projection_matrix() const;
 
+  float get_fovy_rad() const;
+  glm::vec3 get_speed() const;
+  float get_sensitivity() const;
+  void set_sensitivity(float sensitivity);
+
   friend class App;
 };
