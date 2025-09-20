@@ -12,6 +12,7 @@
 #include <imgui_impl_opengl3.h>
 #endif
 
+
 bool App::is_key_pressed(int key) const {
   if (!this->window.raw_window)
     return false;
@@ -114,6 +115,7 @@ bool App::is_running() const {
 
 Window &App::get_window() { return this->window; }
 Camera &App::get_camera() { return this->camera; }
+Renderer &App::get_renderer() { return this->renderer; }
 float App::get_delta_time() const { return this->delta_time; }
 
 App::~App() {

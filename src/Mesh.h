@@ -1,6 +1,8 @@
 #pragma once
 #include "opengl.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <vector>
 
 #define VERTEX_COLORED_MEMBERS(X)                                              \
@@ -44,7 +46,7 @@ struct Face {
   GLuint vert1, vert2, vert3;
 };
 
-struct Mesh {
+class Mesh {
   GLuint vao = 0;
   GLuint vbo = 0;
   GLuint ebo = 0;
@@ -52,6 +54,13 @@ struct Mesh {
   size_t index_count = 0;
   GLenum draw_primitive;
 
+  glm::vec3 position = glm::vec3(0.0f);
+  glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+  glm::vec3 scale_factors = glm::vec3(1.0f);
+
+  public:
+  GLuint get_id() const;
+  
   template <typename Vertex>
   void setup(const std::vector<Vertex> &vertices,
              const std::vector<Face> &indices = {},
@@ -95,7 +104,12 @@ struct Mesh {
     glBindVertexArray(0);
   }
 
-  void draw() const;
+  void rotate(const glm::vec3& axis, float angle);
+  void translate(const glm::vec3& offset);
+  void scale(const glm::vec3& factors);
+  glm::mat4 get_model_matrix() const;
+
+  void draw(unsigned int instance_count = 1) const;
   ~Mesh();
 };
 

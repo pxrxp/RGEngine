@@ -1,11 +1,14 @@
 #pragma once
 #include "Camera.h"
 #include "Window.h"
+#include "Renderer.h"
 
 class App {
 private:
   Window window;
   Camera camera;
+  Renderer renderer;
+  
   bool imgui_initialized = false;
   bool cursor_inside = false;
 
@@ -36,9 +39,10 @@ public:
 
   Window &get_window();
   Camera &get_camera();
+  Renderer &get_renderer();
+
+  float get_delta_time() const;
 
   void init_debug_gui();
   void render_debug_gui();
-
-  float get_delta_time() const;
 };

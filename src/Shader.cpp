@@ -48,6 +48,10 @@ GLuint ShaderRepo::get_shader(std::string path) {
   }
 }
 
+GLuint ShaderProgram::get_id() const {
+  return id;
+}
+
 void ShaderProgram::bind() {
   glUseProgram(this->id);
 }
@@ -132,6 +136,14 @@ void ShaderProgram::set_uniform(const char* name, const glm::mat4& m, bool bind_
     if (bind_program) glUseProgram(this->id);
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m));
+    else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
+    if (bind_program) glUseProgram(0);
+}
+
+void ShaderProgram::set_texture_unit(const char* name, GLint unit, bool bind_program) const {
+    if (bind_program) glUseProgram(this->id);
+    GLint loc = glGetUniformLocation(this->id, name);
+    if (loc != -1) glUniform1i(loc, 0);
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
     if (bind_program) glUseProgram(0);
 }

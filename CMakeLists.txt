@@ -8,6 +8,8 @@ find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(PNG REQUIRED)
+find_package(ZLIB REQUIRED)
 
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
@@ -21,4 +23,6 @@ target_link_libraries(RivalGrounds PRIVATE
     glfw
     imgui::imgui
     OpenGL::GL
+    PNG::PNG
+    ZLIB::ZLIB
 )

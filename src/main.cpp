@@ -1,5 +1,6 @@
 #include "App.h"
 #include "Mesh.h"
+#include "Renderer.h"
 #include "Shader.h"
 #include "definitions.h"
 #include "util.h"
@@ -68,17 +69,14 @@ int main() {
        {3, 6, 7},
        // Bottom
        {4, 5, 1},
-       {1, 0, 4}
+       {1, 0, 4}});
 
-      });
-
-  glm::mat4 model(1.f);
   app.get_camera().setup({2., 3., 2.}, {0., 0., 0.},
                          app.get_window().get_aspect_ratio(), 20.0f,
                          {0.05f, 0.05f, 0.05f});
 #ifndef NDEBUG
   MatrixEditors all_matrix_editors;
-  all_matrix_editors.add("Model", model);
+  // all_matrix_editors.add("Model", model);
 #endif
 
   while (app.is_running()) {
@@ -90,18 +88,18 @@ int main() {
     ImGui::Text("DeltaTime: %f", app.get_delta_time());
     all_matrix_editors.draw();
     ImGui::End();
-
 #endif
 
     app.get_window().clear(COLOR_MAROON,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    program.bind();
-    program.set_uniform("model", model);
-    program.set_uniform("view", app.get_camera().get_view_matrix());
-    program.set_uniform("proj", app.get_camera().get_projection_matrix());
-    cube.draw();
-    program.unbind();
+    // program.bind();
+    // program.set_uniform("model", cube.get_model_matrix());
+    // program.set_uniform("view", app.get_camera().get_view_matrix());
+    // program.set_uniform("proj", app.get_camera().get_projection_matrix());
+    // cube.draw();
+    // program.unbind();
+    app.get_renderer().render();
 
     app.render_debug_gui();
     app.get_window().swap_buffers();

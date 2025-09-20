@@ -12,6 +12,7 @@ private:
 public:
   ~ShaderProgram();
 
+  GLuint get_id() const;
   void load_shaders(std::initializer_list<std::string> paths);
   void bind();
   void unbind();
@@ -30,6 +31,8 @@ public:
                    bool bind_program = false) const;
   void set_uniform(const char *name, const glm::mat4 &m,
                    bool bind_program = false) const;
+  void set_texture_unit(const char *name, GLint unit,
+                        bool bind_program = false) const;
 };
 
 class ShaderRepo {
