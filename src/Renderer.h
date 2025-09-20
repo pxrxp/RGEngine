@@ -1,21 +1,24 @@
 #pragma once
-#include <vector>
 #include <functional>
-
-#include "Mesh.h"
-#include "Material.h"
-#include "Shader.h"
+#include <memory>
+#include <vector>
 
 class App;
+class Mesh;
+class ShaderProgram;
+class Material;
 
 struct RenderPacket {
-  GLuint vao;
-  GLuint shader;
-  unsigned int material;
+  std::shared_ptr<Mesh> mesh;
+  std::shared_ptr<ShaderProgram> shader_program;
+  std::shared_ptr<Material> material;
+
   std::function<void()> render;
 
-  RenderPacket(Mesh& mesh, ShaderProgram& shader, Material& material)
-      : vao(mesh.get_id()), shader(shader.get_id()), material(material.get_id()) {}
+  RenderPacket(std::shared_ptr<Mesh> mesh,
+               std::shared_ptr<ShaderProgram> shader,
+               std::shared_ptr<Material> material)
+      : mesh(mesh), shader_program(shader), material(material) {}
 };
 
 class Renderer {

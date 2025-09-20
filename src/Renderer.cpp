@@ -1,5 +1,8 @@
 #include "Renderer.h"
+#include "Material.h"
+#include "Shader.h"
 #include <algorithm>
+#include <memory>
 
 void Renderer::add(RenderPacket render_packet) {
   render_queue.push_back(render_packet);
@@ -8,26 +11,32 @@ void Renderer::add(RenderPacket render_packet) {
 void Renderer::render() {
   std::sort(render_queue.begin(), render_queue.end(),
             [](const RenderPacket &a, const RenderPacket &b) {
-              if (a.shader != b.shader) {
-                return a.shader < b.shader;
+              if (a.shader_program->get_id() != b.shader_program->get_id()) {
+                return a.shader_program->get_id() < b.shader_program->get_id();
               }
-              return a.material < b.material;
+              return a.material->get_id() < b.material->get_id();
             });
 
-  GLuint current_shader = 0;
-  unsigned int current_material = 0;
+  std::shared_ptr<ShaderProgram> current_shader_program = nullptr;
+  std::shared_ptr<Material> current_material = nullptr;
 
   for (auto &render_packet : render_queue) {
-    if (render_packet.shader != current_shader) {
-      glUseProgram(current_shader);
+    if (!current_shader_program || render_packet.shader_program->get_id() !=
+                                       current_shader_program->get_id()) {
+      current_shader_program = render_packet.shader_program;
+      current_shader_program->bind();
     }
 
-    if (render_packet.material != current_material) {
-      // current_material->unbind();
+    if (!current_material || render_packet.material != current_material) {
+      if (current_material) {
+        current_material->unbind();
+      }
       current_material = render_packet.material;
-      // current_material->bind();
+      current_material->bind();
     }
 
     render_packet.render();
   }
+
+  render_queue.clear();
 }

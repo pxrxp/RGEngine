@@ -1,5 +1,9 @@
 @echo off
 
+IF %errorlevel% NEQ 0 (
+    exit /b 1
+)
+
 REM Save current directory
 set "ORIGINAL_DIR=%CD%"
 

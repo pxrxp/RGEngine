@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <initializer_list>
 #include <string>
-#include <unordered_map>
 
 class ShaderProgram {
 private:
@@ -33,13 +32,4 @@ public:
                    bool bind_program = false) const;
   void set_texture_unit(const char *name, GLint unit,
                         bool bind_program = false) const;
-};
-
-class ShaderRepo {
-private:
-  std::unordered_map<std::string, GLuint> shaders;
-  GLuint load_and_store_shader(std::string path);
-
-public:
-  GLuint get_shader(std::string path);
 };

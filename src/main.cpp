@@ -1,7 +1,5 @@
 #include "App.h"
-#include "Mesh.h"
 #include "Renderer.h"
-#include "Shader.h"
 #include "definitions.h"
 #include "util.h"
 
@@ -14,12 +12,16 @@
 int main() {
   App app;
   app.init();
+  app.get_camera().setup({2., 3., 2.}, {0., 0., 0.},
+                         app.get_window().get_aspect_ratio(), 20.0f,
+                         {0.05f, 0.05f, 0.05f});
 
-  ShaderProgram program;
-  program.load_shaders({"cube.vert.glsl", "cube.frag.glsl"});
+  RenderPacket cube(app.mesh_repo.create(), app.shader_program_repo.create(),
+                    app.material_repo.create());
 
-  Mesh cube;
-  cube.setup<VertexColored>(
+  cube.shader_program->load_shaders({"cube.vert.glsl", "cube.frag.glsl"});
+
+  cube.mesh->setup<VertexColored>(
       {// Vertex 0
        {.position = {-0.500f, -0.500f, -0.500f},
         .normal = {-0.577f, -0.577f, -0.577f},
@@ -71,9 +73,15 @@ int main() {
        {4, 5, 1},
        {1, 0, 4}});
 
-  app.get_camera().setup({2., 3., 2.}, {0., 0., 0.},
-                         app.get_window().get_aspect_ratio(), 20.0f,
-                         {0.05f, 0.05f, 0.05f});
+  cube.render = [&] {
+    cube.shader_program->set_uniform("model", cube.mesh->get_model_matrix());
+    cube.shader_program->set_uniform("view",
+                                     app.get_camera().get_view_matrix());
+    cube.shader_program->set_uniform("proj",
+                                     app.get_camera().get_projection_matrix());
+    cube.mesh->draw();
+  };
+
 #ifndef NDEBUG
   MatrixEditors all_matrix_editors;
   // all_matrix_editors.add("Model", model);
@@ -90,15 +98,9 @@ int main() {
     ImGui::End();
 #endif
 
-    app.get_window().clear(COLOR_MAROON,
+    app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // program.bind();
-    // program.set_uniform("model", cube.get_model_matrix());
-    // program.set_uniform("view", app.get_camera().get_view_matrix());
-    // program.set_uniform("proj", app.get_camera().get_projection_matrix());
-    // cube.draw();
-    // program.unbind();
+    app.get_renderer().add(cube);
     app.get_renderer().render();
 
     app.render_debug_gui();

@@ -2,13 +2,14 @@
 #include "Camera.h"
 #include "Window.h"
 #include "Renderer.h"
+#include "Repo.h"
 
 class App {
 private:
   Window window;
   Camera camera;
   Renderer renderer;
-  
+
   bool imgui_initialized = false;
   bool cursor_inside = false;
 
@@ -31,6 +32,10 @@ private:
   static void cursor_enter_callback(GLFWwindow *window, int entered);
 
 public:
+  ShaderProgramRepo shader_program_repo;
+  MaterialRepo material_repo;
+  MeshRepo mesh_repo;
+
   ~App();
   void init();
   void update();

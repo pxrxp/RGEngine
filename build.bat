@@ -19,14 +19,14 @@ if "%1"=="-c" set CLEAN=true
 REM Require TRIPLET
 if "%TRIPLET%"=="" (
     echo Error: TRIPLET environment variable not set.
-    echo Example: set TRIPLET=x64-mingw-dynamic | x64-linux
+    echo Example: set TRIPLET=x64-mingw-dynamic ^| x64-linux
     exit /b 1
 )
 
 REM Require BUILD_TYPE
 if "%BUILD_TYPE%"=="" (
     echo Error: BUILD_TYPE environment variable not set.
-    echo Example: set BUILD_TYPE=Release | Debug
+    echo Example: set BUILD_TYPE=Release ^| Debug
     exit /b 1
 )
 

@@ -12,7 +12,6 @@
 #include <imgui_impl_opengl3.h>
 #endif
 
-
 bool App::is_key_pressed(int key) const {
   if (!this->window.raw_window)
     return false;
@@ -33,6 +32,10 @@ glm::vec3 App::get_camera_move_dir() const {
       this->is_key_pressed(GLFW_KEY_D) || this->is_key_pressed(GLFW_KEY_RIGHT);
   bool go_up = this->is_key_pressed(GLFW_KEY_Q);
   bool go_down = this->is_key_pressed(GLFW_KEY_E);
+  bool go_fast = this->is_key_pressed(GLFW_KEY_LEFT_CONTROL) ||
+                 this->is_key_pressed(GLFW_KEY_RIGHT_CONTROL);
+  bool go_slow = this->is_key_pressed(GLFW_KEY_LEFT_SHIFT) ||
+                 this->is_key_pressed(GLFW_KEY_RIGHT_SHIFT);
 
   if (go_forward)
     direction.z++;
@@ -46,6 +49,10 @@ glm::vec3 App::get_camera_move_dir() const {
     direction.y++;
   if (go_down)
     direction.y--;
+  if (go_fast)
+    direction *= 2;
+  if (go_slow)
+    direction /= 2;
 
   return direction;
 }
@@ -166,7 +173,8 @@ void App::update_camera() {
   auto move_dir = this->get_camera_move_dir();
 
   bool mouse_inactive = delta_mouse.x == 0 && delta_mouse.y == 0;
-  bool keyboard_inactive = move_dir.x == 0 && move_dir.y == 0 && move_dir.z == 0;
+  bool keyboard_inactive =
+      move_dir.x == 0 && move_dir.y == 0 && move_dir.z == 0;
 
   if (mouse_inactive && keyboard_inactive)
     return;
