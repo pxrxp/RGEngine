@@ -1,6 +1,7 @@
 #include "Shader.h"
 #include "Repo.h"
 #include "opengl.h"
+#include "util.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <initializer_list>
@@ -43,6 +44,7 @@ void ShaderProgram::load_shaders(std::initializer_list<std::string> paths) {
     glGetProgramInfoLog(this->id, 512, nullptr, info);
     std::cerr << "Program link error:\n" << info << "\n";
   }
+
 }
 
 void ShaderProgram::set_uniform(const char* name, float value, bool bind_program) const {

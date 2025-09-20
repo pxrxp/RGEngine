@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "Window.h"
 #include "definitions.h"
-#include "opengl.h"
+#include "util.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
@@ -67,6 +67,11 @@ void App::init() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
+#ifdef __APPLE__
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
   auto video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
@@ -95,6 +100,8 @@ void App::init() {
     std::cerr << "Failed to initialize GLAD\n";
     exit(EXIT_FAILURE);
   }
+
+  init_gl_debug();
 
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);

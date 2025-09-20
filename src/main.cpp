@@ -1,12 +1,11 @@
 #include "App.h"
 #include "Renderer.h"
 #include "definitions.h"
-#include "opengl.h"
-#include "png_image.h"
+// #include "png_image.h"
 #include "util.h"
 
 #include <glm/glm.hpp>
-#include <iostream>
+// #include <iostream>
 
 #ifndef NDEBUG
 #include <imgui.h>
@@ -154,7 +153,7 @@ int main() {
     ImGui::End();
 #endif
 
-    app.get_window().clear(COLOR_BLACK,
+    app.get_window().clear(PALETTE_TEAL,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     app.get_renderer().add(cube);
     // app.get_renderer().add(skybox);

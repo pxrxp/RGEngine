@@ -11,7 +11,6 @@ private:
   Renderer renderer;
 
   bool imgui_initialized = false;
-  bool cursor_inside = false;
 
   float delta_time;
   double last_frame_time, current_frame_time;
@@ -29,7 +28,6 @@ private:
                                         int height);
   static void key_callback(GLFWwindow *window, int key, int scancode,
                            int action, int mods);
-  static void cursor_enter_callback(GLFWwindow *window, int entered);
 
 public:
   ShaderProgramRepo shader_program_repo;
