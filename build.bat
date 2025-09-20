@@ -70,6 +70,15 @@ if exist "%BUILD_DIR%\shaders" (
 REM Copy shaders folder recursively
 xcopy "%SRC_DIR%\shaders" "%BUILD_DIR%\shaders" /E /I /Y
 
+echo Copying resources...
+REM Remove the build resources folder if it exists
+if exist "%BUILD_DIR%\resources" (
+    rmdir /s /q "%BUILD_DIR%\resources"
+)
+
+REM Copy resources folder recursively
+xcopy "resources" "%BUILD_DIR%\resources" /E /I /Y
+
 cd /d "%ORIGINAL_DIR%"
 
 endlocal

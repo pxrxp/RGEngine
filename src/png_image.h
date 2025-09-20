@@ -1,11 +1,26 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <cstdio>
+#include "util.h"
 #include <png.h>
 
-class png_image {
+namespace {
+struct PngReadStream {
+    const unsigned char* data;
+    size_t offset;
+};
+
+void read_from_buffer(png_structp png_ptr, png_bytep out_bytes, png_size_t byte_count_to_read) {
+    PngReadStream* stream = static_cast<PngReadStream*>(png_get_io_ptr(png_ptr));
+    memcpy(out_bytes, stream->data + stream->offset, byte_count_to_read);
+    stream->offset += byte_count_to_read;
+}
+}
+
+class PNGImage {
 private:
     bool m_is_valid = false;
 
@@ -14,26 +29,23 @@ public:
     uint32_t height = 0;
     std::vector<unsigned char> pixels;
 
-    // Loads a PNG from a file path into 8-bit RGBA format.
-    // Errors are printed to stderr. Check is_valid() after creation.
-    explicit png_image(const std::string& file_path) {
-        FILE* fp = fopen(file_path.c_str(), "rb");
-        if (!fp) {
-            fprintf(stderr, "png_image: Failed to open file: %s\n", file_path.c_str());
+    explicit PNGImage(const std::string& relative_path) {
+        std::vector<unsigned char> png_data;
+        try {
+            png_data = read_file_bytes("resources/" + relative_path);
+        } catch (const std::runtime_error& e) {
+            fprintf(stderr, "png_image: %s\n", e.what());
             return;
         }
 
-        unsigned char header[8];
-        if (fread(header, 1, 8, fp) != 8 || png_sig_cmp(header, 0, 8) != 0) {
-            fprintf(stderr, "png_image: Not a valid PNG file: %s\n", file_path.c_str());
-            fclose(fp);
+        if (png_data.size() < 8 || png_sig_cmp(png_data.data(), 0, 8) != 0) {
+            fprintf(stderr, "png_image: Not a valid PNG file: %s\n", relative_path.c_str());
             return;
         }
 
         png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
         if (!png_ptr) {
             fprintf(stderr, "png_image: png_create_read_struct failed.\n");
-            fclose(fp);
             return;
         }
 
@@ -41,18 +53,17 @@ public:
         if (!info_ptr) {
             fprintf(stderr, "png_image: png_create_info_struct failed.\n");
             png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-            fclose(fp);
             return;
         }
 
         if (setjmp(png_jmpbuf(png_ptr))) {
             fprintf(stderr, "png_image: Error during PNG read.\n");
             png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-            fclose(fp);
             return;
         }
 
-        png_init_io(png_ptr, fp);
+        PngReadStream stream{png_data.data(), 8};
+        png_set_read_fn(png_ptr, &stream, read_from_buffer);
         png_set_sig_bytes(png_ptr, 8);
         png_read_info(png_ptr, info_ptr);
 
@@ -61,7 +72,6 @@ public:
         png_byte color_type = png_get_color_type(png_ptr, info_ptr);
         png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
-        // --- Transformations to get standard 8-bit RGBA ---
         if (bit_depth == 16) png_set_strip_16(png_ptr);
         if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png_ptr);
         if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
@@ -75,7 +85,6 @@ public:
 
         png_read_update_info(png_ptr, info_ptr);
         
-        // --- Read image data ---
         size_t row_bytes = png_get_rowbytes(png_ptr, info_ptr);
         pixels.resize(row_bytes * height);
 
@@ -85,15 +94,11 @@ public:
         }
 
         png_read_image(png_ptr, row_pointers.data());
-
-        // --- Cleanup ---
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-        fclose(fp);
 
-        m_is_valid = true; // Success!
+        m_is_valid = true;
     }
 
-    // Returns true if the image was loaded successfully.
     bool is_valid() const {
         return m_is_valid;
     }

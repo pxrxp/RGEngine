@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -45,6 +46,19 @@ inline std::string getExeDir() {
   if (pos == std::string::npos)
     return ".";
   return exePath.substr(0, pos);
+}
+
+inline std::vector<unsigned char> read_file_bytes(const std::string &relativePath) {
+  std::string fullPath = getExeDir() + "/" + relativePath;
+  std::ifstream file(fullPath, std::ios::binary | std::ios::ate);
+  if (!file.is_open())
+    throw std::runtime_error("Cannot open file: " + fullPath);
+  std::streamsize size = file.tellg();
+  file.seekg(0, std::ios::beg);
+  std::vector<unsigned char> buffer(size);
+  if (!file.read(reinterpret_cast<char*>(buffer.data()), size))
+    throw std::runtime_error("Cannot read file: " + fullPath);
+  return buffer;
 }
 
 inline std::string read_file(const std::string &relativePath) {

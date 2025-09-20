@@ -41,6 +41,7 @@ fi
 
 BUILD_DIR="build"
 SRC_DIR="src"
+RESOURCES_DIR="resources"
 
 # Clean only CMake cache/files if requested
 if [ "$CLEAN" = true ]; then
@@ -62,5 +63,8 @@ cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 echo "Copying shaders..."
 [ -d "$BUILD_DIR/shaders" ] && rm -rf "$BUILD_DIR/shaders"
 cp "$SRC_DIR/shaders" "$BUILD_DIR/shaders" -r
+echo "Copying resources..."
+[ -d "$BUILD_DIR/resources" ] && rm -rf "$BUILD_DIR/resources"
+cp "$RESOURCES_DIR" "$BUILD_DIR/resources" -r
 
 cd "$ORIGINAL_DIR"

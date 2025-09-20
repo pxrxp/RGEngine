@@ -1,15 +1,19 @@
 #include "Mesh.h"
 #include "opengl.h"
 
-GLuint Mesh::get_id() const {
-  return vao;
-}
+GLuint Mesh::get_id() const { return vao; }
 
-void Mesh::draw(unsigned int instance_count) const {
+void Mesh::bind() { glBindVertexArray(vao); }
+
+void Mesh::unbind() { glBindVertexArray(0); }
+
+void Mesh::draw(bool bind, unsigned int instance_count) const {
   if (instance_count == 0)
     return;
 
-  glBindVertexArray(vao);
+  if (bind)
+    glBindVertexArray(vao);
+
   if (index_count > 0) {
     if (instance_count == 1) {
       glDrawElements(this->draw_primitive, static_cast<int>(index_count),
@@ -23,11 +27,13 @@ void Mesh::draw(unsigned int instance_count) const {
     if (instance_count == 1) {
       glDrawArrays(this->draw_primitive, 0, static_cast<int>(vertex_count));
     } else {
-      glDrawArraysInstanced(this->draw_primitive, 0, static_cast<int>(vertex_count),
-                   instance_count);
+      glDrawArraysInstanced(this->draw_primitive, 0,
+                            static_cast<int>(vertex_count), instance_count);
     }
   }
-  glBindVertexArray(0);
+
+  if (bind)
+    glBindVertexArray(0);
 }
 
 void Mesh::rotate(const glm::vec3 &axis, float angle) {

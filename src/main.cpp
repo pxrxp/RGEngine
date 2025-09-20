@@ -1,8 +1,11 @@
 #include "App.h"
 #include "Renderer.h"
 #include "definitions.h"
+#include "opengl.h"
+#include "png_image.h"
 #include "util.h"
 
+#include <iostream>
 #include <glm/glm.hpp>
 
 #ifndef NDEBUG
@@ -21,13 +24,32 @@ int main() {
   skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
   skybox.mesh->setup<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
                                    {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
+  skybox.shader_program->set_texture_unit("skybox", 0, true);
+
+  GLuint cubemapTexture;
+  glGenTextures(1, &cubemapTexture);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+
+  PNGImage image("right.png");
+  std::cout << image.width << std::endl;
+
+
   skybox.render = [&] {
     skybox.shader_program->set_uniform("view",
                                      app.get_camera().get_view_matrix());
     skybox.shader_program->set_uniform("proj",
                                      app.get_camera().get_projection_matrix());
+
     glDepthFunc(GL_LEQUAL);
-    skybox.mesh->draw();
+
+    skybox.mesh->bind();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+    skybox.mesh->draw(false);
+
+    skybox.mesh->unbind();
+
     glDepthFunc(GL_LESS);
   };
 

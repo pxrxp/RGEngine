@@ -66,6 +66,8 @@ class Mesh {
 
 public:
   GLuint get_id() const;
+  void bind();
+  void unbind();
 
   template <typename Vertex>
   void setup(const std::vector<Vertex> &vertices,
@@ -118,7 +120,7 @@ public:
   void scale(const glm::vec3 &factors);
   glm::mat4 get_model_matrix() const;
 
-  void draw(unsigned int instance_count = 1) const;
+  void draw(bool bind = false, unsigned int instance_count = 1) const;
   ~Mesh();
 };
 
