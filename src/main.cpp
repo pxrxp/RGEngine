@@ -21,6 +21,15 @@ int main() {
   skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
   skybox.mesh->setup<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
                                    {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
+  skybox.render = [&] {
+    skybox.shader_program->set_uniform("view",
+                                     app.get_camera().get_view_matrix());
+    skybox.shader_program->set_uniform("proj",
+                                     app.get_camera().get_projection_matrix());
+    glDepthFunc(GL_LEQUAL);
+    skybox.mesh->draw();
+    glDepthFunc(GL_LESS);
+  };
 
   RenderPacket cube(app.mesh_repo.create(), app.shader_program_repo.create(),
                     app.material_repo.create());
@@ -107,6 +116,7 @@ int main() {
     app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     app.get_renderer().add(cube);
+    app.get_renderer().add(skybox);
     app.get_renderer().render();
 
     app.render_debug_gui();
