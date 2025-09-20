@@ -6,6 +6,7 @@
     "glad",
     "opengl",
     "glm",
+    "zlib",
     "libpng",
     {
       "name": "imgui",

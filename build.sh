@@ -53,9 +53,6 @@ fi
 if [ ! -f "$BUILD_DIR/CMakeCache.txt" ]; then
     echo "Configuring CMake..."
     cmake -B "$BUILD_DIR" -S . \
-        -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake \
-        -DVCPKG_TARGET_TRIPLET="$TRIPLET" \
-        -DVCPKG_HOST_TRIPLET="$TRIPLET" \
         -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 fi

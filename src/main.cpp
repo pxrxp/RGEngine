@@ -16,6 +16,12 @@ int main() {
                          app.get_window().get_aspect_ratio(), 20.0f,
                          {0.05f, 0.05f, 0.05f});
 
+  RenderPacket skybox(app.mesh_repo.create(), app.shader_program_repo.create(),
+                      app.material_repo.create());
+  skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
+  skybox.mesh->setup<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
+                                   {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
+
   RenderPacket cube(app.mesh_repo.create(), app.shader_program_repo.create(),
                     app.material_repo.create());
 

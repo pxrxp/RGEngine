@@ -52,7 +52,6 @@ REM Configure if missing
 IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (
     echo Configuring CMake...
     cmake -B "%BUILD_DIR%" -S . ^
-        -DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake ^
         -DVCPKG_TARGET_TRIPLET=%TRIPLET% ^
         -DVCPKG_HOST_TRIPLET=%TRIPLET% ^
         -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^

@@ -194,7 +194,7 @@ void App::update_camera() {
       glm::vec3(cos(this->camera.yaw_rad) * cos(this->camera.pitch_rad),
                 sin(this->camera.pitch_rad),
                 sin(this->camera.yaw_rad) * cos(this->camera.pitch_rad)));
-  glm::vec3 right = glm::normalize(glm::cross(forward, Y_AXIS));
+  glm::vec3 right = glm::normalize(glm::cross(forward, AXIS_Y));
   glm::vec3 up = glm::normalize(glm::cross(right, forward));
 
   this->camera.pos += this->camera.speed * move_dir.x * right;

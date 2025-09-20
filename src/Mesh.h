@@ -5,6 +5,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
 
+#define VERTEX_SIMPLE_MEMBERS(X) X(glm::vec3, position)
+
 #define VERTEX_COLORED_MEMBERS(X)                                              \
   X(glm::vec3, position)                                                       \
   X(glm::vec3, normal)                                                         \
@@ -29,6 +31,10 @@
                         reinterpret_cast<void *>(offsetof(Vertex, name)));
 
 #define DECLARE_MEMBER(type, name) type name;
+struct VertexSimple {
+  VERTEX_SIMPLE_MEMBERS(DECLARE_MEMBER)
+};
+
 struct VertexColored {
   VERTEX_COLORED_MEMBERS(DECLARE_MEMBER)
 };
@@ -58,16 +64,17 @@ class Mesh {
   glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
   glm::vec3 scale_factors = glm::vec3(1.0f);
 
-  public:
+public:
   GLuint get_id() const;
-  
+
   template <typename Vertex>
   void setup(const std::vector<Vertex> &vertices,
              const std::vector<Face> &indices = {},
              GLenum draw_primitive = GL_TRIANGLES,
              GLenum usage = GL_STATIC_DRAW) {
 
-    static_assert(std::is_same<Vertex, VertexColored>::value ||
+    static_assert(std::is_same<Vertex, VertexSimple>::value ||
+                  std::is_same<Vertex, VertexColored>::value ||
                   std::is_same<Vertex, VertexTextured>::value ||
                   std::is_same<Vertex, VertexAdvanced>::value);
 
@@ -93,7 +100,9 @@ class Mesh {
 
     int attr_index = 0;
 
-    if constexpr (std::is_same_v<Vertex, VertexColored>) {
+    if constexpr (std::is_same_v<Vertex, VertexSimple>) {
+      VERTEX_SIMPLE_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, VertexColored>) {
       VERTEX_COLORED_MEMBERS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, VertexTextured>) {
       VERTEX_TEXTURED_MEMBERS(SETUP_ATTRIB)
@@ -104,9 +113,9 @@ class Mesh {
     glBindVertexArray(0);
   }
 
-  void rotate(const glm::vec3& axis, float angle);
-  void translate(const glm::vec3& offset);
-  void scale(const glm::vec3& factors);
+  void rotate(const glm::vec3 &axis, float angle);
+  void translate(const glm::vec3 &offset);
+  void scale(const glm::vec3 &factors);
   glm::mat4 get_model_matrix() const;
 
   void draw(unsigned int instance_count = 1) const;
@@ -114,6 +123,7 @@ class Mesh {
 };
 
 #undef SETUP_ATTRIB
+#undef VERTEX_SIMPLE_MEMBERS
 #undef VERTEX_COLORED_MEMBERS
 #undef VERTEX_TEXTURED_MEMBERS
 #undef VERTEX_ADVANCED_MEMBERS
