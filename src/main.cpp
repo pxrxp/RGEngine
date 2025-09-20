@@ -134,7 +134,7 @@ int main() {
                                      app.get_camera().get_view_matrix());
     cube.shader_program->set_uniform("proj",
                                      app.get_camera().get_projection_matrix());
-    cube.mesh->draw();
+    cube.mesh->draw(true);
   };
 
 #ifndef NDEBUG
