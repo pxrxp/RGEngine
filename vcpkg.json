@@ -6,6 +6,7 @@
     "glad",
     "opengl",
     "glm",
+    "libpng",
     {
       "name": "imgui",
       "features": ["glfw-binding", "opengl3-binding"]
