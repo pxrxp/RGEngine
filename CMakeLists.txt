@@ -50,15 +50,14 @@ function(enable_preprocessing_on_build TARGET_NAME)
 endfunction()
 
 function(deploy_vcpkg_dependencies TARGET)
-    if(NOT WIN32)
+    if(NOT WIN32 OR NOT VCPKG_TARGET_TRIPLET)
         return()
     endif()
-    if(NOT DEFINED ENV{VCPKG_ROOT})
-        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Cannot locate the vcpkg 'packages' directory.")
-    endif()
-    if(NOT VCPKG_TARGET_TRIPLET)
-        message(WARNING "VCPKG_TARGET_TRIPLET not set. Cannot determine package path.")
-        return()
+
+    set(VCPKG_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
+
+    if(NOT EXISTS "${VCPKG_ROOT_PATH}")
+        message(FATAL_ERROR "vcpkg directory not found at the expected path: ${VCPKG_ROOT_PATH}")
     endif()
 
     set(VCPKG_PACKAGE_NAMES
@@ -69,7 +68,8 @@ function(deploy_vcpkg_dependencies TARGET)
     message(STATUS "Configuring DLL deployment from vcpkg 'packages' cache for '${TARGET}'")
 
     foreach(PACKAGE_NAME ${VCPKG_PACKAGE_NAMES})
-        set(PACKAGE_DIR "$ENV{VCPKG_ROOT}/packages/${PACKAGE_NAME}_${VCPKG_TARGET_TRIPLET}")
+        set(PACKAGE_DIR "${VCPKG_ROOT_PATH}/packages/${PACKAGE_NAME}_${VCPKG_TARGET_TRIPLET}")
+        
         set(DEBUG_BIN_DIR "${PACKAGE_DIR}/debug/bin")
         set(RELEASE_BIN_DIR "${PACKAGE_DIR}/bin")
 
@@ -77,7 +77,6 @@ function(deploy_vcpkg_dependencies TARGET)
         file(GLOB RELEASE_DLLS "${RELEASE_BIN_DIR}/*.dll")
 
         foreach(DLL_PATH ${DEBUG_DLLS})
-            get_filename_component(DLL_NAME ${DLL_PATH} NAME)
             add_custom_command(TARGET ${TARGET} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                         "${DLL_PATH}"
@@ -87,7 +86,6 @@ function(deploy_vcpkg_dependencies TARGET)
         endforeach()
 
         foreach(DLL_PATH ${RELEASE_DLLS})
-            get_filename_component(DLL_NAME ${DLL_PATH} NAME)
             add_custom_command(TARGET ${TARGET} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                         "${DLL_PATH}"
