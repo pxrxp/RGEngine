@@ -11,10 +11,13 @@ void Renderer::add(RenderPacket render_packet) {
 void Renderer::render() {
   std::sort(render_queue.begin(), render_queue.end(),
             [](const RenderPacket &a, const RenderPacket &b) {
-              if (a.shader_program->get_id() != b.shader_program->get_id()) {
-                return a.shader_program->get_id() < b.shader_program->get_id();
+              if (a.priority != b.priority) {
+                if (a.shader_program->get_id() != b.shader_program->get_id()) {
+                  return a.shader_program->get_id() < b.shader_program->get_id();
+                }
+                return a.material->get_id() < b.material->get_id();
               }
-              return a.material->get_id() < b.material->get_id();
+              return a.priority < b.priority;
             });
 
   std::shared_ptr<ShaderProgram> current_shader_program = nullptr;

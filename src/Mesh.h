@@ -120,7 +120,7 @@ public:
   void scale(const glm::vec3 &factors);
   glm::mat4 get_model_matrix() const;
 
-  void draw(bool bind = false, unsigned int instance_count = 1) const;
+  void draw(bool bind = true, unsigned int instance_count = 1) const;
   ~Mesh();
 };
 
