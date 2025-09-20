@@ -47,8 +47,57 @@ function(enable_preprocessing_on_build TARGET_NAME)
     else()
         message(WARNING "Preprocessing not enabled for ${TARGET_NAME}: Unsupported compiler ${CMAKE_CXX_COMPILER_ID}")
     endif()
-
 endfunction()
+
+function(deploy_vcpkg_dependencies TARGET)
+    if(NOT WIN32)
+        return()
+    endif()
+    if(NOT DEFINED ENV{VCPKG_ROOT})
+        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Cannot locate the vcpkg 'packages' directory.")
+    endif()
+    if(NOT VCPKG_TARGET_TRIPLET)
+        message(WARNING "VCPKG_TARGET_TRIPLET not set. Cannot determine package path.")
+        return()
+    endif()
+
+    set(VCPKG_PACKAGE_NAMES
+        libpng
+        zlib
+    )
+
+    message(STATUS "Configuring DLL deployment from vcpkg 'packages' cache for '${TARGET}'")
+
+    foreach(PACKAGE_NAME ${VCPKG_PACKAGE_NAMES})
+        set(PACKAGE_DIR "$ENV{VCPKG_ROOT}/packages/${PACKAGE_NAME}_${VCPKG_TARGET_TRIPLET}")
+        set(DEBUG_BIN_DIR "${PACKAGE_DIR}/debug/bin")
+        set(RELEASE_BIN_DIR "${PACKAGE_DIR}/bin")
+
+        file(GLOB DEBUG_DLLS "${DEBUG_BIN_DIR}/*.dll")
+        file(GLOB RELEASE_DLLS "${RELEASE_BIN_DIR}/*.dll")
+
+        foreach(DLL_PATH ${DEBUG_DLLS})
+            get_filename_component(DLL_NAME ${DLL_PATH} NAME)
+            add_custom_command(TARGET ${TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${DLL_PATH}"
+                        "$<TARGET_FILE_DIR:${TARGET}>"
+                CONFIGURATIONS Debug
+            )
+        endforeach()
+
+        foreach(DLL_PATH ${RELEASE_DLLS})
+            get_filename_component(DLL_NAME ${DLL_PATH} NAME)
+            add_custom_command(TARGET ${TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${DLL_PATH}"
+                        "$<TARGET_FILE_DIR:${TARGET}>"
+                CONFIGURATIONS Release
+            )
+        endforeach()
+    endforeach()
+endfunction()
+
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
@@ -72,3 +121,4 @@ target_link_libraries(RivalGrounds PRIVATE
 )
 
 enable_preprocessing_on_build(RivalGrounds)
+deploy_vcpkg_dependencies(RivalGrounds)
