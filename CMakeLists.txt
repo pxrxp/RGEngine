@@ -49,53 +49,6 @@ function(enable_preprocessing_on_build TARGET_NAME)
     endif()
 endfunction()
 
-function(deploy_vcpkg_dependencies TARGET)
-    if(NOT WIN32 OR NOT VCPKG_TARGET_TRIPLET)
-        return()
-    endif()
-
-    set(VCPKG_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
-
-    if(NOT EXISTS "${VCPKG_ROOT_PATH}")
-        message(FATAL_ERROR "vcpkg directory not found at the expected path: ${VCPKG_ROOT_PATH}")
-    endif()
-
-    set(VCPKG_PACKAGE_NAMES
-        libpng
-        zlib
-    )
-
-    message(STATUS "Configuring DLL deployment from vcpkg 'packages' cache for '${TARGET}'")
-
-    foreach(PACKAGE_NAME ${VCPKG_PACKAGE_NAMES})
-        set(PACKAGE_DIR "${VCPKG_ROOT_PATH}/packages/${PACKAGE_NAME}_${VCPKG_TARGET_TRIPLET}")
-        
-        set(DEBUG_BIN_DIR "${PACKAGE_DIR}/debug/bin")
-        set(RELEASE_BIN_DIR "${PACKAGE_DIR}/bin")
-
-        file(GLOB DEBUG_DLLS "${DEBUG_BIN_DIR}/*.dll")
-        file(GLOB RELEASE_DLLS "${RELEASE_BIN_DIR}/*.dll")
-
-        foreach(DLL_PATH ${DEBUG_DLLS})
-            add_custom_command(TARGET ${TARGET} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        "${DLL_PATH}"
-                        "$<TARGET_FILE_DIR:${TARGET}>"
-                CONFIGURATIONS Debug
-            )
-        endforeach()
-
-        foreach(DLL_PATH ${RELEASE_DLLS})
-            add_custom_command(TARGET ${TARGET} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        "${DLL_PATH}"
-                        "$<TARGET_FILE_DIR:${TARGET}>"
-                CONFIGURATIONS Release
-            )
-        endforeach()
-    endforeach()
-endfunction()
-
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
@@ -119,4 +72,3 @@ target_link_libraries(RivalGrounds PRIVATE
 )
 
 enable_preprocessing_on_build(RivalGrounds)
-deploy_vcpkg_dependencies(RivalGrounds)

@@ -79,6 +79,35 @@ if exist "%BUILD_DIR%\resources" (
 REM Copy resources folder recursively
 xcopy "resources" "%BUILD_DIR%\resources" /E /I /Y
 
+set INSTALLED_BIN_DIR=
+if /I "%BUILD_TYPE%"=="Debug" (
+    set "INSTALLED_BIN_DIR=%BUILD_DIR%\vcpkg_installed\%TRIPLET%\debug\bin"
+)
+if /I "%BUILD_TYPE%"=="Release" (
+    set "INSTALLED_BIN_DIR=%BUILD_DIR%\vcpkg_installed\%TRIPLET%\bin"
+)
+
+if not defined INSTALLED_BIN_DIR (
+    echo ERROR: BUILD_TYPE must be 'Debug' or 'Release'.
+    exit /b 1
+)
+
+if not exist "%INSTALLED_BIN_DIR%" (
+    echo WARNING: Source directory not found: "%INSTALLED_BIN_DIR%"
+    exit /b 0
+)
+
+echo.
+echo INSTALLED_BIN_DIR: %INSTALLED_BIN_DIR%
+echo BUILD_DIR:         %BUILD_DIR%
+echo Copying all .dll files...
+echo.
+
+xcopy "%INSTALLED_BIN_DIR%\*.dll" "%BUILD_DIR%\" /Y /I /D
+
+echo.
+echo DLL deployment complete.
+
 cd /d "%ORIGINAL_DIR%"
 
 endlocal
