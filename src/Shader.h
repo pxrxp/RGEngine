@@ -12,7 +12,7 @@ public:
   ~ShaderProgram();
 
   GLuint get_id() const;
-  void load_shaders(std::initializer_list<std::string> paths);
+  void load(std::initializer_list<std::string> shaders);
   void bind();
   void unbind();
 

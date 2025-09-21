@@ -26,12 +26,12 @@ ShaderProgram::~ShaderProgram() {
   glDeleteProgram(m_id);
 }
 
-void ShaderProgram::load_shaders(std::initializer_list<std::string> paths) {
+void ShaderProgram::load(std::initializer_list<std::string> shaders) {
   if (m_id == 0) {
     m_id = glCreateProgram();
   }
 
-  for (const auto& path: paths) {
+  for (const auto& path: shaders) {
     GLuint shader = repo.get_shader(path);
     glAttachShader(m_id, shader);
   }

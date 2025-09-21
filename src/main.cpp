@@ -20,9 +20,9 @@ int main() {
   RenderPacket skybox(app.mesh_repo.create(), app.shader_program_repo.create(),
                       app.material_repo.create(), LOW_PRIORITY);
 
-  skybox.mesh->setup<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
-                                   {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
-  skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
+  skybox.mesh->load<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
+                                  {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
+  skybox.shader_program->load({"skybox.vert.glsl", "skybox.frag.glsl"});
   skybox.material->load(skybox.shader_program,
                         {{"skybox",
                           {.target = GL_TEXTURE_CUBE_MAP,
@@ -46,33 +46,33 @@ int main() {
   RenderPacket cube(app.mesh_repo.create(), app.shader_program_repo.create(),
                     app.material_repo.create());
 
-  cube.shader_program->load_shaders({"cube.vert.glsl", "cube.frag.glsl"});
+  cube.shader_program->load({"cube.vert.glsl", "cube.frag.glsl"});
 
-  cube.mesh->setup<VertexColored>({{0.5f * glm::vec3(CUBE_VERT0),
-                                    {-0.577f, -0.577f, -0.577f},
-                                    {0.000f, 0.000f, 0.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT1),
-                                    {0.577f, -0.577f, -0.577f},
-                                    {1.000f, 0.000f, 0.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT2),
-                                    {0.577f, 0.577f, -0.577f},
-                                    {1.000f, 1.000f, 0.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT3),
-                                    {-0.577f, 0.577f, -0.577f},
-                                    {0.000f, 1.000f, 0.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT4),
-                                    {-0.577f, -0.577f, 0.577f},
-                                    {0.000f, 0.000f, 1.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT5),
-                                    {0.577f, -0.577f, 0.577f},
-                                    {1.000f, 0.000f, 1.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT6),
-                                    {0.577f, 0.577f, 0.577f},
-                                    {1.000f, 1.000f, 1.000f}},
-                                   {0.5f * glm::vec3(CUBE_VERT7),
-                                    {-0.577f, 0.577f, 0.577f},
-                                    {0.000f, 1.000f, 1.000f}}},
-                                  {CUBE_FACES});
+  cube.mesh->load<VertexColored>({{0.5f * glm::vec3(CUBE_VERT0),
+                                   {-0.577f, -0.577f, -0.577f},
+                                   {0.000f, 0.000f, 0.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT1),
+                                   {0.577f, -0.577f, -0.577f},
+                                   {1.000f, 0.000f, 0.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT2),
+                                   {0.577f, 0.577f, -0.577f},
+                                   {1.000f, 1.000f, 0.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT3),
+                                   {-0.577f, 0.577f, -0.577f},
+                                   {0.000f, 1.000f, 0.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT4),
+                                   {-0.577f, -0.577f, 0.577f},
+                                   {0.000f, 0.000f, 1.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT5),
+                                   {0.577f, -0.577f, 0.577f},
+                                   {1.000f, 0.000f, 1.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT6),
+                                   {0.577f, 0.577f, 0.577f},
+                                   {1.000f, 1.000f, 1.000f}},
+                                  {0.5f * glm::vec3(CUBE_VERT7),
+                                   {-0.577f, 0.577f, 0.577f},
+                                   {0.000f, 1.000f, 1.000f}}},
+                                 {CUBE_FACES});
 
   cube.render = [&] {
     cube.shader_program->set_uniform("model", cube.mesh->get_model_matrix());

@@ -71,7 +71,7 @@ public:
   void unbind();
 
   template <typename Vertex>
-  void setup(const std::vector<Vertex> &vertices,
+  void load(const std::vector<Vertex> &vertices,
              const std::vector<Face> &indices = {},
              GLenum draw_primitive = GL_TRIANGLES,
              GLenum usage = GL_STATIC_DRAW) {
