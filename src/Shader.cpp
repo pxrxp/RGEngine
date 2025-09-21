@@ -15,25 +15,44 @@ GLuint ShaderProgram::get_id() const {
 }
 
 void ShaderProgram::bind() {
-  if (this->current_program == this->id)
-    return;
-  
+#ifndef DONT_BIND
   glUseProgram(this->id);
-  this->previous_program = current_program;
-  this->current_program = this-> id;
+  std::cout << "Used program: " << this->id << std::endl;
+  return;
+#endif
+std::cout << "DONT_BIND was defined\n";
 }
 
 void ShaderProgram::return_back() {
-  if (this->previous_program == current_program)
-    return;
-
-  glUseProgram(this->previous_program);
-  this->current_program = this->previous_program;
-}
-
-void ShaderProgram::unbind() {
+#ifndef DONT_BIND
+  std::cout << "Unbind program. " << std::endl;
   glUseProgram(0);
+#endif
+std::cout << "DONT_BIND was defined\n";
 }
+
+// void ShaderProgram::bind() {
+//   if (this->current_program == this->id)
+//     return;
+  
+//   glUseProgram(this->id);
+  // std::cout << "(B) Used program: " << this->id << std::endl;
+//   this->previous_program = current_program;
+//   this->current_program = this-> id;
+// }
+
+// void ShaderProgram::return_back() {
+//   if (this->previous_program == current_program)
+//     return;
+
+//   glUseProgram(this->previous_program);
+  // std::cout << "(R) Used program: " << this->previous_program << std::endl;
+//   this->current_program = this->previous_program;
+// }
+
+// void ShaderProgram::unbind() {
+//   glUseProgram(0);
+// }
 
 ShaderProgram::~ShaderProgram() {
   glDeleteProgram(this->id);

@@ -8,9 +8,8 @@ class ShaderProgram {
 private:
   GLuint id = 0;
 
-  GLuint previous_program = 0;
-
 public:
+  static GLuint previous_program;
   static GLuint current_program;
   ~ShaderProgram();
 
@@ -31,3 +30,4 @@ public:
 };
 
 inline GLuint ShaderProgram::current_program = 0;
+inline GLuint ShaderProgram::previous_program = 0;

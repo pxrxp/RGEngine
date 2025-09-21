@@ -4,7 +4,6 @@
 #include "png_image.h"
 #include "util.h"
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #ifndef NDEBUG
@@ -131,11 +130,13 @@ int main() {
        {1, 0, 4}});
 
   cube.render = [&] {
+   #define DONT_BIND
     cube.shader_program->set_uniform("model", cube.mesh->get_model_matrix());
     cube.shader_program->set_uniform("view",
                                      app.get_camera().get_view_matrix());
     cube.shader_program->set_uniform("proj",
                                      app.get_camera().get_projection_matrix());
+    #undef DONT_BIND
     cube.mesh->draw();
   };
 

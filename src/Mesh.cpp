@@ -5,32 +5,45 @@
 GLuint Mesh::get_id() const { return vao; }
 
 void Mesh::bind() {
-  if (this->current_vao == vao)
-    return;
-
+  std::cout << "Bound VAO: " << vao << std::endl;
   glBindVertexArray(vao);
-  this->previous_vao = this->current_vao;
-  this->current_vao = this->vao;
 }
 
 void Mesh::return_back() {
-  if (this->previous_vao == current_vao)
-    return;
-
-  glBindVertexArray(this->previous_vao);
-  this->current_vao = this->previous_vao;
+  std::cout << "Unbind VAO. " << std::endl;
+  glBindVertexArray(0);
 }
 
-void Mesh::unbind() {
-  this->current_vao = 0;
-  glBindVertexArray(this->current_vao);
-}
+// void Mesh::bind() {
+//   if (this->current_vao == vao)
+//     return;
+
+  // std::cout << "(B) Bound VAO: " << vao << std::endl;
+//   glBindVertexArray(vao);
+//   this->previous_vao = this->current_vao;
+//   this->current_vao = this->vao;
+// }
+
+// void Mesh::return_back() {
+//   if (this->previous_vao == current_vao)
+//     return;
+
+  // std::cout << "(R) Bound VAO: " << vao << std::endl;
+//   glBindVertexArray(this->previous_vao);
+//   this->current_vao = this->previous_vao;
+// }
+
+// void Mesh::unbind() {
+//   this->current_vao = 0;
+//   glBindVertexArray(this->current_vao);
+// }
 
 void Mesh::draw(unsigned int instance_count) {
   if (instance_count == 0)
     return;
 
   this->bind();
+  std::cout << "Drawing cube" << std::endl;
 
   if (index_count > 0) {
     if (instance_count == 1) {
