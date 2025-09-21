@@ -3,17 +3,29 @@
 #include <algorithm>
 
 inline int calculate_mip_levels(int width, int height, int depth = 1) {
-    return 1 + static_cast<int>(std::floor(std::log2(std::max({width, height, depth}))));
+  return 1 + static_cast<int>(
+                 std::floor(std::log2(std::max({width, height, depth}))));
 }
 
-std::pair<GLenum, GLenum> fix_filter(bool generate_mipmaps, GLenum min_filter, GLenum mag_filter) {
-  GLenum _min_filter, _mag_filter;
+std::pair<GLenum, GLenum> fix_filter(bool generate_mipmaps, GLenum min_filter,
+                                     GLenum mag_filter) {
+  GLenum _min_filter = min_filter, _mag_filter = mag_filter;
   if (generate_mipmaps) {
     if (min_filter == GL_LINEAR)
       _min_filter = GL_LINEAR_MIPMAP_LINEAR;
 
     if (min_filter == GL_NEAREST)
       _min_filter = GL_NEAREST_MIPMAP_NEAREST;
+
+  } else {
+
+    if (min_filter == GL_NEAREST_MIPMAP_NEAREST ||
+        min_filter == GL_NEAREST_MIPMAP_LINEAR)
+      _min_filter = GL_NEAREST;
+
+    if (min_filter == GL_LINEAR_MIPMAP_LINEAR ||
+        min_filter == GL_LINEAR_MIPMAP_NEAREST)
+      _min_filter = GL_LINEAR;
   }
 
   if (mag_filter == GL_NEAREST_MIPMAP_NEAREST ||
@@ -27,9 +39,10 @@ std::pair<GLenum, GLenum> fix_filter(bool generate_mipmaps, GLenum min_filter, G
   return {_min_filter, _mag_filter};
 }
 
-GLuint TextureRepo::load_and_store_texture(const std::string& name, const TextureDescriptor &desc) {
-  
-  if (textures.size() == 0) {
+GLuint TextureRepo::load_and_store_texture(const std::string &name,
+                                           const TextureDescriptor &desc) {
+
+  if (name.empty()) {
     std::cerr << "Provide at least one texture!\n";
     return 0;
   }
@@ -38,21 +51,10 @@ GLuint TextureRepo::load_and_store_texture(const std::string& name, const Textur
 
   switch (desc.target) {
   case GL_TEXTURE_2D:
-    if (textures.size() != 1) {
-      std::cerr << "Invalid target! GL_TEXTURE_2D expects only one texture.\n";
-      break;
-    }
-
     id = load_and_store_tex_2d(name, desc);
     break;
 
   case GL_TEXTURE_CUBE_MAP:
-    if (textures.size() != 6) {
-      std::cerr
-          << "Invalid target! GL_TEXTURE_CUBE_MAP expects six textures.\n";
-      break;
-    }
-
     id = load_and_store_cubemap(name, desc);
     break;
 
@@ -72,11 +74,13 @@ GLuint TextureRepo::load_and_store_texture(const std::string& name, const Textur
   return id;
 }
 
-
-GLuint TextureRepo::load_and_store_tex_2d(const std::string& name,
-                                           const TextureDescriptor &desc) {
+GLuint TextureRepo::load_and_store_tex_2d(const std::string &name,
+                                          const TextureDescriptor &desc) {
 
   PNGImage image(name + ".png");
+  if (!image.is_valid()) {
+    std::cerr << "ERROR: Invalid file" << name + ".png\n";
+  }
 
   GLuint texture;
   glCreateTextures(desc.target, 1, &texture);
@@ -94,7 +98,8 @@ GLuint TextureRepo::load_and_store_tex_2d(const std::string& name,
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
 
-  auto fixed_filter = fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
+  auto fixed_filter =
+      fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
   glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, fixed_filter.first);
   glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, fixed_filter.second);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
@@ -103,17 +108,24 @@ GLuint TextureRepo::load_and_store_tex_2d(const std::string& name,
   return texture;
 }
 
-GLuint TextureRepo::load_and_store_cubemap(const std::string& name,
-                                           const TextureDescriptor &desc) {
+GLuint TextureRepo::load_and_store_tex_2d_array(const std::string &name,
+                                                const TextureDescriptor &desc) {
   PNGImage image = PNGImage(name + "_0.png");
+  if (!image.is_valid()) {
+    std::cerr << "ERROR: Invalid file" << name + "_0.png\n";
+    return 0;
+  }
 
   if (image.width != image.height) {
     std::cerr << "ERROR: Cubemap faces must be square!" << std::endl;
     return 0;
   }
 
+  if (desc.layers == -1) {
+    std::cerr << "ERROR: Invalid no. of layers!" << std::endl;
+  }
+
   const int width = image.width;
-  const int layers = textures.size();
 
   GLuint texture;
   glCreateTextures(desc.target, 1, &texture);
@@ -123,13 +135,19 @@ GLuint TextureRepo::load_and_store_cubemap(const std::string& name,
                    : 1;
 
   glTextureStorage3D(texture, levels, desc.internal_format, image.width,
-                     image.height, layers);
+                     image.height, desc.layers);
 
   bool flag = false;
 
-  for (int i = 0; i < layers; ++i) {
+  for (int i = 0; i < desc.layers; ++i) {
+    std::string file_name = name + "_" + std::to_string(i) + ".png";
     if (flag)
-      image = PNGImage(name + "_" + std::to_string(i) + ".png");
+      image = PNGImage(file_name);
+
+    if (!image.is_valid()) {
+      std::cerr << "ERROR: Invalid file" << file_name << "\n";
+      continue;
+    }
 
     if (image.width != width || image.height != width) {
       std::cerr << "ERROR: Cubemap layer " << i << " has mismatched dimensions."
@@ -141,13 +159,14 @@ GLuint TextureRepo::load_and_store_cubemap(const std::string& name,
     glTextureSubImage3D(texture, 0, 0, 0, i, width, width, 1, sourceFormat,
                         GL_UNSIGNED_BYTE, image.pixels.data());
 
-    flag = false;
+    flag = true;
   }
 
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
 
-  auto fixed_filter = fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
+  auto fixed_filter =
+      fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
   glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, fixed_filter.first);
   glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, fixed_filter.second);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
@@ -156,13 +175,16 @@ GLuint TextureRepo::load_and_store_cubemap(const std::string& name,
   return texture;
 }
 
-GLuint
-TextureRepo::load_and_store_tex_2d_array(const std::string& name,
-                                    const TextureDescriptor &desc) {
+GLuint TextureRepo::load_and_store_cubemap(const std::string &name,
+                                           const TextureDescriptor &desc) {
   PNGImage image = PNGImage(name + "_0.png");
+  if (!image.is_valid()) {
+    std::cerr << "ERROR: Invalid file" << name + "_0.png\n";
+    return 0;
+  }
+
   const int width = image.width;
   const int height = image.height;
-  const int layers = textures.size();
 
   GLuint texture;
   glCreateTextures(desc.target, 1, &texture);
@@ -177,8 +199,14 @@ TextureRepo::load_and_store_tex_2d_array(const std::string& name,
   bool flag = false;
 
   for (int i = 0; i < 6; ++i) {
+    std::string file_name = name + "_" + std::to_string(i) + ".png";
     if (flag)
-      image = PNGImage(name + "_" + std::to_string(i) + ".png");
+      image = PNGImage(file_name);
+
+    if (!image.is_valid()) {
+      std::cerr << "ERROR: Invalid file" << file_name << "\n";
+      continue;
+    }
 
     if (image.width != width || image.height != height) {
       std::cerr << "ERROR: Texture2DArray layer " << i
@@ -190,23 +218,25 @@ TextureRepo::load_and_store_tex_2d_array(const std::string& name,
     glTextureSubImage3D(texture, 0, 0, 0, i, width, height, 1, sourceFormat,
                         GL_UNSIGNED_BYTE, image.pixels.data());
 
-    flag = false;
+    flag = true;
   }
 
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
 
-  auto fixed_filter = fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
+  auto fixed_filter =
+      fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
   glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, fixed_filter.first);
   glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, fixed_filter.second);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
-  glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_r);
+  glTextureParameteri(texture, GL_TEXTURE_WRAP_R, desc.wrap_r);
 
   return texture;
 }
 
-GLuint TextureRepo::get_texture(const std::string& name, const TextureDescriptor& desc) {
+GLuint TextureRepo::get_texture(const std::string &name,
+                                const TextureDescriptor &desc) {
   bool not_found = textures.find(name) == textures.end();
   if (not_found) {
     return load_and_store_texture(name, desc);

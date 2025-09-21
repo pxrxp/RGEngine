@@ -38,19 +38,6 @@ public:
   GLuint get_shader(const std::string& path);
 };
 
-struct TextureDescriptor {
-    GLenum target = GL_TEXTURE_2D;
-    GLenum internal_format = GL_RGBA8;
-    bool generate_mipmaps = true;
-    GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    GLenum mag_filter = GL_LINEAR;
-    GLenum wrap_s = GL_REPEAT;
-    GLenum wrap_t = GL_REPEAT;
-    GLenum wrap_r = GL_CLAMP_TO_EDGE;
-};
-
-inline TextureDescriptor DEFAULT_TEXTURE_DESCRIPTOR;
-
 class TextureRepo {
 private:
   std::unordered_map<std::string, GLuint> textures;

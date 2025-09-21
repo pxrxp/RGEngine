@@ -24,7 +24,11 @@ int main() {
                                    {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
   skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
   skybox.material->load(skybox.shader_program,
-                        {{"skybox", GL_TEXTURE_CUBE_MAP}});
+                        {{"skybox",
+                          {.target = GL_TEXTURE_CUBE_MAP,
+                           .wrap_s = GL_CLAMP_TO_EDGE,
+                           .wrap_t = GL_CLAMP_TO_EDGE,
+                           .wrap_r = GL_CLAMP_TO_EDGE}}});
 
   skybox.render = [&] {
     skybox.shader_program->set_uniform("view",
@@ -44,30 +48,30 @@ int main() {
 
   cube.shader_program->load_shaders({"cube.vert.glsl", "cube.frag.glsl"});
 
-  cube.mesh->setup<VertexColored>({{.position = 0.5f * glm::vec3(CUBE_VERT0),
-                                    .normal = {-0.577f, -0.577f, -0.577f},
-                                    .color = {0.000f, 0.000f, 0.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT1),
-                                    .normal = {0.577f, -0.577f, -0.577f},
-                                    .color = {1.000f, 0.000f, 0.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT2),
-                                    .normal = {0.577f, 0.577f, -0.577f},
-                                    .color = {1.000f, 1.000f, 0.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT3),
-                                    .normal = {-0.577f, 0.577f, -0.577f},
-                                    .color = {0.000f, 1.000f, 0.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT4),
-                                    .normal = {-0.577f, -0.577f, 0.577f},
-                                    .color = {0.000f, 0.000f, 1.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT5),
-                                    .normal = {0.577f, -0.577f, 0.577f},
-                                    .color = {1.000f, 0.000f, 1.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT6),
-                                    .normal = {0.577f, 0.577f, 0.577f},
-                                    .color = {1.000f, 1.000f, 1.000f}},
-                                   {.position = 0.5f * glm::vec3(CUBE_VERT7),
-                                    .normal = {-0.577f, 0.577f, 0.577f},
-                                    .color = {0.000f, 1.000f, 1.000f}}},
+  cube.mesh->setup<VertexColored>({{0.5f * glm::vec3(CUBE_VERT0),
+                                    {-0.577f, -0.577f, -0.577f},
+                                    {0.000f, 0.000f, 0.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT1),
+                                    {0.577f, -0.577f, -0.577f},
+                                    {1.000f, 0.000f, 0.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT2),
+                                    {0.577f, 0.577f, -0.577f},
+                                    {1.000f, 1.000f, 0.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT3),
+                                    {-0.577f, 0.577f, -0.577f},
+                                    {0.000f, 1.000f, 0.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT4),
+                                    {-0.577f, -0.577f, 0.577f},
+                                    {0.000f, 0.000f, 1.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT5),
+                                    {0.577f, -0.577f, 0.577f},
+                                    {1.000f, 0.000f, 1.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT6),
+                                    {0.577f, 0.577f, 0.577f},
+                                    {1.000f, 1.000f, 1.000f}},
+                                   {0.5f * glm::vec3(CUBE_VERT7),
+                                    {-0.577f, 0.577f, 0.577f},
+                                    {0.000f, 1.000f, 1.000f}}},
                                   {CUBE_FACES});
 
   cube.render = [&] {

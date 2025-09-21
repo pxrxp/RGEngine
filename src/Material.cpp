@@ -30,7 +30,7 @@ int Material::get_texture_slot(const std::string &texture) {
 void Material::bind() {
   for (const auto &texture : m_textures) {
     glBindTextureUnit(get_texture_slot(texture.name),
-                      texture_repo.get_texture(texture.name));
+                      texture_repo.get_texture(texture.name, texture.desc));
   }
 }
 
