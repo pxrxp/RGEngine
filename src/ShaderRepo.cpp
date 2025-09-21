@@ -12,7 +12,7 @@ std::unordered_map<char, int> shader_map = {
     {'a', GL_TESS_EVALUATION_SHADER} // .eva
 };
 
-GLuint ShaderRepo::load_and_store_shader(std::string path) {
+GLuint ShaderRepo::load_and_store_shader(const std::string& path) {
   std::string shader_src = read_file("shaders/" + path);
   const char *shader_src_cstr = shader_src.c_str();
   GLuint shader = glCreateShader(shader_map[path[path.size() - 6]]);
@@ -32,7 +32,8 @@ GLuint ShaderRepo::load_and_store_shader(std::string path) {
   return shader;
 }
 
-GLuint ShaderRepo::get_shader(std::string path) {
+
+GLuint ShaderRepo::get_shader(const std::string& path) {
   bool not_found = shaders.find(path) == shaders.end();
   if (not_found) {
     return load_and_store_shader(path);

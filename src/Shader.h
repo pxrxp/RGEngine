@@ -9,8 +9,6 @@ private:
   GLuint m_id = 0;
 
 public:
-  static GLuint previous_program;
-  static GLuint current_program;
   ~ShaderProgram();
 
   GLuint get_id() const;
@@ -26,6 +24,3 @@ public:
   void set_uniform(const char *name, const glm::mat3 &m);
   void set_uniform(const char *name, const glm::mat4 &m);
 };
-
-inline GLuint ShaderProgram::current_program = 0;
-inline GLuint ShaderProgram::previous_program = 0;

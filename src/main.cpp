@@ -1,7 +1,6 @@
 #include "App.h"
 #include "Renderer.h"
 #include "definitions.h"
-#include "png_image.h"
 #include "util.h"
 
 #include <glm/glm.hpp>
@@ -20,48 +19,12 @@ int main() {
 
   RenderPacket skybox(app.mesh_repo.create(), app.shader_program_repo.create(),
                       app.material_repo.create(), LOW_PRIORITY);
-  skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
+
   skybox.mesh->setup<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
                                    {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
-  GLuint cubemapTexture;
-  glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &cubemapTexture);
-
-  {
-    std::vector<PNGImage> faces = {
-        PNGImage("right.png"),  PNGImage("left.png"),  PNGImage("top.png"),
-        PNGImage("bottom.png"), PNGImage("front.png"), PNGImage("back.png")};
-
-    const GLsizei width = faces[0].width;
-    const GLsizei height = faces[0].height;
-    glTextureStorage2D(cubemapTexture, 1, GL_RGBA8, width, height);
-
-    for (unsigned int i = 0; i < faces.size(); i++) {
-      if (!faces[i].is_valid() || faces[i].width != width ||
-          faces[i].height != height) {
-        std::cerr << "Invalid or mismatched cubemap image: "
-                  << faces[i].file_name << std::endl;
-        continue;
-      }
-      glTextureSubImage3D(cubemapTexture,
-                          0,
-                          0, 0, i,
-                          width, height,
-                          1,
-                          GL_RGBA, GL_UNSIGNED_BYTE, faces[i].pixels.data());
-    }
-  }
-
-  glGenerateTextureMipmap(cubemapTexture);
-
-  glTextureParameteri(cubemapTexture, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(cubemapTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glTextureParameteri(cubemapTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTextureParameteri(cubemapTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTextureParameteri(cubemapTexture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-  skybox.shader_program->set_uniform("skybox", 0);
+  skybox.shader_program->load_shaders({"skybox.vert.glsl", "skybox.frag.glsl"});
+  skybox.material->load(skybox.shader_program,
+                        {{"skybox", GL_TEXTURE_CUBE_MAP}});
 
   skybox.render = [&] {
     skybox.shader_program->set_uniform("view",
@@ -71,12 +34,7 @@ int main() {
 
     glDepthFunc(GL_LEQUAL);
 
-    skybox.mesh->bind();
-
-    glBindTextureUnit(0, cubemapTexture);
     skybox.mesh->draw();
-
-    skybox.mesh->unbind();
 
     glDepthFunc(GL_LESS);
   };
@@ -86,57 +44,31 @@ int main() {
 
   cube.shader_program->load_shaders({"cube.vert.glsl", "cube.frag.glsl"});
 
-  cube.mesh->setup<VertexColored>(
-      {// Vertex 0
-       {.position = {-0.500f, -0.500f, -0.500f},
-        .normal = {-0.577f, -0.577f, -0.577f},
-        .color = {0.000f, 0.000f, 0.000f}},
-       // Vertex 1
-       {.position = {0.500f, -0.500f, -0.500f},
-        .normal = {0.577f, -0.577f, -0.577f},
-        .color = {1.000f, 0.000f, 0.000f}},
-       // Vertex 2
-       {.position = {0.500f, 0.500f, -0.500f},
-        .normal = {0.577f, 0.577f, -0.577f},
-        .color = {1.000f, 1.000f, 0.000f}},
-       // Vertex 3
-       {.position = {-0.500f, 0.500f, -0.500f},
-        .normal = {-0.577f, 0.577f, -0.577f},
-        .color = {0.000f, 1.000f, 0.000f}},
-       // Vertex 4
-       {.position = {-0.500f, -0.500f, 0.500f},
-        .normal = {-0.577f, -0.577f, 0.577f},
-        .color = {0.000f, 0.000f, 1.000f}},
-       // Vertex 5
-       {.position = {0.500f, -0.500f, 0.500f},
-        .normal = {0.577f, -0.577f, 0.577f},
-        .color = {1.000f, 0.000f, 1.000f}},
-       // Vertex 6
-       {.position = {0.500f, 0.500f, 0.500f},
-        .normal = {0.577f, 0.577f, 0.577f},
-        .color = {1.000f, 1.000f, 1.000f}},
-       // Vertex 7
-       {.position = {-0.500f, 0.500f, 0.500f},
-        .normal = {-0.577f, 0.577f, 0.577f},
-        .color = {0.000f, 1.000f, 1.000f}}},
-      {// Front
-       {0, 1, 2},
-       {0, 2, 3},
-       // Back
-       {5, 4, 7},
-       {5, 7, 6},
-       // Left
-       {4, 0, 3},
-       {4, 3, 7},
-       // Right
-       {1, 5, 6},
-       {1, 6, 2},
-       // Top
-       {3, 2, 6},
-       {3, 6, 7},
-       // Bottom
-       {4, 5, 1},
-       {1, 0, 4}});
+  cube.mesh->setup<VertexColored>({{.position = 0.5f * glm::vec3(CUBE_VERT0),
+                                    .normal = {-0.577f, -0.577f, -0.577f},
+                                    .color = {0.000f, 0.000f, 0.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT1),
+                                    .normal = {0.577f, -0.577f, -0.577f},
+                                    .color = {1.000f, 0.000f, 0.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT2),
+                                    .normal = {0.577f, 0.577f, -0.577f},
+                                    .color = {1.000f, 1.000f, 0.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT3),
+                                    .normal = {-0.577f, 0.577f, -0.577f},
+                                    .color = {0.000f, 1.000f, 0.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT4),
+                                    .normal = {-0.577f, -0.577f, 0.577f},
+                                    .color = {0.000f, 0.000f, 1.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT5),
+                                    .normal = {0.577f, -0.577f, 0.577f},
+                                    .color = {1.000f, 0.000f, 1.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT6),
+                                    .normal = {0.577f, 0.577f, 0.577f},
+                                    .color = {1.000f, 1.000f, 1.000f}},
+                                   {.position = 0.5f * glm::vec3(CUBE_VERT7),
+                                    .normal = {-0.577f, 0.577f, 0.577f},
+                                    .color = {0.000f, 1.000f, 1.000f}}},
+                                  {CUBE_FACES});
 
   cube.render = [&] {
     cube.shader_program->set_uniform("model", cube.mesh->get_model_matrix());

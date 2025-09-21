@@ -1,23 +1,39 @@
 #include "Material.h"
+#include "Repo.h"
 #include "Shader.h"
-#include "Texture.h"
+#include <algorithm>
 #include <memory>
 
-class Texture;
-class ShaderProgram;
+TextureRepo texture_repo;
 
-int Material::get_id() {
-  return m_id++;
+int Material::get_id() { return m_id++; }
+
+void Material::load(std::shared_ptr<ShaderProgram> shader_program,
+                    const std::vector<Texture> &textures) {
+  m_textures = textures;
+  m_texture_slot = m_current_texture_slot;
+  for (const auto &texture : m_textures) {
+    shader_program->set_uniform(texture.name.c_str(), m_current_texture_slot++);
+  }
 }
 
-// void Material::add(std::shared_ptr<Texture> texture) {
-  
-// }
+int Material::get_texture_slot(const std::string &texture) {
+  auto it = std::find_if(m_textures.begin(), m_textures.end(),
+                         [&](const auto &x) { return x.name == texture; });
 
-void Material::bind(std::shared_ptr<ShaderProgram> shader_program) {
-  // shader_program->bind();
-  // for (const auto& texture : textures) {
-  //   shader_program->set_texture_unit(texture->get_name(), texture->get_texture_unit());
-  // }
-  // shader_program->return_back();
+  if (it == m_textures.end())
+    return -1;
+
+  return m_current_texture_slot + std::distance(m_textures.begin(), it);
+}
+
+void Material::bind() {
+  for (const auto &texture : m_textures) {
+    glBindTextureUnit(get_texture_slot(texture.name),
+                      texture_repo.get_texture(texture.name));
+  }
+}
+
+void Material::unbind() {
+  m_current_texture_slot = 0;
 }
