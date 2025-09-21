@@ -5,8 +5,8 @@
 
 class Texture {
 private:
-  GLuint id = 0;
-  GLint texture_unit = -1;
+  GLuint m_id = 0;
+  GLint m_texture_unit = -1;
 
 public:
   void load(std::array<std::string, 6> relative_path, bool generate_mipmap,

@@ -32,7 +32,7 @@ public:
     std::vector<unsigned char> pixels;
 
     explicit PNGImage(const std::string& relative_path) {
-        this->file_name = relative_path;
+        file_name = relative_path;
         std::vector<unsigned char> png_data;
         try {
             png_data = read_file_bytes("resources/" + relative_path);

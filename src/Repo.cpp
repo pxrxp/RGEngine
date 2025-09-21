@@ -28,7 +28,7 @@ GLuint ShaderRepo::load_and_store_shader(std::string path) {
     std::cerr << "Error while compiling " << path << ":\n" << info << "\n";
   }
 
-  this->shaders[path] = shader;
+  shaders[path] = shader;
   return shader;
 }
 

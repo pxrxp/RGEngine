@@ -1,7 +1,6 @@
 #include "Renderer.h"
 #include "Material.h"
 #include "Shader.h"
-#include "util.h"
 #include <algorithm>
 #include <memory>
 

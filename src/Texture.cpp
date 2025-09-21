@@ -3,15 +3,15 @@
 #include "png_image.h"
 #include <iostream>
 
-GLint Texture::get_texture_unit() const { return this->texture_unit; }
+GLint Texture::get_texture_unit() const { return m_texture_unit; }
 
-GLuint Texture::get_id() const { return this->id; }
+GLuint Texture::get_id() const { return m_id; }
 
 void Texture::load(std::array<std::string, 6> cube_faces_relative_path,
                    bool generate_mipmap, GLenum min_filter, GLenum max_filter) {
 
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+  glGenTextures(1, &m_id);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 
   for (unsigned int i = 0; i < 6; i++) {
     PNGImage image(cube_faces_relative_path[i]);
@@ -61,7 +61,7 @@ void Texture::load(std::string relative_path, GLenum target,
                    bool generate_mipmap, GLenum min_filter, GLenum max_filter) {
 
   if (target >= GL_TEXTURE0 && target <= GL_TEXTURE31) {
-    this->texture_unit = target - GL_TEXTURE0;
+    m_texture_unit = target - GL_TEXTURE0;
   }
 
   PNGImage image(relative_path);
@@ -76,8 +76,8 @@ void Texture::load(std::string relative_path, GLenum target,
     return;
   }
 
-  glGenTextures(1, &id);
-  glBindTexture(target, id);
+  glGenTextures(1, &m_id);
+  glBindTexture(target, m_id);
   glTexImage2D(target, 0, format, image.width, image.height, 0, format,
                GL_UNSIGNED_BYTE, image.pixels.data());
 

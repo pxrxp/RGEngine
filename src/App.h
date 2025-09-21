@@ -7,14 +7,14 @@
 
 class App {
 private:
-  Window window;
-  Camera camera;
-  Renderer renderer;
+  Window m_window;
+  Camera m_camera;
+  Renderer m_renderer;
 
-  bool imgui_initialized = false;
+  bool m_imgui_initialized = false;
 
-  float delta_time;
-  double last_frame_time, current_frame_time;
+  float m_delta_time;
+  double m_last_frame_time, m_current_frame_time;
 
   void update_window_size();
   void update_mouse_position();

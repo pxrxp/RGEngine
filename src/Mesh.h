@@ -25,10 +25,10 @@
   X(glm::vec2, bitangent)
 
 #define SETUP_ATTRIB(type, name)                                               \
-  glEnableVertexAttribArray(attr_index);                                       \
-  glVertexAttribPointer(attr_index++, sizeof(type) / sizeof(GLfloat),          \
-                        GL_FLOAT, GL_FALSE, sizeof(Vertex),                    \
-                        reinterpret_cast<void *>(offsetof(Vertex, name)));
+  glVertexArrayAttribFormat(m_vao, attr_index, sizeof(type) / sizeof(GLfloat), \
+                            GL_FLOAT, GL_FALSE, offsetof(Vertex, name));       \
+  glVertexArrayAttribBinding(m_vao, attr_index, 0);                            \
+  glEnableVertexArrayAttrib(m_vao, attr_index++);
 
 #define DECLARE_MEMBER(type, name) type name;
 struct VertexSimple {
@@ -54,24 +54,20 @@ struct Face {
 
 class Mesh {
 private:
-  GLuint vao = 0;
-  GLuint vbo = 0;
-  GLuint ebo = 0;
-  size_t vertex_count = 0;
-  size_t index_count = 0;
-  GLenum draw_primitive;
+  GLuint m_vao = 0;
+  GLuint m_vbo = 0;
+  GLuint m_ebo = 0;
+  size_t m_vertex_count = 0;
+  size_t m_index_count = 0;
+  GLenum m_draw_primitive;
 
-  glm::vec3 position = glm::vec3(0.0f);
-  glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-  glm::vec3 scale_factors = glm::vec3(1.0f);
-
-  GLuint previous_vao;
-  static GLuint current_vao;
+  glm::vec3 m_position = glm::vec3(0.0f);
+  glm::quat m_orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+  glm::vec3 m_scale_factors = glm::vec3(1.0f);
 
 public:
   GLuint get_id() const;
   void bind();
-  void return_back();
   void unbind();
 
   template <typename Vertex>
@@ -85,25 +81,24 @@ public:
                   std::is_same<Vertex, VertexTextured>::value ||
                   std::is_same<Vertex, VertexAdvanced>::value);
 
-    this->draw_primitive = draw_primitive;
-    this->vertex_count = vertices.size();
-    this->index_count = indices.size() * 3;
+    m_draw_primitive = draw_primitive;
+    m_vertex_count = vertices.size();
+    m_index_count = indices.size() * 3;
 
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
+    glCreateVertexArrays(1, &m_vao);
+    glCreateBuffers(1, &m_vbo);
 
-    this->bind();
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, this->vertex_count * sizeof(Vertex),
-                 vertices.data(), usage);
+    glNamedBufferData(m_vbo, m_vertex_count * sizeof(Vertex), vertices.data(),
+                      usage);
 
     if (!indices.empty()) {
-      glGenBuffers(1, &ebo);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->index_count * sizeof(Face),
-                   indices.data(), usage);
+      glCreateBuffers(1, &m_ebo);
+      glNamedBufferData(m_ebo, m_index_count * sizeof(Face), indices.data(),
+                        usage);
+      glVertexArrayElementBuffer(m_vao, m_ebo);
     }
+
+    glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, sizeof(Vertex));
 
     int attr_index = 0;
 
@@ -116,8 +111,6 @@ public:
     } else if constexpr (std::is_same_v<Vertex, VertexAdvanced>) {
       VERTEX_ADVANCED_MEMBERS(SETUP_ATTRIB)
     }
-
-    this->return_back();
   }
 
   void rotate(const glm::vec3 &axis, float angle);
@@ -128,8 +121,6 @@ public:
   void draw(unsigned int instance_count = 1);
   ~Mesh();
 };
-
-inline GLuint Mesh::current_vao = 0;
 
 #undef SETUP_ATTRIB
 #undef VERTEX_SIMPLE_MEMBERS

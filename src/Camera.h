@@ -4,15 +4,15 @@
 class App;
 
 class Camera {
-  glm::vec3 pos = {0., 0., 0.};
-  glm::vec3 speed = {0., 0., 0.};
-  float sensitivity = 0.f;
-  float yaw_rad = 0.f;
-  float pitch_rad = 0.f;
-  float fovy_rad = 0.f;
+  glm::vec3 m_pos = {0., 0., 0.};
+  glm::vec3 m_speed = {0., 0., 0.};
+  float m_sensitivity = 0.f;
+  float m_yaw_rad = 0.f;
+  float m_pitch_rad = 0.f;
+  float m_fovy_rad = 0.f;
 
-  glm::mat4 view = glm::mat4(1.f);
-  glm::mat4 proj = glm::mat4(1.f);
+  glm::mat4 m_view = glm::mat4(1.f);
+  glm::mat4 m_proj = glm::mat4(1.f);
 
 public:
   void setup(glm::vec3 position, glm::vec3 target, float aspect_ratio,

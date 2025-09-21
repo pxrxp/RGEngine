@@ -2,8 +2,8 @@
 #include "opengl.h"
 
 void App::register_callbacks() {
-  glfwSetFramebufferSizeCallback(this->window.raw_window, framebuffer_size_callback);
-  glfwSetKeyCallback(this->window.raw_window, key_callback);
+  glfwSetFramebufferSizeCallback(m_window.m_raw_window, framebuffer_size_callback);
+  glfwSetKeyCallback(m_window.m_raw_window, key_callback);
 }
 
 void App::framebuffer_size_callback(GLFWwindow *window, int width, int height) {

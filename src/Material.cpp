@@ -7,7 +7,7 @@ class Texture;
 class ShaderProgram;
 
 int Material::get_id() {
-  return this->id++;
+  return m_id++;
 }
 
 // void Material::add(std::shared_ptr<Texture> texture) {

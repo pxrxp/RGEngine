@@ -4,6 +4,8 @@ IF %errorlevel% NEQ 0 (
     exit /b 1
 )
 
+IF "%1"=="-d" set RENDERDOC=true
+
 REM Require BUILD_TYPE
 if "%BUILD_TYPE%"=="" (
     echo Error: BUILD_TYPE environment variable not set.
@@ -20,11 +22,10 @@ cd /d "%~dp0"
 set BINARY="%ORIGINAL_DIR%\build\RivalGrounds.exe"
 
 IF EXIST "%BINARY%" (
-    IF "%BUILD_TYPE%"=="Debug" (
+    IF "%RENDERDOC%"=="true" (
         echo Debugging %BINARY% using RenderDoc...
         start "" "qrenderdoc" "%BINARY%"
-    )
-    IF "%BUILD_TYPE%"=="Release" (
+    ) ELSE (
         echo Running %BINARY%...
         "%BINARY%"
     )
