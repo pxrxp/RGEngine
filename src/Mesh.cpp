@@ -1,18 +1,36 @@
 #include "Mesh.h"
 #include "opengl.h"
+#include "util.h"
 
 GLuint Mesh::get_id() const { return vao; }
 
-void Mesh::bind() { glBindVertexArray(vao); }
+void Mesh::bind() {
+  if (this->current_vao == vao)
+    return;
 
-void Mesh::unbind() { glBindVertexArray(0); }
+  glBindVertexArray(vao);
+  this->previous_vao = this->current_vao;
+  this->current_vao = this->vao;
+}
 
-void Mesh::draw(bool bind, unsigned int instance_count) const {
+void Mesh::return_back() {
+  if (this->previous_vao == current_vao)
+    return;
+
+  glBindVertexArray(this->previous_vao);
+  this->current_vao = this->previous_vao;
+}
+
+void Mesh::unbind() {
+  this->current_vao = 0;
+  glBindVertexArray(this->current_vao);
+}
+
+void Mesh::draw(unsigned int instance_count) {
   if (instance_count == 0)
     return;
 
-  if (bind)
-    glBindVertexArray(vao);
+  this->bind();
 
   if (index_count > 0) {
     if (instance_count == 1) {
@@ -32,8 +50,7 @@ void Mesh::draw(bool bind, unsigned int instance_count) const {
     }
   }
 
-  if (bind)
-    glBindVertexArray(0);
+  this->return_back();
 }
 
 void Mesh::rotate(const glm::vec3 &axis, float angle) {
@@ -50,7 +67,7 @@ glm::mat4 Mesh::get_model_matrix() const {
 }
 
 Mesh::~Mesh() {
-  if (ebo)
+ if (ebo)
     glDeleteBuffers(1, &ebo);
   if (vbo)
     glDeleteBuffers(1, &vbo);

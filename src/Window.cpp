@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "opengl.h"
+#include "util.h"
 #include <glm/glm.hpp>
 
 glm::dvec2 Window::get_delta_mouse() const {

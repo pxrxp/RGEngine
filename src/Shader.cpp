@@ -15,7 +15,20 @@ GLuint ShaderProgram::get_id() const {
 }
 
 void ShaderProgram::bind() {
+  if (this->current_program == this->id)
+    return;
+  
   glUseProgram(this->id);
+  this->previous_program = current_program;
+  this->current_program = this-> id;
+}
+
+void ShaderProgram::return_back() {
+  if (this->previous_program == current_program)
+    return;
+
+  glUseProgram(this->previous_program);
+  this->current_program = this->previous_program;
 }
 
 void ShaderProgram::unbind() {
@@ -47,66 +60,66 @@ void ShaderProgram::load_shaders(std::initializer_list<std::string> paths) {
 
 }
 
-void ShaderProgram::set_uniform(const char* name, float value, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, float value) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform1f(loc, value);
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, int value, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, int value) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform1i(loc, value);
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, const glm::vec2& v, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, const glm::vec2& v) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform2fv(loc, 1, glm::value_ptr(v));
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, const glm::vec3& v, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, const glm::vec3& v) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform3fv(loc, 1, glm::value_ptr(v));
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, const glm::vec4& v, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, const glm::vec4& v) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform4fv(loc, 1, glm::value_ptr(v));
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, const glm::mat3& m, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, const glm::mat3& m) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(m));
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_uniform(const char* name, const glm::mat4& m, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_uniform(const char* name, const glm::mat4& m) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m));
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }
 
-void ShaderProgram::set_texture_unit(const char* name, GLint unit, bool bind_program) const {
-    if (bind_program) glUseProgram(this->id);
+void ShaderProgram::set_texture_unit(const char* name, GLint unit) {
+    this->bind();
     GLint loc = glGetUniformLocation(this->id, name);
     if (loc != -1) glUniform1i(loc, 0);
     else std::cerr << "Warning: uniform \"" << name << "\" not found in program " << this->id << "\n";
-    if (bind_program) glUseProgram(0);
+    this->return_back();
 }

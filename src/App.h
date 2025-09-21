@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "Repo.h"
+#include "opengl.h"
 
 class App {
 private:
@@ -48,4 +49,5 @@ public:
 
   void init_debug_gui();
   void render_debug_gui();
+
 };

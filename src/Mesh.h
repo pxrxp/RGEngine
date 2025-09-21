@@ -53,6 +53,7 @@ struct Face {
 };
 
 class Mesh {
+private:
   GLuint vao = 0;
   GLuint vbo = 0;
   GLuint ebo = 0;
@@ -64,9 +65,13 @@ class Mesh {
   glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
   glm::vec3 scale_factors = glm::vec3(1.0f);
 
+  GLuint previous_vao;
+  static GLuint current_vao;
+
 public:
   GLuint get_id() const;
   void bind();
+  void return_back();
   void unbind();
 
   template <typename Vertex>
@@ -87,7 +92,7 @@ public:
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
-    glBindVertexArray(vao);
+    this->bind();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, this->vertex_count * sizeof(Vertex),
@@ -112,7 +117,7 @@ public:
       VERTEX_ADVANCED_MEMBERS(SETUP_ATTRIB)
     }
 
-    glBindVertexArray(0);
+    this->return_back();
   }
 
   void rotate(const glm::vec3 &axis, float angle);
@@ -120,9 +125,11 @@ public:
   void scale(const glm::vec3 &factors);
   glm::mat4 get_model_matrix() const;
 
-  void draw(bool bind = true, unsigned int instance_count = 1) const;
+  void draw(unsigned int instance_count = 1);
   ~Mesh();
 };
+
+inline GLuint Mesh::current_vao = 0;
 
 #undef SETUP_ATTRIB
 #undef VERTEX_SIMPLE_MEMBERS

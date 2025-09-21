@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #define REPO_CLASS(ClassName, ResourceType)                                    \
   class ClassName {                                                            \
@@ -41,5 +42,6 @@ public:
 REPO_CLASS(MeshRepo, Mesh)
 REPO_CLASS(ShaderProgramRepo, ShaderProgram)
 REPO_CLASS(MaterialRepo, Material)
+REPO_CLASS(TextureRepo, Texture)
 
 #undef REPO_CLASS

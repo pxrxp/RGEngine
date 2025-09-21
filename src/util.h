@@ -2,6 +2,7 @@
 #include "opengl.h"
 #include <cstring>
 #include <fstream>
+#include <glad/glad.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -125,6 +126,9 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
   if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
     return;
 
+  if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+    return;
+
   std::cout << "---------------" << std::endl;
   std::cout << "Debug message (" << id << "): " << message << std::endl;
 
@@ -191,9 +195,6 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
   case GL_DEBUG_SEVERITY_LOW:
     std::cout << "Severity: low";
     break;
-  case GL_DEBUG_SEVERITY_NOTIFICATION:
-    std::cout << "Severity: notification";
-    break;
   }
   std::cout << std::endl;
   std::cout << std::endl;
@@ -225,3 +226,8 @@ static void init_gl_debug() {
 
     std::cout << "Neither KHR_debug nor ARB_debug_output are supported." << std::endl;
 }
+
+struct GLDebugScope {
+    GLDebugScope(const char* name) { glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, name); }
+    ~GLDebugScope() { glPopDebugGroup(); }
+};

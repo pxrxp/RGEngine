@@ -8,28 +8,26 @@ class ShaderProgram {
 private:
   GLuint id = 0;
 
+  GLuint previous_program = 0;
+
 public:
+  static GLuint current_program;
   ~ShaderProgram();
 
   GLuint get_id() const;
   void load_shaders(std::initializer_list<std::string> paths);
   void bind();
   void unbind();
+  void return_back();
 
-  void set_uniform(const char *name, GLfloat value,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, GLint value,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, const glm::vec2 &v,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, const glm::vec3 &v,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, const glm::vec4 &v,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, const glm::mat3 &m,
-                   bool bind_program = true) const;
-  void set_uniform(const char *name, const glm::mat4 &m,
-                   bool bind_program = true) const;
-  void set_texture_unit(const char *name, GLint unit,
-                        bool bind_program = true) const;
+  void set_uniform(const char *name, GLfloat value);
+  void set_uniform(const char *name, GLint value);
+  void set_uniform(const char *name, const glm::vec2 &v);
+  void set_uniform(const char *name, const glm::vec3 &v);
+  void set_uniform(const char *name, const glm::vec4 &v);
+  void set_uniform(const char *name, const glm::mat3 &m);
+  void set_uniform(const char *name, const glm::mat4 &m);
+  void set_texture_unit(const char *name, GLint unit);
 };
+
+inline GLuint ShaderProgram::current_program = 0;

@@ -27,6 +27,7 @@ private:
 public:
     uint32_t width = 0;
     uint32_t height = 0;
+    uint8_t channels = 0;
     std::string file_name;
     std::vector<unsigned char> pixels;
 
@@ -88,6 +89,7 @@ public:
         png_read_update_info(png_ptr, info_ptr);
         
         size_t row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+        channels = row_bytes / width;
         pixels.resize(row_bytes * height);
 
         std::vector<png_bytep> row_pointers(height);
