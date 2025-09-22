@@ -44,4 +44,3 @@ public:
 OctreeNode::OctreeNode(std::shared_ptr<SceneObject> scene) {
   
 }
-

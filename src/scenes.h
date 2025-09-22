@@ -2,6 +2,7 @@
 #include "App.h"
 #include "Scene.h"
 #include "definitions.h"
+#include "components.h"
 
 class TestScene {
   SceneObjectPtr m_scene_ptr;

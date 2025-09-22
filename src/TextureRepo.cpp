@@ -1,5 +1,5 @@
 #include "Repo.h"
-#include "png_image.h"
+#include "PNGImage.h"
 #include <algorithm>
 
 inline int calculate_mip_levels(int width, int height, int depth = 1) {
