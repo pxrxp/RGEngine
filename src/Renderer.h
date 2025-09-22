@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <unordered_set>
 #include <memory>
 #include <vector>
 
@@ -24,14 +25,21 @@ struct RenderPacket {
 
   RenderPacket(std::shared_ptr<Mesh> mesh,
                std::shared_ptr<ShaderProgram> shader,
-               std::shared_ptr<Material> material, Priority priority = NORMAL_PRIORITY)
+               std::shared_ptr<Material> material,
+               Priority priority = NORMAL_PRIORITY)
       : mesh(mesh), shader_program(shader), material(material) {}
 };
 
+class SceneObject;
+using SceneObjectPtr = std::shared_ptr<SceneObject>;
+
 class Renderer {
-  std::vector<RenderPacket> render_queue;
+  std::vector<std::shared_ptr<RenderPacket>> m_render_queue;
 
 public:
-  void add(RenderPacket render_packet);
+  void add(std::shared_ptr<RenderPacket> render_packet);
+  void add_children(SceneObjectPtr root,
+                    std::unordered_set<SceneObjectPtr> &set);
+  void submit(SceneObjectPtr scene);
   void render();
 };

@@ -6,7 +6,7 @@
 
 TextureRepo texture_repo;
 
-int Material::get_id() { return m_id++; }
+int Material::get_id() { return ++m_id; }
 
 void Material::load(std::shared_ptr<ShaderProgram> shader_program,
                     const std::vector<Texture> &textures) {

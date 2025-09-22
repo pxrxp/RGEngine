@@ -1,5 +1,6 @@
 #pragma once
 #include "opengl.h"
+#include <glm/glm.hpp>
 #include <vector>
 
 #define VERTEX_SIMPLE_MEMBERS(X) X(glm::vec3, position)

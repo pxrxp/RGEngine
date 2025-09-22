@@ -4,6 +4,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "App.h"
+
+std::shared_ptr<RenderPacket> &SceneObject::create_render_packet(App &app) {
+  render_packet.emplace(std::make_shared<RenderPacket>(
+      app.mesh_repo.create(), app.shader_program_repo.create(),
+      app.material_repo.create()));
+
+  return render_packet.value();
+}
 
 void SceneObject::rotate(const glm::vec3 &axis, float angle) {
   m_orientation = glm::normalize(glm::angleAxis(angle, axis) * m_orientation);
@@ -38,3 +47,7 @@ glm::mat4 SceneObject::get_world_transform() {
   return get_local_transform();
 }
 
+void SceneObject::add_child(std::shared_ptr<SceneObject> child) {
+  m_children.push_back(child);
+  child->m_parent = std::shared_ptr<SceneObject>(this);
+}

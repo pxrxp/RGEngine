@@ -3,6 +3,7 @@
 #include "definitions.h"
 #include "util.h"
 
+#include "scenes.h"
 #include <glm/glm.hpp>
 
 #ifndef NDEBUG
@@ -17,71 +18,7 @@ int main() {
                          app.get_window().get_aspect_ratio(), 20.0f,
                          {0.05f, 0.05f, 0.05f});
 
-  RenderPacket skybox(app.mesh_repo.create(), app.shader_program_repo.create(),
-                      app.material_repo.create(), LOW_PRIORITY);
-
-  skybox.mesh->load<VertexSimple>({CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
-                                  {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
-  skybox.shader_program->load({"skybox.vert.glsl", "skybox.frag.glsl"});
-  skybox.material->load(skybox.shader_program,
-                        {{"skybox",
-                          {.target = GL_TEXTURE_CUBE_MAP,
-                           .wrap_s = GL_CLAMP_TO_EDGE,
-                           .wrap_t = GL_CLAMP_TO_EDGE,
-                           .wrap_r = GL_CLAMP_TO_EDGE}}});
-
-  skybox.render = [&] {
-    skybox.shader_program->set_uniform("view",
-                                       app.get_camera().get_view_matrix());
-    skybox.shader_program->set_uniform(
-        "proj", app.get_camera().get_projection_matrix());
-
-    glDepthFunc(GL_LEQUAL);
-
-    skybox.mesh->draw();
-
-    glDepthFunc(GL_LESS);
-  };
-
-  RenderPacket cube(app.mesh_repo.create(), app.shader_program_repo.create(),
-                    app.material_repo.create());
-
-  cube.shader_program->load({"cube.vert.glsl", "cube.frag.glsl"});
-
-  cube.mesh->load<VertexColored>({{0.5f * glm::vec3(CUBE_VERT0),
-                                   {-0.577f, -0.577f, -0.577f},
-                                   {0.000f, 0.000f, 0.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT1),
-                                   {0.577f, -0.577f, -0.577f},
-                                   {1.000f, 0.000f, 0.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT2),
-                                   {0.577f, 0.577f, -0.577f},
-                                   {1.000f, 1.000f, 0.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT3),
-                                   {-0.577f, 0.577f, -0.577f},
-                                   {0.000f, 1.000f, 0.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT4),
-                                   {-0.577f, -0.577f, 0.577f},
-                                   {0.000f, 0.000f, 1.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT5),
-                                   {0.577f, -0.577f, 0.577f},
-                                   {1.000f, 0.000f, 1.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT6),
-                                   {0.577f, 0.577f, 0.577f},
-                                   {1.000f, 1.000f, 1.000f}},
-                                  {0.5f * glm::vec3(CUBE_VERT7),
-                                   {-0.577f, 0.577f, 0.577f},
-                                   {0.000f, 1.000f, 1.000f}}},
-                                 {CUBE_FACES});
-
-  cube.render = [&] {
-    cube.shader_program->set_uniform("model", cube.mesh->get_model_matrix());
-    cube.shader_program->set_uniform("view",
-                                     app.get_camera().get_view_matrix());
-    cube.shader_program->set_uniform("proj",
-                                     app.get_camera().get_projection_matrix());
-    cube.mesh->draw();
-  };
+  TestScene test(app);
 
 #ifndef NDEBUG
   MatrixEditors all_matrix_editors;
@@ -101,8 +38,7 @@ int main() {
 
     app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    app.get_renderer().add(cube);
-    app.get_renderer().add(skybox);
+    app.get_renderer().submit(test.get_scene_ptr());
     app.get_renderer().render();
 
     app.render_debug_gui();
