@@ -1,8 +1,5 @@
 #pragma once
 #include "opengl.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <vector>
 
 #define VERTEX_SIMPLE_MEMBERS(X) X(glm::vec3, position)
@@ -61,10 +58,6 @@ private:
   size_t m_index_count = 0;
   GLenum m_draw_primitive;
 
-  glm::vec3 m_position = glm::vec3(0.0f);
-  glm::quat m_orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-  glm::vec3 m_scale_factors = glm::vec3(1.0f);
-
 public:
   GLuint get_id() const;
   void bind();
@@ -112,11 +105,6 @@ public:
       VERTEX_ADVANCED_MEMBERS(SETUP_ATTRIB)
     }
   }
-
-  void rotate(const glm::vec3 &axis, float angle);
-  void translate(const glm::vec3 &offset);
-  void scale(const glm::vec3 &factors);
-  glm::mat4 get_model_matrix() const;
 
   void draw(unsigned int instance_count = 1);
   ~Mesh();
