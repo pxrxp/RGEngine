@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer.h"
+#include "components.h"
 #include <glm/glm.hpp>
 
 class App;
@@ -13,6 +14,8 @@ class Camera {
   float m_yaw_rad = 0.f;
   float m_pitch_rad = 0.f;
   float m_fovy_rad = 0.f;
+
+  Boundary m_bounding_box;
 
   bool m_dirty = true;
   glm::mat4 m_view = glm::mat4(1.f);
@@ -30,6 +33,8 @@ public:
 
   void update(App &app);
   void late_update();
+
+  Boundary get_bounding_box() const;
 
   float get_fovy_rad() const;
   float get_sensitivity() const;

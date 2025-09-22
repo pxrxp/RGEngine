@@ -1,18 +1,53 @@
 #include "Scene.h"
+#include "components.h"
 #include <array>
-#include <unordered_set>
 #include <glm/glm.hpp>
 #include <memory>
 
 class OctreeNode {
 private:
-  Boundary boundary;
-  std::array<std::unique_ptr<OctreeNode>, 8> children;
-  std::vector<SceneObject> scenes;
+  std::array<std::shared_ptr<OctreeNode>, 8> m_children;
+  std::vector<SceneObject> m_scenes;
+  Boundary m_boundary;
+
 public:
-  OctreeNode(std::shared_ptr<SceneObject> scene);
+  Boundary get_boundary() const;
+  static void get(const glm::vec3 &point,
+                  const std::shared_ptr<OctreeNode> &root,
+                  std::vector<std::shared_ptr<OctreeNode>> &result);
+  static void get(const Boundary &box, const std::shared_ptr<OctreeNode> &root,
+           std::vector<std::shared_ptr<OctreeNode>> &result);
 };
 
-OctreeNode::OctreeNode(std::shared_ptr<SceneObject> scene) {
-  
+Boundary OctreeNode::get_boundary() const {
+  return m_boundary;
+}
+
+void OctreeNode::get(const glm::vec3 &point,
+                     const std::shared_ptr<OctreeNode> &root,
+                     std::vector<std::shared_ptr<OctreeNode>> &result) {
+  if (root->m_boundary.where(point) == Inside) {
+    result.push_back(root);
+    return;
+  }
+
+  if (root->m_boundary.where(point) == AtBoundary) {
+    result.push_back(root);
+  }
+
+  for (const auto &child : root->m_children) {
+    get(point, child, result);
+  }
+}
+
+void OctreeNode::get(const Boundary &box,
+                     const std::shared_ptr<OctreeNode> &root,
+                     std::vector<std::shared_ptr<OctreeNode>> &result) {
+  if (root->m_boundary.collides(box)) {
+    result.push_back(root);
+  }
+
+  for (const auto &child : root->m_children) {
+    get(box, child, result);
+  }
 }

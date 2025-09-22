@@ -11,8 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <iostream>
 
+#include <iostream>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/io.hpp>
 
@@ -59,6 +59,18 @@ void Camera::setup(SceneObjectPtr player, float aspect_ratio,
   m_sensitivity = glm::max(0.f, sensitivity);
   m_fovy_rad = glm::radians(fovy_deg);
   m_proj = glm::perspective(m_fovy_rad, aspect_ratio, z_near, z_far);
+
+  float top = z_far * tan(m_fovy_rad / 2);
+  float right = (z_far / z_near) * top * aspect_ratio;
+  
+  m_bounding_box = {
+    .min = {-right, -top, z_near},
+    .max = {right, top, z_far}
+  };
+}
+
+Boundary Camera::get_bounding_box() const {
+  return m_bounding_box;
 }
 
 void Camera::update(App &app) {
