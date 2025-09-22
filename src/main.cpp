@@ -11,10 +11,6 @@ int main() {
   App app;
   app.init();
 
-  app.get_camera().setup({2., 3., 2.}, {0., 0., 0.},
-                         app.get_window().get_aspect_ratio(), 20.0f,
-                         {0.05f, 0.05f, 0.05f});
-
   TestScene test(app);
 
   while (app.is_running()) {
@@ -23,7 +19,7 @@ int main() {
 
     app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    test.update_physics();
+    test.update_physics(app);
     app.get_renderer().submit(test.get_scene_ptr());
     app.get_renderer().render();
 

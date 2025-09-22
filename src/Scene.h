@@ -13,20 +13,21 @@ using SceneObjectPtr = std::shared_ptr<SceneObject>;
 class SceneObject {
 private:
   std::optional<SceneObjectPtr> m_parent = std::nullopt;
-  std::vector<SceneObjectPtr> m_children = {};
-
-  TransformComponent m_local_transform;
-  PhysicsComponent m_physics;
+  std::vector<SceneObjectPtr> m_children;
 
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
-  bool m_changed = true;
+  bool m_dirty = true;
 
 public:
   std::optional<std::shared_ptr<RenderPacket>> render_packet = std::nullopt;
 
-  void rotate(const glm::vec3 &axis, float angle);
-  void translate(const glm::vec3 &offset);
-  void scale(const glm::vec3 &factors);
+  TransformComponent m_local_transform;
+  PhysicsComponent m_physics;
+
+  void set_dirty();
+
+  void apply_force(const glm::vec3& force);
+  void apply_force(const glm::vec3& force, const glm::vec3& point_in_world_space);
 
   glm::mat4 get_local_transform();
   glm::mat4 get_world_transform();

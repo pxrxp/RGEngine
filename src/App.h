@@ -1,9 +1,10 @@
 #pragma once
+
+#include "opengl.h"
 #include "Camera.h"
 #include "Window.h"
 #include "Renderer.h"
 #include "Repo.h"
-#include "opengl.h"
 
 class App {
 private:
@@ -21,7 +22,6 @@ private:
   void update_delta_time();
   void update_camera();
 
-  bool is_key_pressed(int key) const;
   glm::vec3 get_camera_move_dir() const;
 
   void register_callbacks();
