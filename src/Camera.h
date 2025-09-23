@@ -9,7 +9,7 @@ class Camera {
 
   SceneObjectPtr m_target_player;
 
-  float m_thrust_strength = 0.0f;
+  float m_speed = 0.0f;
   float m_sensitivity = 0.f;
   float m_yaw_rad = 0.f;
   float m_pitch_rad = 0.f;
@@ -24,7 +24,7 @@ class Camera {
   glm::vec3 get_camera_move_dir(App &app) const;
 
 public:
-  void setup(SceneObjectPtr player, float aspect_ratio, float thrust_strength = 0.5f,
+  void setup(SceneObjectPtr player, float aspect_ratio, float speed = 0.005f,
              float sensitivity = 1.0f, float fovy_deg = 60.0f,
              float z_near = 0.1f, float z_far = 100.0f);
 

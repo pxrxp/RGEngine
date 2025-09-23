@@ -52,16 +52,16 @@ glm::vec3 Camera::get_camera_move_dir(App &app) const {
 }
 
 void Camera::setup(SceneObjectPtr player, float aspect_ratio,
-                   float thrust_strength, float sensitivity, float fovy_deg, float z_near,
+                   float speed, float sensitivity, float fovy_deg, float z_near,
                    float z_far) {
   m_target_player = player;
-  m_thrust_strength = thrust_strength;
+  m_speed = speed;
   m_sensitivity = glm::max(0.f, sensitivity);
   m_fovy_rad = glm::radians(fovy_deg);
   m_proj = glm::perspective(m_fovy_rad, aspect_ratio, z_near, z_far);
 
   float top = z_far * tan(m_fovy_rad / 2);
-  float right = (z_far / z_near) * top * aspect_ratio;
+  float right = top * aspect_ratio;
   
   m_bounding_box = {
     .min = {-right, -top, z_near},
@@ -95,12 +95,8 @@ void Camera::update(App &app) {
     glm::vec3 right = player_orientation * glm::vec3(AXIS_X);
     glm::vec3 up = glm::vec3(AXIS_Y);
 
-    // glm::vec3 world_space_move_dir = right * move_dir.x + up * move_dir.y + forward * move_dir.z;
-    // glm::vec3 offset = world_space_move_dir * m_speed * app.get_delta_time();
-    // m_target_player->m_local_transform.translate(offset);
-
-    glm::vec3 move_force = (right * move_dir.x + up * move_dir.y + forward * move_dir.z) * m_thrust_strength;
-    m_target_player->m_physics.apply_force(move_force);
+    glm::vec3 move_force = (right * move_dir.x + up * move_dir.y + forward * move_dir.z) * m_speed;
+    m_target_player->m_local_transform.translate(move_force * app.get_delta_time());
     m_dirty = true;
   }
 }

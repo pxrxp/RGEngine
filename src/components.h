@@ -55,6 +55,8 @@ public:
       : m_position(config.position), m_orientation(config.orientation),
         m_scale(config.scale), m_dirty(true) {}
 
+  void set_dirty() { m_dirty = true; }
+
   void set_position(const glm::vec3 &position) {
     m_position = position;
     m_dirty = true;

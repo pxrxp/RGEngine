@@ -24,11 +24,6 @@ public:
   TransformComponent m_local_transform;
   PhysicsComponent m_physics;
 
-  void set_dirty();
-
-  void apply_force(const glm::vec3& force);
-  void apply_force(const glm::vec3& force, const glm::vec3& point_in_world_space);
-
   glm::mat4 get_local_transform();
   glm::mat4 get_world_transform();
 

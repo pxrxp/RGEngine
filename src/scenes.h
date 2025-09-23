@@ -38,8 +38,6 @@ class TestScene {
       object->m_local_transform.rotate(axis, angle);
     }
 
-    object->set_dirty();
-
     for (auto &child : *object) {
       if (!set.count(child))
         apply_physics(child, set);
@@ -92,6 +90,7 @@ public:
 
     SceneObjectPtr cube = std::make_shared<SceneObject>();
     auto &cube_render_packet = cube->create_render_packet(app);
+    cube->m_physics = PhysicsComponent({.has_gravity = false});
 
     cube_render_packet->shader_program->load(
         {"cube.vert.glsl", "cube.frag.glsl"});
