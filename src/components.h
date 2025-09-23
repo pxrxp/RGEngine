@@ -2,11 +2,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <initializer_list>
+#include <vector>
 
 enum Where { Outside, Inside, AtBoundary };
 
-struct Boundary {
-  glm::vec3 min, max;
+struct BoundingBox {
+  glm::vec3 min = glm::vec3(0.f);
+  glm::vec3 max = glm::vec3(0.f);
 
   Where where(const glm::vec3 &point) {
     bool at_x_boundary = point.x == min.x || point.x == max.x;
@@ -30,7 +32,7 @@ struct Boundary {
     return Outside;
   }
 
-  bool collides(const Boundary &other) {
+  bool collides(const BoundingBox &other) {
     for (int x : {other.min.x, other.max.x}) {
       for (int y : {other.min.y, other.max.y}) {
         for (int z : {other.min.z, other.max.z}) {
@@ -40,6 +42,20 @@ struct Boundary {
       }
     }
     return false;
+  }
+
+  BoundingBox() {}
+
+  BoundingBox(const std::vector<glm::vec3>& points) {
+    for (const auto& point : points) {
+      min.x = glm::min(min.x, point.x);
+      min.y = glm::min(min.y, point.y);
+      min.z = glm::min(min.z, point.z);
+
+      max.x = glm::max(max.x, point.x);
+      max.y = glm::max(max.y, point.y);
+      max.z = glm::max(max.z, point.z);
+    }
   }
 };
 

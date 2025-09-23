@@ -63,13 +63,22 @@ void Camera::setup(SceneObjectPtr player, float aspect_ratio,
   float top = z_far * tan(m_fovy_rad / 2);
   float right = top * aspect_ratio;
   
-  m_bounding_box = {
-    .min = {-right, -top, z_near},
-    .max = {right, top, z_far}
+  m_ortho_frustum = {
+    {-right, -top, z_near},
+    {right, -top, z_near},
+    {right, top, z_near},
+    {-right, top, z_near},
+    {-right, -top, z_far},
+    {right, -top, z_far},
+    {right, top, z_far},
+    {-right, top, z_far},
   };
 }
 
-Boundary Camera::get_bounding_box() const {
+BoundingBox Camera::get_bounding_box() {
+  if (m_dirty) {
+    late_update();
+  }
   return m_bounding_box;
 }
 
@@ -109,6 +118,12 @@ void Camera::late_update() {
   glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
 
   m_view = glm::lookAt(player_pos, player_pos + forward, glm::vec3(AXIS_Y));
+
+  std::vector<glm::vec3> points_worldspace = m_ortho_frustum;
+  for (auto& point : m_ortho_frustum) {
+    point = glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f));
+  }
+  m_bounding_box = BoundingBox(points_worldspace);
   
   m_dirty = false;
 }

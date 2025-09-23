@@ -3,6 +3,10 @@
 #include "definitions.h"
 #include "scenes.h"
 
+#define GL_ENABLE_EXPERIMENTAL
+#include <glm/gtx/io.hpp>
+#include <iostream>
+
 #ifndef NDEBUG
 #include <imgui.h>
 #endif
@@ -22,6 +26,7 @@ int main() {
     test.update_physics(app);
     app.get_renderer().submit(test.get_scene_ptr());
     app.get_renderer().render();
+    std::cout << app.get_camera().get_bounding_box().min << ", " << app.get_camera().get_bounding_box().max << std::endl;
 
     app.render_debug_gui();
     app.get_window().swap_buffers();

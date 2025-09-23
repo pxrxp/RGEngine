@@ -15,7 +15,8 @@ class Camera {
   float m_pitch_rad = 0.f;
   float m_fovy_rad = 0.f;
 
-  Boundary m_bounding_box;
+  std::vector<glm::vec3> m_ortho_frustum;
+  BoundingBox m_bounding_box;
 
   bool m_dirty = true;
   glm::mat4 m_view = glm::mat4(1.f);
@@ -34,7 +35,7 @@ public:
   void update(App &app);
   void late_update();
 
-  Boundary get_bounding_box() const;
+  BoundingBox get_bounding_box();
 
   float get_fovy_rad() const;
   float get_sensitivity() const;
