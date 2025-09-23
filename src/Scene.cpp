@@ -24,29 +24,38 @@ glm::mat4 SceneObject::get_local_transformation_mat() {
 }
 
 glm::mat4 SceneObject::get_world_transformation_mat() {
+  m_world_AABB_dirty = local_transform.is_dirty();
 
-  bool was_dirty = local_transform.is_dirty();
   glm::mat4 world_model_mat = get_local_transformation_mat();
 
   if (m_parent.has_value())
     world_model_mat =
         m_parent.value()->get_world_transformation_mat() * world_model_mat;
 
-  if (was_dirty && render_packet.has_value()) {
+  return world_model_mat;
+}
+
+void SceneObject::update_world_AABB() {
+  if (render_packet.has_value()) {
     auto local_AABB = render_packet.value()->mesh->get_local_AABB();
     auto AABB_corners = local_AABB.corners();
 
     for (auto &corner : AABB_corners) {
-      corner = { world_model_mat * glm::vec4(corner.position, 1.f) };
+      corner = {get_world_transformation_mat() *
+                glm::vec4(corner.position, 1.f)};
     }
 
     m_world_AABB = BoundingBox(AABB_corners);
   }
-
-  return world_model_mat;
+  m_world_AABB_dirty = false;
 }
 
-BoundingBox &SceneObject::get_world_AABB() { return m_world_AABB; }
+BoundingBox &SceneObject::get_world_AABB() {
+  if (m_world_AABB_dirty)
+    update_world_AABB();
+
+  return m_world_AABB;
+}
 
 void SceneObject::add_child(std::shared_ptr<SceneObject> child) {
   m_children.push_back(child);

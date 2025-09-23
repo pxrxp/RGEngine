@@ -17,7 +17,7 @@ struct BoundingBox {
   bool collides(const BoundingBox &other) const;
   BoundingBox &add_point(const glm::vec3 &point);
   std::vector<SimpleVertex> corners() const;
-  std::vector<LineIndices> indices() const;
+  static std::vector<LineIndices> indices();
 };
 
 #ifndef NDEBUG

@@ -30,30 +30,16 @@
 struct SimpleVertex {
   SIMPLE_VERTEX_MEMBERS(DECLARE_MEMBER)
 
-  // SimpleVertex(const glm::vec3 &position_) : position(position_) {}
+  SimpleVertex(const glm::vec3& position_) : position(position_) {}
+  SimpleVertex(std::initializer_list<GLfloat> position_) {
+    if (position_.size() != 3)
+      throw std::runtime_error("Position requires exactly 3 elements (x, y, z)");
 
-  // SimpleVertex(std::initializer_list<GLfloat> position_) {
-  //   if (position_.size() != 3)
-  //     throw std::runtime_error("TriangleIndices requires exactly 3 elements");
-  //   auto it = position_.begin();
-  //   position.x = *it++;
-  //   position.y = *it++;
-  //   position.z = *it++;
-  // }
-
-  // SimpleVertex(const std::array<GLfloat, 3> &position_) {
-  //   position.x = position_[0];
-  //   position.y = position_[1];
-  //   position.z = position_[2];
-  // }
-
-  // SimpleVertex(const std::vector<GLfloat> &position_) {
-  //   if (position_.size() != 3)
-  //     throw std::runtime_error("TriangleIndices requires exactly 3 elements");
-  //   position.x = position_[0];
-  //   position.y = position_[1];
-  //   position.z = position_[2];
-  // }
+    auto it = position_.begin();
+    position.x = *it++;
+    position.y = *it++;
+    position.z = *it++;
+  }
 };
 
 struct ColoredVertex {

@@ -16,7 +16,9 @@ class SceneObject {
 private:
   std::optional<SceneObjectPtr> m_parent = std::nullopt;
   std::vector<SceneObjectPtr> m_children;
+
   BoundingBox m_world_AABB;
+  bool m_world_AABB_dirty = true;
 
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 
@@ -29,6 +31,7 @@ public:
   glm::mat4 get_local_transformation_mat();
   glm::mat4 get_world_transformation_mat();
   BoundingBox &get_world_AABB();
+  void update_world_AABB();
 
   std::shared_ptr<RenderPacket> &create_render_packet(App &app);
   void add_child(SceneObjectPtr child);

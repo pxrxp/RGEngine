@@ -2,9 +2,9 @@
 #include "App.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
 #include "definitions.h"
-#include "components/BoundingBox.h"
 #include "opengl.h"
 #include <cmath>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -118,8 +118,9 @@ void Camera::update_projection_matrix(float aspect_ratio) {
 }
 
 Camera &Camera::look_at(const glm::vec3 &target) {
-  auto orientation = glm::quatLookAt(glm::normalize(
-      target - m_target_player->local_transform.get_position()), AXIS_Y);
+  auto orientation = glm::quatLookAt(
+      glm::normalize(target - m_target_player->local_transform.get_position()),
+      AXIS_Y);
   m_euler_angles = glm::eulerAngles(orientation);
   m_view_dirty = true;
   return *this;
@@ -138,7 +139,8 @@ void Camera::update_view_matrix() {
 
   std::vector<SimpleVertex> points_worldspace;
   for (auto &point : m_ortho_frustum) {
-    point = glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f));
+    points_worldspace.push_back(
+        {glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f))});
   }
   m_AABB = BoundingBox(points_worldspace);
 
@@ -218,10 +220,8 @@ std::ostream &operator<<(std::ostream &os, const Camera &cam) {
      << "  aspect_ratio_cache=" << cam.m_aspect_ratio_cache << ",\n"
      << "  view_dirty=" << cam.m_view_dirty
      << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
-     << "  view_matrix="
-     << cam.m_view << ",\n"
-     << "  projection_matrix="
-     << cam.m_proj << ",\n"
+     << "  view_matrix=" << cam.m_view << ",\n"
+     << "  projection_matrix=" << cam.m_proj << ",\n"
      << "  AABB=" << cam.m_AABB << "\n"
      << ")";
   return os;

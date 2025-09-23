@@ -2,9 +2,10 @@
 #include "App.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "Scene.h"
+#include "components/BoundingBox.h"
 #include "components/PhysicsComponent.h"
 #include "components/TransformComponent.h"
-#include "Scene.h"
 #include "definitions.h"
 
 #include "debug.h"
@@ -27,7 +28,7 @@ class TestScene {
     object->physics.clear_forces();
 
     object->local_transform.translate(object->physics.get_velocity() *
-                                        fixed_step);
+                                      fixed_step);
 
     float angle =
         glm::length(object->physics.get_angular_velocity()) * fixed_step;
@@ -58,8 +59,7 @@ public:
     skybox->physics = PhysicsComponent({.has_gravity = false});
 
     skybox_render_packet->mesh->load<SimpleVertex, TriangleIndices>(
-        {CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
-        {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
+        {CUBE_VERTICES}, {CUBE_FACES});
     skybox_render_packet->shader_program->load(
         {"skybox.vert.glsl", "skybox.frag.glsl"});
     skybox_render_packet->material->load(skybox_render_packet->shader_program,
@@ -132,18 +132,28 @@ public:
           "proj", app.get_camera().get_projection_matrix());
       cube_render_packet->mesh->draw();
     };
-
     m_scene_ptr->add_child(cube);
+
+    std::cout << cube->get_world_AABB() << std::endl;
 
     SceneObjectPtr cube_AABB = std::make_shared<SceneObject>();
     auto &cube_AABB_render_packet = cube_AABB->create_render_packet(app);
     cube_AABB->physics = PhysicsComponent({.has_gravity = false});
     cube_AABB_render_packet->shader_program->load(
-        {"cube.vert.glsl", "cube.frag.glsl"});
+        {"AABB.vert.glsl", "AABB.frag.glsl"});
     cube_AABB_render_packet->mesh->load<SimpleVertex, LineIndices>(
-      cube_AABB->get_world_AABB().corners()
-    );
-    
+        {CUBE_VERTICES}, {CUBE_EDGES}, GL_LINES);
+    cube_AABB_render_packet->render = [&app, cube_AABB_render_packet,
+                                       cube_AABB] {
+      cube_AABB_render_packet->shader_program->set_uniform(
+          "model", cube_AABB->get_world_transformation_mat());
+      cube_AABB_render_packet->shader_program->set_uniform(
+          "view", app.get_camera().get_view_matrix());
+      cube_AABB_render_packet->shader_program->set_uniform(
+          "proj", app.get_camera().get_projection_matrix());
+      cube_AABB_render_packet->mesh->draw();
+    };
+    m_scene_ptr->add_child(cube_AABB);
   }
 
   void update_physics(App &app) {
