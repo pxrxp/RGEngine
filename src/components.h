@@ -93,6 +93,10 @@ public:
       : m_position(config.position), m_orientation(config.orientation),
         m_scale(config.scale), m_dirty(true) {}
 
+  bool is_dirty() {
+    return m_dirty;
+  }
+
   TransformComponent &set_dirty() {
     m_dirty = true;
     return *this;

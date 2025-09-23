@@ -76,14 +76,15 @@ void Camera::update_lazy(App &app) {
   auto delta_mouse = app.get_window().get_delta_mouse();
   if (delta_mouse.x != 0 || delta_mouse.y != 0) {
     float px_to_rad = m_fovy_rad / app.get_window().get_height();
-    m_yaw_rad += -delta_mouse.x * px_to_rad * m_sensitivity;
-    m_pitch_rad += delta_mouse.y * px_to_rad * m_sensitivity;
+    m_euler_angles.y += -delta_mouse.x * px_to_rad * m_sensitivity;
+    m_euler_angles.z += delta_mouse.y * px_to_rad * m_sensitivity;
     const float pitch_limit = glm::pi<float>() / 2.0f - 0.01f;
-    m_pitch_rad = glm::clamp(m_pitch_rad, -pitch_limit, pitch_limit);
+    m_euler_angles.z = glm::clamp(m_euler_angles.z, -pitch_limit, pitch_limit);
     m_view_dirty = true;
   }
 
-  glm::quat player_orientation = glm::quat({m_pitch_rad, m_yaw_rad, 0.0f});
+  glm::quat player_orientation =
+      glm::quat({m_euler_angles.z, m_euler_angles.y, 0.0f});
   m_target_player->local_transform.set_rotation(player_orientation);
 
   auto move_dir = get_camera_move_dir(app);
@@ -94,14 +95,16 @@ void Camera::update_lazy(App &app) {
 
     glm::vec3 move_force =
         (right * move_dir.x + up * move_dir.y + forward * move_dir.z) * m_speed;
-    m_target_player->local_transform.translate(move_force * app.get_delta_time());
+    m_target_player->local_transform.translate(move_force *
+                                               app.get_delta_time());
     m_view_dirty = true;
   }
 }
 
 void Camera::update_projection_matrix(float aspect_ratio) {
   m_aspect_ratio_cache = aspect_ratio;
-  m_proj = glm::perspective(m_fovy_rad, m_aspect_ratio_cache, m_z_near, m_z_far);
+  m_proj =
+      glm::perspective(m_fovy_rad, m_aspect_ratio_cache, m_z_near, m_z_far);
 
   float top = m_z_far * tan(m_fovy_rad / 2);
   float right = top * m_aspect_ratio_cache;
@@ -113,9 +116,11 @@ void Camera::update_projection_matrix(float aspect_ratio) {
   };
 }
 
-Camera& Camera::look_at(const glm::vec3 &target) {
-  m_target_player->local_transform.set_rotation(glm::quatLookAt(
-      target - m_target_player->local_transform.get_position(), AXIS_Y));
+Camera &Camera::look_at(const glm::vec3 &target) {
+  auto orientation = glm::quatLookAt(
+      target - m_target_player->local_transform.get_position(), AXIS_Y);
+  m_target_player->local_transform.set_rotation(orientation);
+  m_euler_angles = glm::eulerAngles(orientation);
   m_view_dirty = true;
   return *this;
 }
@@ -170,14 +175,14 @@ glm::mat4 Camera::get_projection_matrix() {
 }
 
 float Camera::get_fovy_rad() const { return m_fovy_rad; }
-Camera& Camera::set_fovy(float fovy_deg) {
+Camera &Camera::set_fovy(float fovy_deg) {
   m_fovy_rad = glm::radians(fovy_deg);
   m_proj_dirty = true;
   return *this;
 }
 
 float Camera::get_sensitivity() const { return m_sensitivity; }
-Camera& Camera::set_sensitivity(float sensitivity) {
+Camera &Camera::set_sensitivity(float sensitivity) {
   m_sensitivity = glm::max(0.f, sensitivity);
   return *this;
 }
@@ -201,18 +206,24 @@ Camera &Camera::set_near_plane(float z_near) {
 }
 
 #ifndef NDEBUG
-std::ostream& operator<<(std::ostream& os, const Camera& cam) {
-    os << "Camera(\n"
-       << "  target_player=" << cam.m_target_player.get() << ",\n"
-       << "  speed=" << cam.m_speed << ", sensitivity=" << cam.m_sensitivity << ",\n"
-       << "  yaw_rad=" << cam.m_yaw_rad << ", pitch_rad=" << cam.m_pitch_rad << ",\n"
-       << "  fovy_rad=" << cam.m_fovy_rad << ", near=" << cam.m_z_near << ", far=" << cam.m_z_far << ",\n"
-       << "  aspect_ratio_cache=" << cam.m_aspect_ratio_cache << ",\n"
-       << "  view_dirty=" << cam.m_view_dirty << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
-       << "  view_matrix=\n" << cam.m_view << ",\n"
-       << "  projection_matrix=\n" << cam.m_proj << ",\n"
-       << "  AABB=" << cam.m_AABB << "\n"
-       << ")";
-    return os;
+std::ostream &operator<<(std::ostream &os, const Camera &cam) {
+  os << "Camera(\n"
+     << "  target_player=" << cam.m_target_player.get() << ",\n"
+     << "  speed=" << cam.m_speed << ", sensitivity=" << cam.m_sensitivity
+     << ",\n"
+     << "  yaw_rad=" << cam.m_euler_angles.y
+     << ", pitch_rad=" << cam.m_euler_angles.z << ",\n"
+     << "  fovy_rad=" << cam.m_fovy_rad << ", near=" << cam.m_z_near
+     << ", far=" << cam.m_z_far << ",\n"
+     << "  aspect_ratio_cache=" << cam.m_aspect_ratio_cache << ",\n"
+     << "  view_dirty=" << cam.m_view_dirty
+     << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
+     << "  view_matrix=\n"
+     << cam.m_view << ",\n"
+     << "  projection_matrix=\n"
+     << cam.m_proj << ",\n"
+     << "  AABB=" << cam.m_AABB << "\n"
+     << ")";
+  return os;
 }
 #endif

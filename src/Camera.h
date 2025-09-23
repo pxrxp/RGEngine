@@ -50,8 +50,7 @@ private:
   float m_speed = 5.f;
   float m_sensitivity = 0.5f;
 
-  float m_yaw_rad = 0.f;
-  float m_pitch_rad = 0.f;
+  glm::vec3 m_euler_angles = {0.f, 0.f, 0.f};
 
   float m_fovy_rad = glm::radians(60.0f);
   float m_z_near = 0.1f;

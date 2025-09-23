@@ -17,7 +17,6 @@ private:
   BoundingBox m_world_AABB;
 
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
-  bool m_dirty = true;
 
 public:
   std::optional<std::shared_ptr<RenderPacket>> render_packet = std::nullopt;
@@ -25,8 +24,8 @@ public:
   TransformComponent local_transform;
   PhysicsComponent physics;
 
-  glm::mat4 get_local_transform();
-  glm::mat4 get_world_transform();
+  glm::mat4 get_local_transformation_mat();
+  glm::mat4 get_world_transformation_mat();
   BoundingBox& get_world_AABB();
 
   std::shared_ptr<RenderPacket> &create_render_packet(App &app);
