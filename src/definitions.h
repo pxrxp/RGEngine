@@ -37,33 +37,33 @@
 #define AXIS_Z            {0.0f, 0.0f, 1.0f}
 #define AXIS_NEG_Z        {0.0f, 0.0f, -1.0f}
 
-#define CUBE_VERT0 {-1.0f, -1.0f, -1.0f}
-#define CUBE_VERT1 { 1.0f, -1.0f, -1.0f}
-#define CUBE_VERT2 {-1.0f,  1.0f, -1.0f}
-#define CUBE_VERT3 { 1.0f,  1.0f, -1.0f}
-#define CUBE_VERT4 {-1.0f, -1.0f,  1.0f}
-#define CUBE_VERT5 { 1.0f, -1.0f,  1.0f}
-#define CUBE_VERT6 {-1.0f,  1.0f,  1.0f}
-#define CUBE_VERT7 { 1.0f,  1.0f,  1.0f}
+#define CUBE_VERT0        {-1.0f, -1.0f, -1.0f}
+#define CUBE_VERT1        {-1.0f, -1.0f,  1.0f}
+#define CUBE_VERT2        {-1.0f,  1.0f, -1.0f}
+#define CUBE_VERT3        {-1.0f,  1.0f,  1.0f}
+#define CUBE_VERT4        { 1.0f, -1.0f, -1.0f}
+#define CUBE_VERT5        { 1.0f, -1.0f,  1.0f}
+#define CUBE_VERT6        { 1.0f,  1.0f, -1.0f}
+#define CUBE_VERT7        { 1.0f,  1.0f,  1.0f}
 
-#define CUBE_FACE_BACK    {0, 2, 3}, {0, 3, 1}
-#define CUBE_FACE_FRONT   {4, 5, 7}, {4, 7, 6}
-#define CUBE_FACE_LEFT    {4, 0, 2}, {4, 2, 6}
-#define CUBE_FACE_RIGHT   {5, 7, 3}, {5, 3, 1}
-#define CUBE_FACE_BOTTOM  {4, 5, 1}, {4, 1, 0}
-#define CUBE_FACE_TOP     {6, 7, 3}, {6, 3, 2}
+#define CUBE_FACE_BACK    {0, 4, 6}, {0, 6, 2}
+#define CUBE_FACE_FRONT   {5, 1, 3}, {5, 3, 7}
+#define CUBE_FACE_LEFT    {1, 0, 2}, {1, 2, 3}
+#define CUBE_FACE_RIGHT   {4, 5, 7}, {4, 7, 6}
+#define CUBE_FACE_TOP     {2, 6, 7}, {2, 7, 3}
+#define CUBE_FACE_BOTTOM  {1, 5, 4}, {4, 0, 1}
 
 #define CUBE_VERTICES     CUBE_VERT0, CUBE_VERT1, CUBE_VERT2, CUBE_VERT3, CUBE_VERT4, CUBE_VERT5, CUBE_VERT6, CUBE_VERT7
 #define CUBE_FACES        CUBE_FACE_BACK, CUBE_FACE_FRONT, CUBE_FACE_LEFT, CUBE_FACE_RIGHT, CUBE_FACE_TOP, CUBE_FACE_BOTTOM
 
 #define CUBE_APPLY_TO_VERTICES(V) V(CUBE_VERT0) V(CUBE_VERT1) V(CUBE_VERT2) V(CUBE_VERT3) V(CUBE_VERT4) V(CUBE_VERT5) V(CUBE_VERT6) V(CUBE_VERT7)
 #define CUBE_APPLY_TO_FACES(HEAD, TAIL) \
-    HEAD(0, 1, 2) TAIL(0, 2, 3) \
-    TAIL(5, 4, 7) TAIL(5, 7, 6) \
-    TAIL(4, 0, 3) TAIL(4, 3, 7) \
-    TAIL(1, 5, 6) TAIL(1, 6, 2) \
-    TAIL(3, 2, 6) TAIL(3, 6, 7) \
-    TAIL(4, 5, 1) TAIL(1, 0, 4)
+    HEAD(0, 4, 6) TAIL(0, 6, 2) \
+    TAIL(5, 1, 3) TAIL(5, 3, 7) \
+    TAIL(1, 0, 2) TAIL(1, 2, 3) \
+    TAIL(4, 5, 7) TAIL(4, 7, 6) \
+    TAIL(2, 6, 7) TAIL(2, 7, 3) \
+    TAIL(1, 5, 4) TAIL(4, 0, 1)
 
 #define QUAD_VERT0        {-1.0f, -1.0f, 0.0f}
 #define QUAD_VERT1        {-1.0f,  1.0f, 0.0f}
