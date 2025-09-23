@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "components.h"
+#include "components/BoundingBox.h"
 #include <array>
 #include <glm/glm.hpp>
 #include <memory>

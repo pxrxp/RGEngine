@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "App.h"
+#include "components/BoundingBox.h"
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,7 +8,6 @@
 #include <memory>
 #include <optional>
 
-#include "components.h"
 #include "debug.h"
 
 std::shared_ptr<RenderPacket> &SceneObject::create_render_packet(App &app) {
@@ -35,9 +35,9 @@ glm::mat4 SceneObject::get_world_transformation_mat() {
   if (was_dirty && render_packet.has_value()) {
     auto local_AABB = render_packet.value()->mesh->get_local_AABB();
     auto AABB_corners = local_AABB.corners();
-    
+
     for (auto &corner : AABB_corners) {
-      corner = world_model_mat * glm::vec4(corner, 1.f);
+      corner = { world_model_mat * glm::vec4(corner.position, 1.f) };
     }
 
     m_world_AABB = BoundingBox(AABB_corners);

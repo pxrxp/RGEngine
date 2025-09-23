@@ -2,8 +2,9 @@
 #include "App.h"
 #include "Renderer.h"
 #include "Scene.h"
-#include "components.h"
+#include "components/vertex_formats.h"
 #include "definitions.h"
+#include "components/BoundingBox.h"
 #include "opengl.h"
 #include <cmath>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -135,7 +136,7 @@ void Camera::update_view_matrix() {
 
   m_view = glm::lookAt(player_pos, player_pos + forward, glm::vec3(AXIS_Y));
 
-  std::vector<glm::vec3> points_worldspace = m_ortho_frustum;
+  std::vector<SimpleVertex> points_worldspace;
   for (auto &point : m_ortho_frustum) {
     point = glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f));
   }

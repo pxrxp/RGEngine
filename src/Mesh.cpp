@@ -44,11 +44,6 @@ Mesh::~Mesh() {
 }
 
 #ifndef NDEBUG
-std::ostream &operator<<(std::ostream &os, const Face &f) {
-  os << "Face(" << f.vert1 << ", " << f.vert2 << ", " << f.vert3 << ")";
-  return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const Mesh &mesh) {
   os << "Mesh(vao=" << mesh.m_vao << ", vbo=" << mesh.m_vbo
      << ", ebo=" << mesh.m_ebo << ", vertex_count=" << mesh.m_vertex_count

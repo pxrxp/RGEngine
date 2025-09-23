@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 IF %errorlevel% NEQ 0 (
     exit /b 1
@@ -37,3 +38,4 @@ IF EXIST "%BINARY%" (
 )
 
 cd /d "%ORIGINAL_DIR%"
+endlocal

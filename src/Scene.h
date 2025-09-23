@@ -1,11 +1,13 @@
 #pragma once
 #include "Renderer.h"
+#include "components/PhysicsComponent.h"
+#include "components/TransformComponent.h"
+#include "components/BoundingBox.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <optional>
-#include "components.h"
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
@@ -26,7 +28,7 @@ public:
 
   glm::mat4 get_local_transformation_mat();
   glm::mat4 get_world_transformation_mat();
-  BoundingBox& get_world_AABB();
+  BoundingBox &get_world_AABB();
 
   std::shared_ptr<RenderPacket> &create_render_packet(App &app);
   void add_child(SceneObjectPtr child);

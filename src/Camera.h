@@ -1,7 +1,7 @@
 #pragma once
 
+#include "components/BoundingBox.h"
 #include "Renderer.h"
-#include "components.h"
 #include <glm/glm.hpp>
 #include <vector>
 

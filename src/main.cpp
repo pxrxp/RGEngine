@@ -21,7 +21,7 @@ int main() {
     app.get_renderer().submit(test.get_scene_ptr());
     app.get_renderer().render();
 
-    std::cout << app.get_camera() << std::endl;
+    // std::cout << app.get_camera() << std::endl;
 
     app.render_debug_gui();
     app.get_window().swap_buffers();

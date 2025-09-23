@@ -2,8 +2,9 @@
 #include "App.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "components/PhysicsComponent.h"
+#include "components/TransformComponent.h"
 #include "Scene.h"
-#include "components.h"
 #include "definitions.h"
 
 #include "debug.h"
@@ -56,7 +57,7 @@ public:
     auto &skybox_render_packet = skybox->create_render_packet(app);
     skybox->physics = PhysicsComponent({.has_gravity = false});
 
-    skybox_render_packet->mesh->load<VertexSimple, TriangleElement>(
+    skybox_render_packet->mesh->load<SimpleVertex, TriangleIndices>(
         {CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
         {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
     skybox_render_packet->shader_program->load(
@@ -90,7 +91,7 @@ public:
     cube_render_packet->shader_program->load(
         {"cube.vert.glsl", "cube.frag.glsl"});
 
-    cube_render_packet->mesh->load<VertexColored, TriangleElement>(
+    cube_render_packet->mesh->load<ColoredVertex, TriangleIndices>(
         {{0.5f * glm::vec3(CUBE_VERT0),
           {-0.577f, -0.577f, -0.577f},
           {0.000f, 0.000f, 0.000f}},
@@ -117,6 +118,11 @@ public:
           {0.000f, 1.000f, 1.000f}}},
         {CUBE_FACES});
 
+    cube->local_transform.scale({2.f, 1.f, 3.f});
+    cube->local_transform.rotate(AXIS_Y, glm::radians(45.f));
+    cube->local_transform.rotate(AXIS_X, glm::radians(60.f));
+    cube->local_transform.rotate(AXIS_Z, glm::radians(30.f));
+
     cube_render_packet->render = [&app, cube_render_packet, cube] {
       cube_render_packet->shader_program->set_uniform(
           "model", cube->get_world_transformation_mat());
@@ -128,6 +134,16 @@ public:
     };
 
     m_scene_ptr->add_child(cube);
+
+    SceneObjectPtr cube_AABB = std::make_shared<SceneObject>();
+    auto &cube_AABB_render_packet = cube_AABB->create_render_packet(app);
+    cube_AABB->physics = PhysicsComponent({.has_gravity = false});
+    cube_AABB_render_packet->shader_program->load(
+        {"cube.vert.glsl", "cube.frag.glsl"});
+    cube_AABB_render_packet->mesh->load<SimpleVertex, LineIndices>(
+      cube_AABB->get_world_AABB().corners()
+    );
+    
   }
 
   void update_physics(App &app) {
