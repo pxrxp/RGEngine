@@ -103,25 +103,37 @@ App::~App() {
   exit(EXIT_SUCCESS);
 }
 
+void App::update_delta_time() {
+  m_current_frame_time = glfwGetTime();
+  m_delta_time =
+      static_cast<float>(m_current_frame_time - m_last_frame_time);
+  m_last_frame_time = m_current_frame_time;
+}
+
+void App::update_mouse() {
+  double xpos, ypos;
+  glfwGetCursorPos(m_window.m_raw_window, &xpos, &ypos);
+  m_window.m_old_mouse = m_window.m_mouse;
+  m_window.m_mouse = {xpos, ypos};
+
+  if (m_first_mouse_update) {
+    m_window.m_old_mouse = m_window.m_mouse;
+    m_first_mouse_update = false;
+  }
+}
+
 void App::update() {
   if (!m_window.m_raw_window)
     return;
 
   glfwPollEvents();
 
-  m_current_frame_time = glfwGetTime();
-  m_delta_time =
-      static_cast<float>(m_current_frame_time - m_last_frame_time);
-  m_last_frame_time = m_current_frame_time;
-
-  double xpos, ypos;
-  glfwGetCursorPos(m_window.m_raw_window, &xpos, &ypos);
-  m_window.m_old_mouse = m_window.m_mouse;
-  m_window.m_mouse = {xpos, ypos};
-
+  update_mouse();
 
   if (m_window.get_cursor_mode() == GLFW_CURSOR_DISABLED)
     m_camera.update_lazy(*this);
+
+  update_delta_time();
 }
 
 void App::init_debug_gui() {

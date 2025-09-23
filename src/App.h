@@ -12,12 +12,14 @@ private:
   Camera m_camera;
   Renderer m_renderer;
 
+  bool m_first_mouse_update = true;
   bool m_imgui_initialized = false;
 
   float m_delta_time;
   double m_last_frame_time, m_current_frame_time;
 
   void update_delta_time();
+  void update_mouse();
 
   void register_callbacks();
   static void framebuffer_size_callback(GLFWwindow *window, int width,

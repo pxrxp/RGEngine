@@ -46,7 +46,7 @@ public:
   TestScene(App &app) {
 
     SceneObjectPtr player = std::make_shared<SceneObject>();
-    player->local_transform.translate({2.f, 3.f, 2.f});
+    player->local_transform.translate({0.f, 0.f, 5.f});
     player->physics = PhysicsComponent({.has_gravity = false});
     m_scene_ptr->add_child(player);
 
@@ -116,11 +116,6 @@ public:
           {-0.577f, 0.577f, 0.577f},
           {0.000f, 1.000f, 1.000f}}},
         {CUBE_FACES});
-
-    cube->local_transform.scale({2.f, 1.f, 3.f});
-    cube->local_transform.rotate(AXIS_Y, glm::radians(45.f));
-    cube->local_transform.rotate(AXIS_X, glm::radians(60.f));
-    cube->local_transform.rotate(AXIS_Z, glm::radians(30.f));
 
     cube_render_packet->render = [&app, cube_render_packet, cube] {
       cube_render_packet->shader_program->set_uniform(

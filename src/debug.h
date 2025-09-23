@@ -5,6 +5,10 @@
 #include <iostream>
 #include <imgui.h>
 #include <vector>
+#include <thread>
+#include <chrono>
+
+#define SLEEP(X) std::this_thread::sleep_for(std::chrono::seconds(X))
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
