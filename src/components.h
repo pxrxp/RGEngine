@@ -1,4 +1,5 @@
 #pragma once
+#include "Mesh.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <initializer_list>
@@ -71,14 +72,28 @@ struct BoundingBox {
     return *this;
   }
 
-  #ifndef NDEBUG
+  std::vector<glm::vec3> corners() {
+    return {
+        {min.x, min.y, min.z}, {min.x, min.y, max.z}, {min.x, max.y, min.z},
+        {min.x, max.y, max.z}, {max.x, min.y, min.z}, {max.x, min.y, max.z},
+        {max.x, max.y, min.z}, {max.x, max.y, max.z},
+    };
+  }
+
+  inline const static std::vector<LineElement> draw_indices() {
+    return {
+        {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7},
+    };
+  }
+
+#ifndef NDEBUG
   friend std::ostream &operator<<(std::ostream &os, const BoundingBox &bb) {
     os << "BoundingBox(min=(" << bb.min.x << ", " << bb.min.y << ", "
        << bb.min.z << "), max=(" << bb.max.x << ", " << bb.max.y << ", "
        << bb.max.z << "))";
     return os;
   }
-  #endif
+#endif
 };
 
 struct TransformConfig {
@@ -93,9 +108,7 @@ public:
       : m_position(config.position), m_orientation(config.orientation),
         m_scale(config.scale), m_dirty(true) {}
 
-  bool is_dirty() {
-    return m_dirty;
-  }
+  bool is_dirty() { return m_dirty; }
 
   TransformComponent &set_dirty() {
     m_dirty = true;

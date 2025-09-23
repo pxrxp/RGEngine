@@ -56,7 +56,7 @@ public:
     auto &skybox_render_packet = skybox->create_render_packet(app);
     skybox->physics = PhysicsComponent({.has_gravity = false});
 
-    skybox_render_packet->mesh->load<VertexSimple>(
+    skybox_render_packet->mesh->load<VertexSimple, TriangleElement>(
         {CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
         {CUBE_APPLY_TO_FACES(LIST_HEAD, LIST_TAIL)});
     skybox_render_packet->shader_program->load(
@@ -90,7 +90,7 @@ public:
     cube_render_packet->shader_program->load(
         {"cube.vert.glsl", "cube.frag.glsl"});
 
-    cube_render_packet->mesh->load<VertexColored>(
+    cube_render_packet->mesh->load<VertexColored, TriangleElement>(
         {{0.5f * glm::vec3(CUBE_VERT0),
           {-0.577f, -0.577f, -0.577f},
           {0.000f, 0.000f, 0.000f}},

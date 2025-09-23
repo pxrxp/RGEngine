@@ -47,7 +47,13 @@ struct VertexAdvanced {
 };
 #undef DECLARE_MEMBER
 
-struct Face {
+using PointElement = GLuint;
+
+struct LineElement {
+  GLuint vert1, vert2;
+};
+
+struct TriangleElement {
   GLuint vert1, vert2, vert3;
 };
 
@@ -71,9 +77,9 @@ public:
   void bind();
   void unbind();
 
-  template <typename Vertex>
+  template <typename Vertex, typename Element>
   void load(const std::vector<Vertex> &vertices,
-            const std::vector<Face> &indices = {},
+            const std::vector<Element> &indices = {},
             GLenum draw_primitive = GL_TRIANGLES,
             GLenum usage = GL_STATIC_DRAW) {
 
@@ -81,6 +87,10 @@ public:
                   std::is_same<Vertex, VertexColored>::value ||
                   std::is_same<Vertex, VertexTextured>::value ||
                   std::is_same<Vertex, VertexAdvanced>::value);
+
+    static_assert(std::is_same<Element, PointElement>::value ||
+    std::is_same<Element, LineElement>::value ||
+                  std::is_same<Element, TriangleElement>::value);
 
     m_draw_primitive = draw_primitive;
     m_vertex_count = vertices.size();
@@ -94,7 +104,7 @@ public:
 
     if (!indices.empty()) {
       glCreateBuffers(1, &m_ebo);
-      glNamedBufferData(m_ebo, m_index_count * sizeof(Face), indices.data(),
+      glNamedBufferData(m_ebo, m_index_count * sizeof(Element), indices.data(),
                         usage);
       glVertexArrayElementBuffer(m_vao, m_ebo);
     }

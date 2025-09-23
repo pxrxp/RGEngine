@@ -37,21 +37,21 @@
 #define AXIS_Z            {0.0f, 0.0f, 1.0f}
 #define AXIS_NEG_Z        {0.0f, 0.0f, -1.0f}
 
-#define CUBE_VERT0        {-1.0f, -1.0f, -1.0f}
-#define CUBE_VERT1        { 1.0f, -1.0f, -1.0f}
-#define CUBE_VERT2        { 1.0f,  1.0f, -1.0f}
-#define CUBE_VERT3        {-1.0f,  1.0f, -1.0f}
-#define CUBE_VERT4        {-1.0f, -1.0f,  1.0f}
-#define CUBE_VERT5        { 1.0f, -1.0f,  1.0f}
-#define CUBE_VERT6        { 1.0f,  1.0f,  1.0f}
-#define CUBE_VERT7        {-1.0f,  1.0f,  1.0f}
+#define CUBE_VERT0 {-1.0f, -1.0f, -1.0f}
+#define CUBE_VERT1 { 1.0f, -1.0f, -1.0f}
+#define CUBE_VERT2 {-1.0f,  1.0f, -1.0f}
+#define CUBE_VERT3 { 1.0f,  1.0f, -1.0f}
+#define CUBE_VERT4 {-1.0f, -1.0f,  1.0f}
+#define CUBE_VERT5 { 1.0f, -1.0f,  1.0f}
+#define CUBE_VERT6 {-1.0f,  1.0f,  1.0f}
+#define CUBE_VERT7 { 1.0f,  1.0f,  1.0f}
 
-#define CUBE_FACE_BACK    {0, 1, 2}, {0, 2, 3}
-#define CUBE_FACE_FRONT   {5, 4, 7}, {5, 7, 6}
-#define CUBE_FACE_LEFT    {4, 0, 3}, {4, 3, 7}
-#define CUBE_FACE_RIGHT   {1, 5, 6}, {1, 6, 2}
-#define CUBE_FACE_TOP     {3, 2, 6}, {3, 6, 7}
-#define CUBE_FACE_BOTTOM  {4, 5, 1}, {1, 0, 4}
+#define CUBE_FACE_BACK    {0, 2, 3}, {0, 3, 1}
+#define CUBE_FACE_FRONT   {4, 5, 7}, {4, 7, 6}
+#define CUBE_FACE_LEFT    {4, 0, 2}, {4, 2, 6}
+#define CUBE_FACE_RIGHT   {5, 7, 3}, {5, 3, 1}
+#define CUBE_FACE_BOTTOM  {4, 5, 1}, {4, 1, 0}
+#define CUBE_FACE_TOP     {6, 7, 3}, {6, 3, 2}
 
 #define CUBE_VERTICES     CUBE_VERT0, CUBE_VERT1, CUBE_VERT2, CUBE_VERT3, CUBE_VERT4, CUBE_VERT5, CUBE_VERT6, CUBE_VERT7
 #define CUBE_FACES        CUBE_FACE_BACK, CUBE_FACE_FRONT, CUBE_FACE_LEFT, CUBE_FACE_RIGHT, CUBE_FACE_TOP, CUBE_FACE_BOTTOM
@@ -66,12 +66,12 @@
     TAIL(4, 5, 1) TAIL(1, 0, 4)
 
 #define QUAD_VERT0        {-1.0f, -1.0f, 0.0f}
-#define QUAD_VERT1        { 1.0f, -1.0f, 0.0f}
-#define QUAD_VERT2        { 1.0f,  1.0f, 0.0f}
-#define QUAD_VERT3        {-1.0f,  1.0f, 0.0f}
+#define QUAD_VERT1        {-1.0f,  1.0f, 0.0f}
+#define QUAD_VERT2        { 1.0f, -1.0f, 0.0f}
+#define QUAD_VERT3        { 1.0f,  1.0f, 0.0f}
 
-#define QUAD_FACE1        {0, 1, 2}
-#define QUAD_FACE2        {0, 2, 3}
+#define QUAD_FACE1        {0, 2, 3}
+#define QUAD_FACE2        {0, 3, 1}
 
 #define QUAD_VERTICES     QUAD_VERT0, QUAD_VERT1, QUAD_VERT2, QUAD_VERT3
 #define QUAD_FACES        QUAD_FACE1, QUAD_FACE2

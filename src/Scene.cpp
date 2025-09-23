@@ -33,18 +33,9 @@ glm::mat4 SceneObject::get_world_transformation_mat() {
         m_parent.value()->get_world_transformation_mat() * world_model_mat;
 
   if (was_dirty && render_packet.has_value()) {
-    auto m_local_AABB = render_packet.value()->mesh->get_local_AABB();
-    std::vector<glm::vec3> AABB_corners = {
-        {m_local_AABB.min.x, m_local_AABB.min.y, m_local_AABB.min.z},
-        {m_local_AABB.min.x, m_local_AABB.min.y, m_local_AABB.max.z},
-        {m_local_AABB.min.x, m_local_AABB.max.y, m_local_AABB.min.z},
-        {m_local_AABB.min.x, m_local_AABB.max.y, m_local_AABB.max.z},
-        {m_local_AABB.max.x, m_local_AABB.min.y, m_local_AABB.min.z},
-        {m_local_AABB.max.x, m_local_AABB.min.y, m_local_AABB.max.z},
-        {m_local_AABB.max.x, m_local_AABB.max.y, m_local_AABB.min.z},
-        {m_local_AABB.max.x, m_local_AABB.max.y, m_local_AABB.max.z},
-    };
-
+    auto local_AABB = render_packet.value()->mesh->get_local_AABB();
+    auto AABB_corners = local_AABB.corners();
+    
     for (auto &corner : AABB_corners) {
       corner = world_model_mat * glm::vec4(corner, 1.f);
     }
