@@ -25,8 +25,8 @@ glm::vec3 Camera::get_camera_move_dir(App &app) const {
                  app.get_window().is_key_pressed(GLFW_KEY_LEFT);
   bool go_right = app.get_window().is_key_pressed(GLFW_KEY_D) ||
                   app.get_window().is_key_pressed(GLFW_KEY_RIGHT);
-  bool go_up = app.get_window().is_key_pressed(GLFW_KEY_Q);
-  bool go_down = app.get_window().is_key_pressed(GLFW_KEY_E);
+  bool go_up = app.get_window().is_key_pressed(GLFW_KEY_E);
+  bool go_down = app.get_window().is_key_pressed(GLFW_KEY_Q);
   bool go_fast = app.get_window().is_key_pressed(GLFW_KEY_LEFT_CONTROL) ||
                  app.get_window().is_key_pressed(GLFW_KEY_RIGHT_CONTROL);
   bool go_slow = app.get_window().is_key_pressed(GLFW_KEY_LEFT_SHIFT) ||

@@ -8,7 +8,7 @@ class App;
 class Window {
 private:
   glm::ivec2 m_dimensions = {0, 0};
-  glm::dvec2 m_old_mouse = {0., 0.};
+  glm::dvec2 m_mouse_accumulator = {0., 0.};
   glm::dvec2 m_mouse = {0., 0.};
   GLFWwindow *m_raw_window = nullptr;
   std::string m_title;

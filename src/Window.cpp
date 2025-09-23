@@ -19,7 +19,7 @@ bool Window::is_key_pressed(int key) const {
   return glfwGetKey(m_raw_window, key) == GLFW_PRESS;
 }
 
-glm::dvec2 Window::get_delta_mouse() const { return m_mouse - m_old_mouse; }
+glm::dvec2 Window::get_delta_mouse() const { return m_mouse_accumulator; }
 
 glm::dvec2 Window::get_mouse_pos() const { return m_mouse; }
 

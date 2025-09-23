@@ -47,7 +47,7 @@ private:
 
   SceneObjectPtr m_target_player;
 
-  float m_speed = 5.f;
+  float m_speed = 3.f;
   float m_sensitivity = 0.5f;
 
   glm::vec3 m_euler_angles = {0.f, 0.f, 0.f};
