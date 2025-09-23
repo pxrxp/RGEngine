@@ -24,8 +24,6 @@ private:
                                         int height);
   static void key_callback(GLFWwindow *window, int key, int scancode,
                            int action, int mods);
-  static void mouse_move_callback(GLFWwindow *window, double xpos, double ypos);
-
 public:
   ShaderProgramRepo shader_program_repo;
   MaterialRepo material_repo;

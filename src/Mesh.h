@@ -1,4 +1,5 @@
 #pragma once
+#include "components.h"
 #include "opengl.h"
 #include <glm/glm.hpp>
 #include <vector>
@@ -59,16 +60,22 @@ private:
   size_t m_index_count = 0;
   GLenum m_draw_primitive;
 
+  BoundingBox m_local_AABB;
+
 public:
+#ifndef NDEBUG
+  friend std::ostream &operator<<(std::ostream &os, const Mesh &mesh);
+#endif
+
   GLuint get_id() const;
   void bind();
   void unbind();
 
   template <typename Vertex>
   void load(const std::vector<Vertex> &vertices,
-             const std::vector<Face> &indices = {},
-             GLenum draw_primitive = GL_TRIANGLES,
-             GLenum usage = GL_STATIC_DRAW) {
+            const std::vector<Face> &indices = {},
+            GLenum draw_primitive = GL_TRIANGLES,
+            GLenum usage = GL_STATIC_DRAW) {
 
     static_assert(std::is_same<Vertex, VertexSimple>::value ||
                   std::is_same<Vertex, VertexColored>::value ||
@@ -105,9 +112,14 @@ public:
     } else if constexpr (std::is_same_v<Vertex, VertexAdvanced>) {
       VERTEX_ADVANCED_MEMBERS(SETUP_ATTRIB)
     }
+
+    for (const auto &vertex : vertices) {
+      m_local_AABB.add_point(vertex.position);
+    }
   }
 
   void draw(unsigned int instance_count = 1);
+  const BoundingBox &get_local_AABB() const;
   ~Mesh();
 };
 

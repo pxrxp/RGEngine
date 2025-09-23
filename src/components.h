@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <initializer_list>
+#include <iostream>
 #include <vector>
 
 enum Where { Outside, Inside, AtBoundary };
@@ -57,6 +58,27 @@ struct BoundingBox {
       max.z = glm::max(max.z, point.z);
     }
   }
+
+  BoundingBox &add_point(const glm::vec3 &point) {
+    min.x = glm::min(min.x, point.x);
+    min.y = glm::min(min.y, point.y);
+    min.z = glm::min(min.z, point.z);
+
+    max.x = glm::max(max.x, point.x);
+    max.y = glm::max(max.y, point.y);
+    max.z = glm::max(max.z, point.z);
+
+    return *this;
+  }
+
+  #ifndef NDEBUG
+  friend std::ostream &operator<<(std::ostream &os, const BoundingBox &bb) {
+    os << "BoundingBox(min=(" << bb.min.x << ", " << bb.min.y << ", "
+       << bb.min.z << "), max=(" << bb.max.x << ", " << bb.max.y << ", "
+       << bb.max.z << "))";
+    return os;
+  }
+  #endif
 };
 
 struct TransformConfig {

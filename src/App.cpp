@@ -113,6 +113,15 @@ void App::update() {
   m_delta_time =
       static_cast<float>(m_current_frame_time - m_last_frame_time);
   m_last_frame_time = m_current_frame_time;
+
+  double xpos, ypos;
+  glfwGetCursorPos(m_window.m_raw_window, &xpos, &ypos);
+  m_window.m_old_mouse = m_window.m_mouse;
+  m_window.m_mouse = {xpos, ypos};
+
+
+  if (m_window.get_cursor_mode() == GLFW_CURSOR_DISABLED)
+    m_camera.update_lazy(*this);
 }
 
 void App::init_debug_gui() {

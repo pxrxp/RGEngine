@@ -15,25 +15,25 @@ class TestScene {
                      std::unordered_set<SceneObjectPtr> &set) {
     set.insert(object);
 
-    if (object->m_physics.has_gravity()) {
+    if (object->physics.has_gravity()) {
       glm::vec3 gravity_force =
-          glm::vec3(0.0f, -1.0f, 0.0f) * object->m_physics.get_mass();
-      object->m_physics.apply_force(gravity_force);
+          glm::vec3(0.0f, -1.0f, 0.0f) * object->physics.get_mass();
+      object->physics.apply_force(gravity_force);
     }
 
     float fixed_step = 0.1f;
-    object->m_physics.integrate(fixed_step);
-    object->m_physics.clear_forces();
+    object->physics.integrate(fixed_step);
+    object->physics.clear_forces();
 
-    object->m_local_transform.translate(object->m_physics.get_velocity() *
+    object->local_transform.translate(object->physics.get_velocity() *
                                         fixed_step);
 
     float angle =
-        glm::length(object->m_physics.get_angular_velocity()) * fixed_step;
+        glm::length(object->physics.get_angular_velocity()) * fixed_step;
 
     if (angle > 0.0001f) {
-      glm::vec3 axis = glm::normalize(object->m_physics.get_angular_velocity());
-      object->m_local_transform.rotate(axis, angle);
+      glm::vec3 axis = glm::normalize(object->physics.get_angular_velocity());
+      object->local_transform.rotate(axis, angle);
     }
 
     for (auto &child : *object) {
@@ -46,15 +46,15 @@ public:
   TestScene(App &app) {
 
     SceneObjectPtr player = std::make_shared<SceneObject>();
-    player->m_local_transform.translate({2.f, 3.f, 2.f});
-    player->m_physics = PhysicsComponent({.has_gravity = false});
+    player->local_transform.translate({2.f, 3.f, 2.f});
+    player->physics = PhysicsComponent({.has_gravity = false});
     m_scene_ptr->add_child(player);
 
     app.get_camera().setup(player).look_at({0.f, 0.f, 0.f});
 
     SceneObjectPtr skybox = std::make_shared<SceneObject>();
     auto &skybox_render_packet = skybox->create_render_packet(app);
-    skybox->m_physics = PhysicsComponent({.has_gravity = false});
+    skybox->physics = PhysicsComponent({.has_gravity = false});
 
     skybox_render_packet->mesh->load<VertexSimple>(
         {CUBE_APPLY_TO_VERTICES(LIST_ITEM)},
@@ -85,7 +85,7 @@ public:
 
     SceneObjectPtr cube = std::make_shared<SceneObject>();
     auto &cube_render_packet = cube->create_render_packet(app);
-    cube->m_physics = PhysicsComponent({.has_gravity = false});
+    cube->physics = PhysicsComponent({.has_gravity = false});
 
     cube_render_packet->shader_program->load(
         {"cube.vert.glsl", "cube.frag.glsl"});
@@ -128,6 +128,8 @@ public:
     };
 
     m_scene_ptr->add_child(cube);
+
+    std::cout << cube->get_world_AABB() << std::endl;
   }
 
   void update_physics(App &app) {

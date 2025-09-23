@@ -62,11 +62,11 @@ Camera &Camera::setup(SceneObjectPtr player) {
   return *this;
 }
 
-BoundingBox Camera::get_bounding_box() {
+BoundingBox Camera::get_AABB() {
   if (m_view_dirty) {
     update_view_matrix();
   }
-  return m_bounding_box;
+  return m_AABB;
 }
 
 void Camera::update_lazy(App &app) {
@@ -84,7 +84,7 @@ void Camera::update_lazy(App &app) {
   }
 
   glm::quat player_orientation = glm::quat({m_pitch_rad, m_yaw_rad, 0.0f});
-  m_target_player->m_local_transform.set_rotation(player_orientation);
+  m_target_player->local_transform.set_rotation(player_orientation);
 
   auto move_dir = get_camera_move_dir(app);
   if (glm::length(move_dir) > 0.0f) {
@@ -94,8 +94,7 @@ void Camera::update_lazy(App &app) {
 
     glm::vec3 move_force =
         (right * move_dir.x + up * move_dir.y + forward * move_dir.z) * m_speed;
-    m_target_player->m_local_transform.translate(move_force *
-                                                 app.get_delta_time());
+    m_target_player->local_transform.translate(move_force * app.get_delta_time());
     m_view_dirty = true;
   }
 }
@@ -115,17 +114,19 @@ void Camera::update_projection_matrix(float aspect_ratio) {
 }
 
 Camera& Camera::look_at(const glm::vec3 &target) {
-  m_target_player->m_local_transform.set_rotation(glm::quatLookAt(
-      target - m_target_player->m_local_transform.get_position(), AXIS_Y));
+  m_target_player->local_transform.set_rotation(glm::quatLookAt(
+      target - m_target_player->local_transform.get_position(), AXIS_Y));
+  m_view_dirty = true;
+  return *this;
 }
 
 void Camera::update_view_matrix() {
   if (!m_target_player)
     return;
 
-  glm::vec3 player_pos = m_target_player->m_local_transform.get_position();
+  glm::vec3 player_pos = m_target_player->local_transform.get_position();
   glm::quat player_orientation =
-      m_target_player->m_local_transform.get_rotation();
+      m_target_player->local_transform.get_rotation();
   glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
 
   m_view = glm::lookAt(player_pos, player_pos + forward, glm::vec3(AXIS_Y));
@@ -134,7 +135,7 @@ void Camera::update_view_matrix() {
   for (auto &point : m_ortho_frustum) {
     point = glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f));
   }
-  m_bounding_box = BoundingBox(points_worldspace);
+  m_AABB = BoundingBox(points_worldspace);
 
   m_view_dirty = false;
 }
@@ -198,3 +199,20 @@ Camera &Camera::set_near_plane(float z_near) {
   m_z_near = glm::max(0.f, z_near);
   return *this;
 }
+
+#ifndef NDEBUG
+std::ostream& operator<<(std::ostream& os, const Camera& cam) {
+    os << "Camera(\n"
+       << "  target_player=" << cam.m_target_player.get() << ",\n"
+       << "  speed=" << cam.m_speed << ", sensitivity=" << cam.m_sensitivity << ",\n"
+       << "  yaw_rad=" << cam.m_yaw_rad << ", pitch_rad=" << cam.m_pitch_rad << ",\n"
+       << "  fovy_rad=" << cam.m_fovy_rad << ", near=" << cam.m_z_near << ", far=" << cam.m_z_far << ",\n"
+       << "  aspect_ratio_cache=" << cam.m_aspect_ratio_cache << ",\n"
+       << "  view_dirty=" << cam.m_view_dirty << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
+       << "  view_matrix=\n" << cam.m_view << ",\n"
+       << "  projection_matrix=\n" << cam.m_proj << ",\n"
+       << "  AABB=" << cam.m_AABB << "\n"
+       << ")";
+    return os;
+}
+#endif
