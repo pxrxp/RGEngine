@@ -5,11 +5,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/io.hpp>
+#include "debug.h"
 
 #ifndef NDEBUG
-#include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #endif
@@ -105,47 +103,16 @@ App::~App() {
   exit(EXIT_SUCCESS);
 }
 
-void App::update_window_size() {
-  glfwGetWindowSize(m_window.m_raw_window, &m_window.m_dimensions.x,
-                    &m_window.m_dimensions.y);
-}
-
-void App::update_mouse_position() {
-  m_window.m_old_mouse = m_window.m_mouse;
-
-  double mousex, mousey;
-  glfwGetCursorPos(m_window.m_raw_window, &mousex, &mousey);
-  m_window.m_mouse = {mousex, mousey};
-}
-
-void App::update_delta_time() {
-  m_current_frame_time = glfwGetTime();
-  m_delta_time =
-      static_cast<float>(m_current_frame_time - m_last_frame_time);
-  m_last_frame_time = m_current_frame_time;
-}
-int i = 0;
-
-void App::update_camera() {
-  if (m_window.get_cursor_mode() != GLFW_CURSOR_DISABLED)
-    return;
-
-  if (m_window.m_dimensions.y <= 0)
-    return;
-
-  get_camera().update(*this);
-}
-
 void App::update() {
   if (!m_window.m_raw_window)
     return;
 
   glfwPollEvents();
 
-  update_window_size();
-  update_mouse_position();
-  update_camera();
-  update_delta_time();
+  m_current_frame_time = glfwGetTime();
+  m_delta_time =
+      static_cast<float>(m_current_frame_time - m_last_frame_time);
+  m_last_frame_time = m_current_frame_time;
 }
 
 void App::init_debug_gui() {

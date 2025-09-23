@@ -3,6 +3,8 @@
 #include "util.h"
 #include <iostream>
 
+#include "debug.h"
+
 std::unordered_map<char, int> shader_map = {
     {'t', GL_VERTEX_SHADER},         // .vert
     {'g', GL_FRAGMENT_SHADER},       // .frag

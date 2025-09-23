@@ -16,11 +16,11 @@ public:
   void bind();
   void unbind();
 
-  void set_uniform(const char *name, GLfloat value);
-  void set_uniform(const char *name, GLint value);
-  void set_uniform(const char *name, const glm::vec2 &v);
-  void set_uniform(const char *name, const glm::vec3 &v);
-  void set_uniform(const char *name, const glm::vec4 &v);
-  void set_uniform(const char *name, const glm::mat3 &m);
-  void set_uniform(const char *name, const glm::mat4 &m);
+  ShaderProgram& set_uniform(const char *name, GLfloat value);
+  ShaderProgram& set_uniform(const char *name, GLint value);
+  ShaderProgram& set_uniform(const char *name, const glm::vec2 &v);
+  ShaderProgram& set_uniform(const char *name, const glm::vec3 &v);
+  ShaderProgram& set_uniform(const char *name, const glm::vec4 &v);
+  ShaderProgram& set_uniform(const char *name, const glm::mat3 &m);
+  ShaderProgram& set_uniform(const char *name, const glm::mat4 &m);
 };

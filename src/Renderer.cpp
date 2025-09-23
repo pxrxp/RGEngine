@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include "Scene.h"
 
+#include "debug.h"
+
 void Renderer::add(std::shared_ptr<RenderPacket> render_packet) {
   m_render_queue.push_back(render_packet);
 }

@@ -14,6 +14,7 @@ private:
   std::string m_title;
 
 public:
+  glm::ivec2 get_dimensions() const;
   int get_width() const;
   int get_height() const;
   float get_aspect_ratio() const;

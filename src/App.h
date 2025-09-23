@@ -1,10 +1,10 @@
 #pragma once
 
-#include "opengl.h"
 #include "Camera.h"
-#include "Window.h"
 #include "Renderer.h"
 #include "Repo.h"
+#include "Window.h"
+#include "opengl.h"
 
 class App {
 private:
@@ -17,18 +17,14 @@ private:
   float m_delta_time;
   double m_last_frame_time, m_current_frame_time;
 
-  void update_window_size();
-  void update_mouse_position();
   void update_delta_time();
-  void update_camera();
-
-  glm::vec3 get_camera_move_dir() const;
 
   void register_callbacks();
   static void framebuffer_size_callback(GLFWwindow *window, int width,
                                         int height);
   static void key_callback(GLFWwindow *window, int key, int scancode,
                            int action, int mods);
+  static void mouse_move_callback(GLFWwindow *window, double xpos, double ypos);
 
 public:
   ShaderProgramRepo shader_program_repo;
@@ -49,5 +45,4 @@ public:
 
   void init_debug_gui();
   void render_debug_gui();
-
 };

@@ -46,8 +46,8 @@ struct BoundingBox {
 
   BoundingBox() {}
 
-  BoundingBox(const std::vector<glm::vec3>& points) {
-    for (const auto& point : points) {
+  BoundingBox(const std::vector<glm::vec3> &points) {
+    for (const auto &point : points) {
       min.x = glm::min(min.x, point.x);
       min.y = glm::min(min.y, point.y);
       min.z = glm::min(min.z, point.z);
@@ -71,37 +71,46 @@ public:
       : m_position(config.position), m_orientation(config.orientation),
         m_scale(config.scale), m_dirty(true) {}
 
-  void set_dirty() { m_dirty = true; }
+  TransformComponent &set_dirty() {
+    m_dirty = true;
+    return *this;
+  }
 
-  void set_position(const glm::vec3 &position) {
+  TransformComponent &set_position(const glm::vec3 &position) {
     m_position = position;
     m_dirty = true;
+    return *this;
   }
 
-  void set_rotation(const glm::quat &orientation) {
+  TransformComponent &set_rotation(const glm::quat &orientation) {
     m_orientation = glm::normalize(orientation);
     m_dirty = true;
+    return *this;
   }
 
-  void set_scale(const glm::vec3 &scale) {
+  TransformComponent &set_scale(const glm::vec3 &scale) {
     m_scale = scale;
     m_dirty = true;
+    return *this;
   }
 
-  void translate(const glm::vec3 &offset) {
+  TransformComponent &translate(const glm::vec3 &offset) {
     m_position += offset;
     m_dirty = true;
+    return *this;
   }
 
-  void rotate(const glm::vec3 &axis, float angle_rad) {
+  TransformComponent &rotate(const glm::vec3 &axis, float angle_rad) {
     m_orientation =
         glm::normalize(glm::angleAxis(angle_rad, axis) * m_orientation);
     m_dirty = true;
+    return *this;
   }
 
-  void scale(const glm::vec3 &factors) {
+  TransformComponent &scale(const glm::vec3 &factors) {
     m_scale *= factors;
     m_dirty = true;
+    return *this;
   }
 
   const glm::vec3 &get_position() const { return m_position; }
@@ -143,30 +152,37 @@ public:
         m_inverse_inertia_tensor(config.inverse_inertia_tensor),
         m_has_gravity(config.has_gravity) {}
 
-  void clear_forces() {
+  PhysicsComponent &clear_forces() {
     m_total_force = glm::vec3(0.0f);
     m_total_torque = glm::vec3(0.0f);
+    return *this;
   }
 
-  void apply_force(const glm::vec3 &force) { m_total_force += force; }
+  PhysicsComponent &apply_force(const glm::vec3 &force) {
+    m_total_force += force;
+    return *this;
+  }
 
-  void apply_force_at_point(const glm::vec3 &force,
-                            const glm::vec3 &center_of_mass,
-                            const glm::vec3 &apply_point) {
+  PhysicsComponent &apply_force_at_point(const glm::vec3 &force,
+                                         const glm::vec3 &center_of_mass,
+                                         const glm::vec3 &apply_point) {
     m_total_force += force;
     glm::vec3 r = apply_point - center_of_mass;
     m_total_torque += glm::cross(r, force);
+    return *this;
   }
 
-  void apply_linear_impulse(const glm::vec3 &impulse) {
+  PhysicsComponent &apply_linear_impulse(const glm::vec3 &impulse) {
     m_linear_momentum += impulse;
+    return *this;
   }
 
-  void integrate(float fixed_step) {
+  PhysicsComponent &integrate(float fixed_step) {
     m_linear_momentum += m_total_force * fixed_step;
     m_angular_momentum += m_total_torque * fixed_step;
     m_velocity = m_linear_momentum * m_inverse_mass;
     m_angular_velocity = m_inverse_inertia_tensor * m_angular_momentum;
+    return *this;
   }
 
   const glm::vec3 &get_velocity() const { return m_velocity; }

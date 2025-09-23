@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 
+#include "debug.h"
+
 class OctreeNode {
 private:
   std::array<std::shared_ptr<OctreeNode>, 8> m_children;

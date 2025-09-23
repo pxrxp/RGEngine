@@ -6,6 +6,8 @@
 #include <memory>
 #include <optional>
 
+#include "debug.h"
+
 std::shared_ptr<RenderPacket> &SceneObject::create_render_packet(App &app) {
   render_packet.emplace(std::make_shared<RenderPacket>(
       app.mesh_repo.create(), app.shader_program_repo.create(),

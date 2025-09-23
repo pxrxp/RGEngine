@@ -3,6 +3,9 @@
 #include "util.h"
 #include <glm/glm.hpp>
 
+#include "debug.h"
+
+glm::ivec2 Window::get_dimensions() const { return m_dimensions; }
 int Window::get_width() const { return m_dimensions.x; }
 int Window::get_height() const { return m_dimensions.y; }
 float Window::get_aspect_ratio() const {

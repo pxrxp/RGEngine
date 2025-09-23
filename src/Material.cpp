@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "debug.h"
+
 TextureRepo texture_repo;
 
 int Material::get_id() { return ++m_id; }

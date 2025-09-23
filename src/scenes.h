@@ -6,9 +6,7 @@
 #include "components.h"
 #include "definitions.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/io.hpp>
-#include <iostream>
+#include "debug.h"
 
 class TestScene {
   SceneObjectPtr m_scene_ptr = std::make_shared<SceneObject>();
@@ -47,15 +45,12 @@ class TestScene {
 public:
   TestScene(App &app) {
 
-    SceneObjectPtr plane = std::make_shared<SceneObject>();
-    auto &plane_render_packet = plane->create_render_packet(app);
-
     SceneObjectPtr player = std::make_shared<SceneObject>();
     player->m_local_transform.translate({2.f, 3.f, 2.f});
     player->m_physics = PhysicsComponent({.has_gravity = false});
     m_scene_ptr->add_child(player);
 
-    app.get_camera().setup(player, app.get_window().get_aspect_ratio(), 2.0f);
+    app.get_camera().setup(player).look_at({0.f, 0.f, 0.f});
 
     SceneObjectPtr skybox = std::make_shared<SceneObject>();
     auto &skybox_render_packet = skybox->create_render_packet(app);

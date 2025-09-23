@@ -2,6 +2,8 @@
 #include "PNGImage.h"
 #include <algorithm>
 
+#include "debug.h"
+
 inline int calculate_mip_levels(int width, int height, int depth = 1) {
   return 1 + static_cast<int>(
                  std::floor(std::log2(std::max({width, height, depth}))));
