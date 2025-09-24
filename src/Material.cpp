@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "debug.h"
-
 TextureRepo texture_repo;
 
 int

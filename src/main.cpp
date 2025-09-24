@@ -3,8 +3,6 @@
 #include "definitions.h"
 #include "scenes.h"
 
-#include "debug.h"
-
 int
 main()
 {

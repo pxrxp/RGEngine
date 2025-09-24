@@ -1,9 +1,6 @@
 #include "Window.h"
 #include "opengl.h"
-#include "util.h"
 #include <glm/glm.hpp>
-
-#include "debug.h"
 
 glm::ivec2
 Window::get_dimensions() const

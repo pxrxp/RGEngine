@@ -1,11 +1,10 @@
 #include "Camera.h"
 #include "App.h"
+#include "SceneObject.h"
 #include "Renderer.h"
-#include "Scene.h"
 #include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
 #include "definitions.h"
-#include "opengl.h"
 #include <cmath>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>

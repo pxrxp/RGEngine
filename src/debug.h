@@ -1,6 +1,8 @@
 #pragma once
+
 #ifndef NDEBUG
 #define GLM_ENABLE_EXPERIMENTAL
+
 #include <chrono>
 #include <glm/gtx/io.hpp>
 #include <imgui.h>

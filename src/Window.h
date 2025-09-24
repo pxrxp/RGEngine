@@ -1,9 +1,10 @@
 #pragma once
-#include "opengl.h"
+#include "definitions.h"
 #include <glm/glm.hpp>
 #include <string>
 
 class App;
+struct GLFWwindow;
 
 class Window
 {

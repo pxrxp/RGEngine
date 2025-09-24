@@ -1,6 +1,5 @@
 #include "SceneObject.h"
 #include "App.h"
-#include "Scene.h"
 #include "components/BoundingBox.h"
 #include <cmath>
 #include <glm/glm.hpp>
@@ -8,8 +7,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <optional>
-
-#include "debug.h"
 
 std::shared_ptr<RenderPacket>&
 SceneObject::create_render_packet(App& app)

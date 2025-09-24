@@ -2,8 +2,6 @@
 #include "Repo.h"
 #include <algorithm>
 
-#include "debug.h"
-
 inline int
 calculate_mip_levels(int width, int height, int depth = 1)
 {

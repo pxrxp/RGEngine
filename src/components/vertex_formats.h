@@ -1,5 +1,5 @@
 #pragma once
-#include "../opengl.h"
+#include "../definitions.h"
 #include <array>
 #include <glm/glm.hpp>
 #include <initializer_list>

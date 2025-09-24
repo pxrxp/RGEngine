@@ -4,7 +4,8 @@
 #include "Renderer.h"
 #include "Repo.h"
 #include "Window.h"
-#include "opengl.h"
+
+struct GLFWwindow;
 
 class App
 {
