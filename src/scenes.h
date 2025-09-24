@@ -145,6 +145,7 @@ public:
         {CUBE_VERTICES}, {CUBE_EDGES}, GL_LINES);
     cube_AABB_render_packet->render = [&app, cube_AABB_render_packet,
                                        cube, cube_AABB] {
+
       glm::vec3 aabb_min = cube->get_world_AABB().min;
       glm::vec3 aabb_max = cube->get_world_AABB().max;
       glm::vec3 dimensions = aabb_max - aabb_min;

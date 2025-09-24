@@ -87,6 +87,7 @@ public:
     for (const auto &vertex : vertices) {
       m_local_AABB.add_point(vertex.position);
     }
+
   }
 
   void draw(unsigned int instance_count = 1);

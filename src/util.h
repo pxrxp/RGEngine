@@ -76,10 +76,15 @@ inline std::string read_file(const std::string &relativePath) {
 
 #ifndef NDEBUG
 class MatrixEditors {
-private:
-  std::map<std::string, glm::mat4 *> m_editors;
-
 public:
+  MatrixEditors(const MatrixEditors&) = delete;
+  MatrixEditors& operator=(const MatrixEditors&) = delete;
+
+  static MatrixEditors& get_instance() {
+    static MatrixEditors instance;
+    return instance;
+  }
+
   void add(const std::string &name, glm::mat4 &matrix) {
     m_editors[name] = &matrix;
   }
@@ -115,6 +120,11 @@ public:
       ImGui::PopID();
     }
   }
+
+private:
+  MatrixEditors() = default;
+
+  std::map<std::string, glm::mat4 *> m_editors;
 };
 #endif
 
