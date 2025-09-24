@@ -2,7 +2,6 @@
 #include "Renderer.h"
 #include "definitions.h"
 #include "scenes.h"
-#include "util.h"
 
 #include "debug.h"
 
@@ -15,10 +14,6 @@ int main() {
   while (app.is_running()) {
     app.update();
     app.init_debug_gui();
-
-#ifndef NDEBUG
-    MatrixEditors::get_instance().draw();
-#endif
 
     app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

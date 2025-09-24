@@ -5,7 +5,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <utility>
 #include <vector>
 
 #if defined(_WIN32)
@@ -15,13 +14,6 @@
 #elif defined(__linux__)
 #include <limits.h>
 #include <unistd.h>
-#endif
-
-#ifndef NDEBUG
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
-#include <map>
 #endif
 
 inline std::string getExeDir() {
@@ -73,60 +65,6 @@ inline std::string read_file(const std::string &relativePath) {
   ss << file.rdbuf();
   return ss.str();
 }
-
-#ifndef NDEBUG
-class MatrixEditors {
-public:
-  MatrixEditors(const MatrixEditors&) = delete;
-  MatrixEditors& operator=(const MatrixEditors&) = delete;
-
-  static MatrixEditors& get_instance() {
-    static MatrixEditors instance;
-    return instance;
-  }
-
-  void add(const std::string &name, glm::mat4 &matrix) {
-    m_editors[name] = &matrix;
-  }
-
-  void draw() {
-    for (auto const &[name, matrix_ptr] : m_editors) {
-      if (!ImGui::CollapsingHeader(name.c_str())) {
-        continue;
-      }
-
-      ImGui::PushID(name.c_str());
-
-      float buffer[16];
-      std::memcpy(buffer, glm::value_ptr(glm::transpose(*matrix_ptr)),
-                  sizeof(buffer));
-
-      bool value_changed = false;
-      for (int i = 0; i < 4; ++i) {
-        if (ImGui::InputFloat4(("##Row" + std::to_string(i)).c_str(),
-                               &buffer[i * 4], "%.3f")) {
-          value_changed = true;
-        }
-      }
-
-      if (value_changed) {
-        *matrix_ptr = glm::transpose(glm::make_mat4(buffer));
-      }
-
-      if (ImGui::Button("Reset")) {
-        *matrix_ptr = glm::mat4(1.0f);
-      }
-
-      ImGui::PopID();
-    }
-  }
-
-private:
-  MatrixEditors() = default;
-
-  std::map<std::string, glm::mat4 *> m_editors;
-};
-#endif
 
 static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
                             GLenum severity, GLsizei length,
