@@ -9,6 +9,7 @@
 #include "definitions.h"
 
 #include "debug.h"
+#include "util.h"
 
 class TestScene {
   SceneObjectPtr m_scene_ptr = std::make_shared<SceneObject>();
@@ -134,8 +135,6 @@ public:
     };
     m_scene_ptr->add_child(cube);
 
-    std::cout << cube->get_world_AABB() << std::endl;
-
     SceneObjectPtr cube_AABB = std::make_shared<SceneObject>();
     auto &cube_AABB_render_packet = cube_AABB->create_render_packet(app);
     cube_AABB->physics = PhysicsComponent({.has_gravity = false});
@@ -145,6 +144,8 @@ public:
         {CUBE_VERTICES}, {CUBE_EDGES}, GL_LINES);
     cube_AABB_render_packet->render = [&app, cube_AABB_render_packet,
                                        cube, cube_AABB] {
+
+      draw_transform_component_editor(cube->local_transform, "Cube Local Transform");
 
       glm::vec3 aabb_min = cube->get_world_AABB().min;
       glm::vec3 aabb_max = cube->get_world_AABB().max;
