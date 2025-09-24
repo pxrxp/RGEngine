@@ -9,7 +9,6 @@ private:
   GLuint m_id = 0;
 
 public:
-  ~ShaderProgram();
 
   GLuint get_id() const;
   void load(std::initializer_list<std::string> shaders);
