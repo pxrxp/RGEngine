@@ -7,14 +7,13 @@
 #include "components/TransformComponent.h"
 #include "definitions.h"
 
-#include "debug.h"
 #include "util.h"
 
 class Scene
 {
 protected:
   App& m_app_cache;
-  SceneObjectPtr m_scene_ptr = nullptr;
+  SceneObjectPtr m_scene_ptr;
 
   void set_view_proj_matrix(std::shared_ptr<RenderPacket> render_packet,
                             const char* view_uniform_name = "view",
@@ -117,12 +116,23 @@ public:
     : m_scene_ptr(std::make_shared<SceneObject>())
     , m_app_cache(app)
   {
+  }
 
+  Scene(const Scene&) = delete;
+  Scene& operator=(const Scene&) = delete;
+
+  Scene(Scene&&) = default;
+  Scene& operator=(Scene&&) = delete;
+
+  virtual ~Scene() = default;
+
+  virtual void init()
+  {
     SceneObjectPtr player = std::make_shared<SceneObject>();
     player->physics.set_gravity(false);
     m_scene_ptr->add_child(player);
 
-    app.get_camera().setup(player);
+    m_app_cache.get_camera().setup(player);
   }
 
   void update_physics()

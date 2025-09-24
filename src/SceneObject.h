@@ -11,14 +11,15 @@
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
+using WeakSceneObjectPtr = std::weak_ptr<SceneObject>;
 
-class SceneObject
+class SceneObject : public std::enable_shared_from_this<SceneObject>
 {
 private:
   std::optional<std::shared_ptr<RenderPacket>> m_render_packet = std::nullopt;
   std::shared_ptr<RenderPacket>& create_render_packet(App& app);
 
-  std::optional<SceneObjectPtr> m_parent = std::nullopt;
+  WeakSceneObjectPtr m_parent;
   std::vector<SceneObjectPtr> m_children;
 
   BoundingBox m_world_AABB;
@@ -27,6 +28,16 @@ private:
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 
 public:
+  template<typename F>
+  static auto capture_weak(std::shared_ptr<SceneObject> obj, F&& f)
+  {
+    auto weak_obj = obj->weak_from_this();
+    return [weak_obj, f = std::forward<F>(f)] {
+      if (auto self = weak_obj.lock())
+        f(self);
+    };
+  }
+
   TransformComponent local_transform;
   PhysicsComponent physics;
 
@@ -45,6 +56,7 @@ public:
   std::optional<std::shared_ptr<RenderPacket>> get_render_packet();
 
   void add_child(SceneObjectPtr child);
+  SceneObjectPtr get_parent() const;
 
   auto begin() noexcept { return m_children.begin(); }
   auto end() noexcept { return m_children.end(); }

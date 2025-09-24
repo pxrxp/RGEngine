@@ -264,16 +264,3 @@ draw_transform_component_editor(TransformComponent& component,
   }
 }
 #endif
-
-template<typename T, typename F>
-auto
-capture_weak(std::shared_ptr<T> obj, F&& f)
-{
-  static_assert(std::is_base_of_v<std::enable_shared_from_this<T>, T>,
-                "T must inherit from enable_shared_from_this<T>");
-  auto weak_obj = obj->weak_from_this();
-  return [weak_obj, f = std::forward<F>(f)] {
-    if (auto self = weak_obj.lock())
-      f(self);
-  };
-}

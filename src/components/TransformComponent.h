@@ -22,10 +22,10 @@ public:
   const glm::mat4& get_model_matrix() const;
 
 private:
-  glm::vec3 m_position;
-  glm::quat m_orientation;
-  glm::vec3 m_scale;
+  glm::vec3 m_position = {0.f, 0.f, 0.f};
+  glm::quat m_orientation = {1.f, 0.f, 0.f, 0.f};
+  glm::vec3 m_scale = {1.f, 1.f, 1.f};
 
-  mutable bool m_dirty;
-  mutable glm::mat4 m_model_matrix;
+  mutable bool m_dirty = true;
+  mutable glm::mat4 m_model_matrix = glm::mat4(1.f);
 };

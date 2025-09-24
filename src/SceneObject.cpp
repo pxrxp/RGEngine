@@ -39,9 +39,8 @@ SceneObject::get_world_transformation_mat()
 
   glm::mat4 world_model_mat = get_local_transformation_mat();
 
-  if (m_parent.has_value())
-    world_model_mat =
-      m_parent.value()->get_world_transformation_mat() * world_model_mat;
+  if (auto parent = get_parent())
+    world_model_mat = parent->get_world_transformation_mat() * world_model_mat;
 
   return world_model_mat;
 }
@@ -76,5 +75,11 @@ void
 SceneObject::add_child(std::shared_ptr<SceneObject> child)
 {
   m_children.push_back(child);
-  child->m_parent = std::shared_ptr<SceneObject>(this);
+  child->m_parent = this->shared_from_this();
+}
+
+SceneObjectPtr
+SceneObject::get_parent() const
+{
+  return m_parent.lock();
 }

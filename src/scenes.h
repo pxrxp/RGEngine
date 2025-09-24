@@ -1,6 +1,5 @@
 #pragma once
 #include "App.h"
-#include "Mesh.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "SceneObject.h"
@@ -8,17 +7,30 @@
 #include "components/TransformComponent.h"
 #include "definitions.h"
 
+#include "debug.h"
+
 class TestScene : public Scene
 {
 public:
   TestScene(App& app)
     : Scene(app)
   {
+  }
+
+  TestScene(const TestScene&) = delete;
+  TestScene& operator=(const TestScene&) = delete;
+
+  TestScene(TestScene&&) = default;
+  TestScene& operator=(TestScene&&) = delete;
+
+  void init() override
+  {
+    Scene::init();
 
     auto skybox = std::make_shared<SceneObject>();
     skybox->physics.set_gravity(false);
 
-    skybox->with_render_packet(app, [=](auto packet) {
+    skybox->with_render_packet(m_app_cache, [=](auto packet) {
       packet->mesh->template load<SimpleVertex, TriangleIndices>(
         { CUBE_VERTICES }, { CUBE_FACES });
       packet->shader_program->load({ "skybox.vert.glsl", "skybox.frag.glsl" });
@@ -29,7 +41,7 @@ public:
                                    .wrap_t = GL_CLAMP_TO_EDGE,
                                    .wrap_r = GL_CLAMP_TO_EDGE } } });
 
-      packet->render = capture_weak(skybox, [=](auto self) {
+      packet->render = SceneObject::capture_weak(skybox, [=](auto self) {
         set_view_proj_matrix(packet);
         glDepthFunc(GL_LEQUAL);
         packet->mesh->draw();
@@ -40,9 +52,9 @@ public:
     m_scene_ptr->add_child(skybox);
 
     auto cube = std::make_shared<SceneObject>();
-    cube->physics.set_gravity(true);
+    cube->physics.set_gravity(false);
 
-    cube->with_render_packet(app, [=](auto packet) {
+    cube->with_render_packet(m_app_cache, [=](auto packet) {
       packet->shader_program->load({ "cube.vert.glsl", "cube.frag.glsl" });
       packet->mesh->template load<ColoredVertex, TriangleIndices>(
         { { 0.5f * glm::vec3(CUBE_VERT0),
@@ -71,7 +83,7 @@ public:
             { 0, 1, 1 } } },
         { CUBE_FACES });
 
-      packet->render = capture_weak(cube, [=](auto self) {
+      packet->render = SceneObject::capture_weak(cube, [=](auto self) {
         set_view_proj_matrix(packet);
         set_model_matrix(packet, self->get_world_transformation_mat());
         packet->mesh->draw();

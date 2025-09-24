@@ -10,7 +10,7 @@ class OctreeNode
 {
 private:
   std::array<std::shared_ptr<OctreeNode>, 8> m_children;
-  std::vector<SceneObject> m_scenes;
+  std::vector<SceneObjectPtr> m_scenes;
   BoundingBox m_boundary;
 
 public:
