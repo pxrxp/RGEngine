@@ -15,21 +15,25 @@ protected:
   App& m_app_cache;
   SceneObjectPtr m_scene_ptr;
 
-  void set_view_proj_matrix(std::shared_ptr<RenderPacket> render_packet,
+  void set_view_matrix(std::shared_ptr<RenderPacket> render_packet,
                             const char* view_uniform_name = "view",
-                            const char* proj_uniform_name = "proj",
-                            const glm::mat4& view_matrix = glm::mat4(1.f),
-                            const glm::mat4& proj_matrix = glm::mat4(1.f))
+                            const glm::mat4& view_matrix = glm::mat4(1.f))
   {
-
     glm::mat4 V = (view_matrix != glm::mat4(1.f))
                     ? view_matrix
                     : m_app_cache.get_camera().get_view_matrix();
+
+    render_packet->shader_program->set_uniform(view_uniform_name, V);
+  }
+
+  void set_projection_matrix(std::shared_ptr<RenderPacket> render_packet,
+                            const char* proj_uniform_name = "proj",
+                            const glm::mat4& proj_matrix = glm::mat4(1.f))
+  {
     glm::mat4 P = (proj_matrix != glm::mat4(1.f))
                     ? proj_matrix
                     : m_app_cache.get_camera().get_projection_matrix();
 
-    render_packet->shader_program->set_uniform(view_uniform_name, V);
     render_packet->shader_program->set_uniform(proj_uniform_name, P);
   }
 
@@ -75,7 +79,6 @@ protected:
   void display_AABB(std::shared_ptr<SceneObject> object,
                     bool show_controller = false)
   {
-
     auto object_AABB = std::make_shared<SceneObject>();
     object_AABB->physics.set_gravity(false);
     object_AABB->with_render_packet(m_app_cache, [=](auto packet) {
@@ -95,15 +98,9 @@ protected:
         object_AABB->local_transform.set_position(center);
         object_AABB->local_transform.set_scale(0.5f * dimensions);
 
-        set_view_proj_matrix(packet);
+        set_view_matrix(packet);
+        set_projection_matrix(packet);
         set_model_matrix(packet, object_AABB->get_world_transformation_mat());
-
-        packet->shader_program->set_uniform(
-          "model", object_AABB->get_world_transformation_mat());
-        packet->shader_program->set_uniform(
-          "view", m_app_cache.get_camera().get_view_matrix());
-        packet->shader_program->set_uniform(
-          "proj", m_app_cache.get_camera().get_projection_matrix());
         packet->mesh->draw();
       };
     });
@@ -157,5 +154,6 @@ public:
     m_app_cache.get_renderer().submit(get_scene_ptr());
   }
 
-  SceneObjectPtr get_scene_ptr() const { return m_scene_ptr; }
+  SceneObjectPtr get_scene_ptr() const {
+    return m_scene_ptr; }
 };

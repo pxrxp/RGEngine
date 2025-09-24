@@ -1,8 +1,7 @@
 #include "Camera.h"
 #include "App.h"
-#include "SceneObject.h"
 #include "Renderer.h"
-#include "components/BoundingBox.h"
+#include "SceneObject.h"
 #include "components/vertex_formats.h"
 #include "definitions.h"
 #include <cmath>
@@ -66,14 +65,35 @@ Camera::setup(SceneObjectPtr player)
   return *this;
 }
 
-BoundingBox
-Camera::get_AABB()
+const std::vector<SimpleVertex>&
+Camera::get_frustum_worldspace()
 {
-  if (m_view_dirty) {
+  if (!m_view_dirty && !m_frustum_viewspace_updated)
+    return m_frustum_worldspace;
+  
+  if (m_view_dirty)
     update_view_matrix();
+  
+  m_frustum_worldspace.clear();
+  for (auto& point : get_frustum_viewspace()) {
+    m_frustum_worldspace.push_back(
+      { glm::vec3(glm::inverse(m_view) * glm::vec4(point.position, 1.0f)) });
   }
-  return m_AABB;
+
+  return m_frustum_worldspace;
 }
+
+const std::vector<SimpleVertex>&
+Camera::get_frustum_viewspace()
+{
+  if (m_proj_dirty) {
+    update_projection_matrix(m_aspect_ratio_cache);
+    m_frustum_viewspace_updated = true;
+  }
+
+  return m_frustum_viewspace;
+}
+
 
 void
 Camera::update_lazy(App& app)
@@ -116,14 +136,19 @@ Camera::update_projection_matrix(float aspect_ratio)
   m_proj =
     glm::perspective(m_fovy_rad, m_aspect_ratio_cache, m_z_near, m_z_far);
 
-  float top = m_z_far * tan(m_fovy_rad / 2);
-  float right = top * m_aspect_ratio_cache;
+  float tangent = tan(m_fovy_rad / 2);
 
-  m_ortho_frustum = {
-    { -right, -top, m_z_near }, { right, -top, m_z_near },
-    { right, top, m_z_near },   { -right, top, m_z_near },
-    { -right, -top, m_z_far },  { right, -top, m_z_far },
-    { right, top, m_z_far },    { -right, top, m_z_far },
+  float top_far = m_z_far * tangent;
+  float right_far = top_far * m_aspect_ratio_cache;
+
+  float top_near = m_z_near * tangent;
+  float right_near = top_near * m_aspect_ratio_cache;
+
+  m_frustum_viewspace = {
+    { -right_near, -top_near, -m_z_near }, { -right_near, top_near, -m_z_near },
+    { right_near, -top_near, -m_z_near },  { right_near, top_near, -m_z_near },
+    { -right_far, -top_far, -m_z_far },    { -right_far, top_far, -m_z_far },
+    { right_far, -top_far, -m_z_far },     { right_far, top_far, -m_z_far },
   };
 }
 
@@ -150,14 +175,6 @@ Camera::update_view_matrix()
   glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
 
   m_view = glm::lookAt(player_pos, player_pos + forward, glm::vec3(AXIS_Y));
-
-  std::vector<SimpleVertex> points_worldspace;
-  for (auto& point : m_ortho_frustum) {
-    points_worldspace.push_back(
-      { glm::vec3(glm::inverse(m_view) * glm::vec4(point, 1.0f)) });
-  }
-  m_AABB = BoundingBox(points_worldspace);
-
   m_view_dirty = false;
 }
 
@@ -278,7 +295,7 @@ operator<<(std::ostream& os, const Camera& cam)
      << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
      << "  view_matrix=" << cam.m_view << ",\n"
      << "  projection_matrix=" << cam.m_proj << ",\n"
-     << "  AABB=" << cam.m_AABB << "\n"
+     << "  frustum_worldspace=" << cam.m_frustum_worldspace << "\n"
      << ")";
   return os;
 }

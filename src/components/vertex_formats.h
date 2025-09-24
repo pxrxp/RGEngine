@@ -1,10 +1,7 @@
 #pragma once
 #include "../definitions.h"
-#include <array>
 #include <glm/glm.hpp>
-#include <initializer_list>
-#include <stdexcept>
-#include <vector>
+#include <iostream>
 
 #define SIMPLE_VERTEX_MEMBERS(X) X(SimpleVertex, glm::vec3, position)
 
@@ -82,3 +79,60 @@ struct TriangleIndices
 {
   GLuint vert1, vert2, vert3;
 };
+
+
+#ifndef NDEBUG
+
+inline std::ostream& operator<<(std::ostream& os, const glm::vec2& vec) {
+    os << "(" << vec.x << ", " << vec.y << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const glm::vec3& vec) {
+    os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const SimpleVertex& v) {
+    os << "SimpleVertex{ pos: " << v.position << " }";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const ColoredVertex& v) {
+    os << "ColoredVertex{ pos: " << v.position
+       << ", nrm: " << v.normal
+       << ", col: " << v.color << " }";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const TexturedVertex& v) {
+    os << "TexturedVertex{ pos: " << v.position
+       << ", nrm: " << v.normal
+       << ", tex: " << v.texture << " }";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const AdvancedVertex& v) {
+    os << "AdvancedVertex{ pos: " << v.position
+       << ", nrm: " << v.normal
+       << ", tex: " << v.texture
+       << ", tan: " << v.tangent
+       << ", bitan: " << v.bitangent << " }";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const PointIndex& i) {
+    os << "Point(" << i.vert << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const LineIndices& i) {
+    os << "Line(" << i.vert1 << ", " << i.vert2 << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const TriangleIndices& i) {
+    os << "Triangle(" << i.vert1 << ", " << i.vert2 << ", " << i.vert3 << ")";
+    return os;
+}
+#endif

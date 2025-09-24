@@ -6,6 +6,7 @@ IF %errorlevel% NEQ 0 (
 )
 
 IF "%1"=="-d" set RENDERDOC=true
+IF "%1"=="-g" set GDB=true
 
 REM Require BUILD_TYPE
 if "%BUILD_TYPE%"=="" (
@@ -26,6 +27,9 @@ IF EXIST "%BINARY%" (
     IF "%RENDERDOC%"=="true" (
         echo Debugging %BINARY% using RenderDoc...
         start "" "qrenderdoc" "%BINARY%"
+    ) ELSE IF "%GDB%"=="true" (
+        echo Debugging %BINARY% using GDB...
+        start "" "gdb" "%BINARY%"
     ) ELSE (
         echo Running %BINARY%...
         "%BINARY%"

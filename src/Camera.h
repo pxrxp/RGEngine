@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
-#include "components/BoundingBox.h"
+#include "components/vertex_formats.h"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -20,7 +20,6 @@ public:
 
   glm::mat4 get_view_matrix();
   glm::mat4 get_projection_matrix();
-  BoundingBox get_AABB();
 
   Camera& look_at(const glm::vec3& target);
   glm::vec3 get_right();
@@ -42,6 +41,9 @@ public:
   float get_near_plane() const;
   Camera& set_near_plane(float z_near);
 
+  const std::vector<SimpleVertex>& get_frustum_worldspace();
+  const std::vector<SimpleVertex>& get_frustum_viewspace();
+
 private:
   glm::vec3 get_camera_move_dir(App& app) const;
   void update_view_matrix();
@@ -58,11 +60,12 @@ private:
   float m_z_far = 100.f;
   float m_aspect_ratio_cache = 16.f / 9.f;
 
+  bool m_frustum_viewspace_updated = true;
   bool m_view_dirty = true;
   bool m_proj_dirty = true;
   glm::mat4 m_view = glm::mat4(1.f);
   glm::mat4 m_proj = glm::mat4(1.f);
 
-  std::vector<glm::vec3> m_ortho_frustum;
-  BoundingBox m_AABB;
+  std::vector<SimpleVertex> m_frustum_viewspace;
+  std::vector<SimpleVertex> m_frustum_worldspace;
 };

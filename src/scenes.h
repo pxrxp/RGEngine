@@ -32,7 +32,7 @@ public:
 
     skybox->with_render_packet(m_app_cache, [=](auto packet) {
       packet->mesh->template load<SimpleVertex, TriangleIndices>(
-        { CUBE_VERTICES }, { CUBE_FACES });
+        { CUBE_VERTICES }, { CUBE_FACES }, GL_TRIANGLES);
       packet->shader_program->load({ "skybox.vert.glsl", "skybox.frag.glsl" });
       packet->material->load(packet->shader_program,
                              { { "skybox",
@@ -42,7 +42,8 @@ public:
                                    .wrap_r = GL_CLAMP_TO_EDGE } } });
 
       packet->render = SceneObject::capture_weak(skybox, [=](auto self) {
-        set_view_proj_matrix(packet);
+        set_view_matrix(packet);
+        set_projection_matrix(packet);
         glDepthFunc(GL_LEQUAL);
         packet->mesh->draw();
         glDepthFunc(GL_LESS);
@@ -53,6 +54,7 @@ public:
 
     auto cube = std::make_shared<SceneObject>();
     cube->physics.set_gravity(false);
+    cube->local_transform.translate({5.f, 2.f, 4.f});
 
     cube->with_render_packet(m_app_cache, [=](auto packet) {
       packet->shader_program->load({ "cube.vert.glsl", "cube.frag.glsl" });
@@ -81,10 +83,12 @@ public:
           { 0.5f * glm::vec3(CUBE_VERT7),
             { -0.577f, 0.577f, 0.577f },
             { 0, 1, 1 } } },
-        { CUBE_FACES });
+        { CUBE_FACES },
+        GL_TRIANGLES);
 
       packet->render = SceneObject::capture_weak(cube, [=](auto self) {
-        set_view_proj_matrix(packet);
+        set_view_matrix(packet);
+        set_projection_matrix(packet);
         set_model_matrix(packet, self->get_world_transformation_mat());
         packet->mesh->draw();
       });
@@ -97,5 +101,24 @@ public:
 
     m_scene_ptr->add_child(cube);
     display_AABB(cube, true);
+
+    auto frustum = std::make_shared<SceneObject>();
+    frustum->physics.set_gravity(false);
+    auto initial_frustum_vertices =
+      m_app_cache.get_camera().get_frustum_worldspace();
+
+    frustum->with_render_packet(m_app_cache, [=](auto packet) {
+      packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+      packet->mesh->template load<SimpleVertex, LineIndices>(
+        initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
+      packet->render = [=] {
+        set_model_matrix(packet, frustum->get_world_transformation_mat());
+        set_view_matrix(packet);
+        set_projection_matrix(packet);
+        packet->mesh->draw();
+      };
+    });
+
+    m_scene_ptr->add_child(frustum);
   }
 };
