@@ -6,7 +6,8 @@
 
 class ShaderProgram;
 
-struct TextureDescriptor {
+struct TextureDescriptor
+{
   GLenum target = GL_TEXTURE_2D;
   GLenum internal_format = GL_RGBA8;
   bool generate_mipmaps = true;
@@ -18,14 +19,16 @@ struct TextureDescriptor {
   int layers = -1; // ONLY DEFINED FOR GL_TEXTURE_2D_ARRAY
 };
 
-struct Texture {
+struct Texture
+{
   std::string name;
   TextureDescriptor desc;
 };
 
 inline TextureDescriptor DEFAULT_TEXTURE_DESCRIPTOR;
 
-class Material {
+class Material
+{
 private:
   static int m_id, m_current_texture_slot;
   int m_texture_slot;
@@ -34,8 +37,8 @@ private:
 public:
   int get_id();
   void load(std::shared_ptr<ShaderProgram> shader_program,
-            const std::vector<Texture> &textures);
-  int get_texture_slot(const std::string &texture);
+            const std::vector<Texture>& textures);
+  int get_texture_slot(const std::string& texture);
   void bind();
   void unbind();
 };

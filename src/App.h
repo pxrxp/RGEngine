@@ -6,7 +6,8 @@
 #include "Window.h"
 #include "opengl.h"
 
-class App {
+class App
+{
 private:
   Window m_window;
   Camera m_camera;
@@ -21,10 +22,14 @@ private:
   void update_delta_time();
 
   void register_callbacks();
-  static void framebuffer_size_callback(GLFWwindow *window, int width,
+  static void framebuffer_size_callback(GLFWwindow* window,
+                                        int width,
                                         int height);
-  static void key_callback(GLFWwindow *window, int key, int scancode,
-                           int action, int mods);
+  static void key_callback(GLFWwindow* window,
+                           int key,
+                           int scancode,
+                           int action,
+                           int mods);
   static void mouse_move_callback(GLFWwindow* window, double xpos, double ypos);
 
 public:
@@ -38,9 +43,9 @@ public:
 
   bool is_running() const;
 
-  Window &get_window();
-  Camera &get_camera();
-  Renderer &get_renderer();
+  Window& get_window();
+  Camera& get_camera();
+  Renderer& get_renderer();
 
   float get_delta_time() const;
 

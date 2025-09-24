@@ -4,23 +4,32 @@
 #include "debug.h"
 #include <GLFW/glfw3.h>
 
-void App::register_callbacks() {
+void
+App::register_callbacks()
+{
   glfwSetFramebufferSizeCallback(m_window.m_raw_window,
                                  framebuffer_size_callback);
   glfwSetKeyCallback(m_window.m_raw_window, key_callback);
   glfwSetCursorPosCallback(m_window.m_raw_window, mouse_move_callback);
 }
 
-void App::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-  App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
+void
+App::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
 
   glViewport(0, 0, width, height);
-  app->m_window.m_dimensions = {width, height};
+  app->m_window.m_dimensions = { width, height };
   app->m_camera.update_projection_matrix(app->m_window.get_aspect_ratio());
 }
 
-void App::key_callback(GLFWwindow *window, int key, int scancode, int action,
-                       int mods) {
+void
+App::key_callback(GLFWwindow* window,
+                  int key,
+                  int scancode,
+                  int action,
+                  int mods)
+{
   if (action != GLFW_PRESS)
     return;
 
@@ -31,10 +40,12 @@ void App::key_callback(GLFWwindow *window, int key, int scancode, int action,
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void App::mouse_move_callback(GLFWwindow* window, double xpos, double ypos) {
-  App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
+void
+App::mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
+{
+  App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
 
-  glm::dvec2 new_pos = {xpos, ypos};
+  glm::dvec2 new_pos = { xpos, ypos };
   glm::dvec2 old_pos = app->m_window.m_mouse;
 
   if (app->m_first_mouse_update) {

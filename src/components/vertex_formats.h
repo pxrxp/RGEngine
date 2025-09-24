@@ -27,13 +27,19 @@
 
 #define DECLARE_MEMBER(class, type, name) type name;
 
-struct SimpleVertex {
+struct SimpleVertex
+{
   SIMPLE_VERTEX_MEMBERS(DECLARE_MEMBER)
 
-  SimpleVertex(const glm::vec3& position_) : position(position_) {}
-  SimpleVertex(std::initializer_list<GLfloat> position_) {
+  SimpleVertex(const glm::vec3& position_)
+    : position(position_)
+  {
+  }
+  SimpleVertex(std::initializer_list<GLfloat> position_)
+  {
     if (position_.size() != 3)
-      throw std::runtime_error("Position requires exactly 3 elements (x, y, z)");
+      throw std::runtime_error(
+        "Position requires exactly 3 elements (x, y, z)");
 
     auto it = position_.begin();
     position.x = *it++;
@@ -42,28 +48,37 @@ struct SimpleVertex {
   }
 };
 
-struct ColoredVertex {
+struct ColoredVertex
+{
   COLORED_VERTEX_MEMBERS(DECLARE_MEMBER)
 };
 
-struct TexturedVertex {
+struct TexturedVertex
+{
   TEXTURED_VERTEX_MEMBERS(DECLARE_MEMBER)
 };
 
-struct AdvancedVertex {
+struct AdvancedVertex
+{
   ADVANCED_VERTEX_MEMBERS(DECLARE_MEMBER)
 };
 #undef DECLARE_MEMBER
 
-struct PointIndex {
+struct PointIndex
+{
   GLuint vert;
-  PointIndex(GLuint vert) : vert(vert) {}
+  PointIndex(GLuint vert)
+    : vert(vert)
+  {
+  }
 };
 
-struct LineIndices {
+struct LineIndices
+{
   GLuint vert1, vert2;
 };
 
-struct TriangleIndices {
+struct TriangleIndices
+{
   GLuint vert1, vert2, vert3;
 };

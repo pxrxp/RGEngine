@@ -10,41 +10,45 @@
 #include "debug.h"
 #include "util.h"
 
-class Scene {
+class Scene
+{
 protected:
-  App &m_app_cache;
+  App& m_app_cache;
   SceneObjectPtr m_scene_ptr = nullptr;
 
   void set_view_proj_matrix(std::shared_ptr<RenderPacket> render_packet,
-                            const char *view_uniform_name = "view",
-                            const char *proj_uniform_name = "proj",
-                            const glm::mat4 &view_matrix = glm::mat4(1.f),
-                            const glm::mat4 &proj_matrix = glm::mat4(1.f)) {
+                            const char* view_uniform_name = "view",
+                            const char* proj_uniform_name = "proj",
+                            const glm::mat4& view_matrix = glm::mat4(1.f),
+                            const glm::mat4& proj_matrix = glm::mat4(1.f))
+  {
 
     glm::mat4 V = (view_matrix != glm::mat4(1.f))
-                      ? view_matrix
-                      : m_app_cache.get_camera().get_view_matrix();
+                    ? view_matrix
+                    : m_app_cache.get_camera().get_view_matrix();
     glm::mat4 P = (proj_matrix != glm::mat4(1.f))
-                      ? proj_matrix
-                      : m_app_cache.get_camera().get_projection_matrix();
+                    ? proj_matrix
+                    : m_app_cache.get_camera().get_projection_matrix();
 
     render_packet->shader_program->set_uniform(view_uniform_name, V);
     render_packet->shader_program->set_uniform(proj_uniform_name, P);
   }
 
   void set_model_matrix(std::shared_ptr<RenderPacket> render_packet,
-                        const glm::mat4 &model_matrix,
-                        const char *uniform_name = "model") {
+                        const glm::mat4& model_matrix,
+                        const char* uniform_name = "model")
+  {
     render_packet->shader_program->set_uniform(uniform_name, model_matrix);
   }
 
   void apply_physics(SceneObjectPtr object,
-                     std::unordered_set<SceneObjectPtr> &set) {
+                     std::unordered_set<SceneObjectPtr>& set)
+  {
     set.insert(object);
 
     if (object->physics.has_gravity()) {
       glm::vec3 gravity_force =
-          glm::vec3(0.0f, -1.0f, 0.0f) * object->physics.get_mass();
+        glm::vec3(0.0f, -1.0f, 0.0f) * object->physics.get_mass();
       object->physics.apply_force(gravity_force);
     }
 
@@ -56,28 +60,29 @@ protected:
                                       fixed_step);
 
     float angle =
-        glm::length(object->physics.get_angular_velocity()) * fixed_step;
+      glm::length(object->physics.get_angular_velocity()) * fixed_step;
 
     if (angle > 0.0001f) {
       glm::vec3 axis = glm::normalize(object->physics.get_angular_velocity());
       object->local_transform.rotate(axis, angle);
     }
 
-    for (auto &child : *object) {
+    for (auto& child : *object) {
       if (!set.count(child))
         apply_physics(child, set);
     }
   }
 
   void display_AABB(std::shared_ptr<SceneObject> object,
-                    bool show_controller = false) {
+                    bool show_controller = false)
+  {
 
     auto object_AABB = std::make_shared<SceneObject>();
     object_AABB->physics.set_gravity(false);
     object_AABB->with_render_packet(m_app_cache, [=](auto packet) {
-      packet->shader_program->load({"AABB.vert.glsl", "AABB.frag.glsl"});
-      packet->mesh->template load<SimpleVertex, LineIndices>({CUBE_VERTICES},
-                                                    {CUBE_EDGES}, GL_LINES);
+      packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+      packet->mesh->template load<SimpleVertex, LineIndices>(
+        { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
       packet->render = [=] {
         if (show_controller)
           draw_transform_component_editor(object->local_transform,
@@ -95,11 +100,11 @@ protected:
         set_model_matrix(packet, object_AABB->get_world_transformation_mat());
 
         packet->shader_program->set_uniform(
-            "model", object_AABB->get_world_transformation_mat());
+          "model", object_AABB->get_world_transformation_mat());
         packet->shader_program->set_uniform(
-            "view", m_app_cache.get_camera().get_view_matrix());
+          "view", m_app_cache.get_camera().get_view_matrix());
         packet->shader_program->set_uniform(
-            "proj", m_app_cache.get_camera().get_projection_matrix());
+          "proj", m_app_cache.get_camera().get_projection_matrix());
         packet->mesh->draw();
       };
     });
@@ -108,8 +113,10 @@ protected:
   }
 
 public:
-  Scene(App &app)
-      : m_scene_ptr(std::make_shared<SceneObject>()), m_app_cache(app) {
+  Scene(App& app)
+    : m_scene_ptr(std::make_shared<SceneObject>())
+    , m_app_cache(app)
+  {
 
     SceneObjectPtr player = std::make_shared<SceneObject>();
     player->physics.set_gravity(false);
@@ -118,7 +125,8 @@ public:
     app.get_camera().setup(player);
   }
 
-  void update_physics() {
+  void update_physics()
+  {
     static double accumulator = 0.0;
     const double FIXED_TIMESTEP = 1.0 / 60.0;
 
@@ -126,7 +134,7 @@ public:
 
     while (accumulator >= FIXED_TIMESTEP) {
       std::unordered_set<SceneObjectPtr> set;
-      for (auto &child : *m_scene_ptr) {
+      for (auto& child : *m_scene_ptr) {
         if (!set.count(child))
           apply_physics(child, set);
       }
@@ -134,7 +142,8 @@ public:
     }
   }
 
-  void submit_to_renderer() {
+  void submit_to_renderer()
+  {
     m_app_cache.get_renderer().submit(get_scene_ptr());
   }
 

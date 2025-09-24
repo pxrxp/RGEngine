@@ -1,24 +1,25 @@
 #pragma once
 #include <glm/glm.hpp>
 
-class PhysicsComponent {
+class PhysicsComponent
+{
 public:
-  PhysicsComponent &clear_forces();
-  PhysicsComponent &apply_force(const glm::vec3 &force);
-  PhysicsComponent &apply_force_at_point(const glm::vec3 &force,
-                                         const glm::vec3 &center_of_mass,
-                                         const glm::vec3 &apply_point);
-  PhysicsComponent &apply_linear_impulse(const glm::vec3 &impulse);
-  PhysicsComponent &integrate(float fixed_step);
+  PhysicsComponent& clear_forces();
+  PhysicsComponent& apply_force(const glm::vec3& force);
+  PhysicsComponent& apply_force_at_point(const glm::vec3& force,
+                                         const glm::vec3& center_of_mass,
+                                         const glm::vec3& apply_point);
+  PhysicsComponent& apply_linear_impulse(const glm::vec3& impulse);
+  PhysicsComponent& integrate(float fixed_step);
 
-  const glm::vec3 &get_velocity() const;
-  const glm::vec3 &get_angular_velocity() const;
+  const glm::vec3& get_velocity() const;
+  const glm::vec3& get_angular_velocity() const;
   float get_mass() const;
   bool has_gravity() const;
 
-  PhysicsComponent &set_mass(float mass);
-  PhysicsComponent &set_gravity(bool has_gravity);
-  PhysicsComponent &set_inverse_inertia_tensor(const glm::mat3 &tensor);
+  PhysicsComponent& set_mass(float mass);
+  PhysicsComponent& set_gravity(bool has_gravity);
+  PhysicsComponent& set_inverse_inertia_tensor(const glm::mat3& tensor);
 
 private:
   glm::vec3 m_velocity = glm::vec3(0.f);

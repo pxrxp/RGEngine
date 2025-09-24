@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include <unordered_set>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 class App;
@@ -9,13 +9,15 @@ class Mesh;
 class ShaderProgram;
 class Material;
 
-enum Priority {
+enum Priority
+{
   HIGH_PRIORITY = 0,
   NORMAL_PRIORITY = 1,
   LOW_PRIORITY = 2,
 };
 
-struct RenderPacket {
+struct RenderPacket
+{
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<ShaderProgram> shader_program;
   std::shared_ptr<Material> material;
@@ -27,19 +29,24 @@ struct RenderPacket {
                std::shared_ptr<ShaderProgram> shader,
                std::shared_ptr<Material> material,
                Priority priority = NORMAL_PRIORITY)
-      : mesh(mesh), shader_program(shader), material(material) {}
+    : mesh(mesh)
+    , shader_program(shader)
+    , material(material)
+  {
+  }
 };
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
 
-class Renderer {
+class Renderer
+{
   std::vector<std::shared_ptr<RenderPacket>> m_render_queue;
 
 public:
   void add(std::shared_ptr<RenderPacket> render_packet);
   void add_children(SceneObjectPtr root,
-                    std::unordered_set<SceneObjectPtr> &set);
+                    std::unordered_set<SceneObjectPtr>& set);
   void submit(SceneObjectPtr scene);
   void render();
 };

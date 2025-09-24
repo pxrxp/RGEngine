@@ -5,12 +5,13 @@
 
 class App;
 
-class Window {
+class Window
+{
 private:
-  glm::ivec2 m_dimensions = {0, 0};
-  glm::dvec2 m_mouse_accumulator = {0., 0.};
-  glm::dvec2 m_mouse = {0., 0.};
-  GLFWwindow *m_raw_window = nullptr;
+  glm::ivec2 m_dimensions = { 0, 0 };
+  glm::dvec2 m_mouse_accumulator = { 0., 0. };
+  glm::dvec2 m_mouse = { 0., 0. };
+  GLFWwindow* m_raw_window = nullptr;
   std::string m_title;
 
 public:
@@ -25,7 +26,10 @@ public:
   void set_cursor_mode(int mode);
   int get_cursor_mode();
   void swap_buffers();
-  void clear(GLfloat color_r, GLfloat color_g, GLfloat color_b, GLfloat color_a,
+  void clear(GLfloat color_r,
+             GLfloat color_g,
+             GLfloat color_b,
+             GLfloat color_a,
              GLbitfield mask);
 
   friend class App;

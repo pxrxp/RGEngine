@@ -6,12 +6,17 @@
 #include <vector>
 
 #define SETUP_ATTRIB(class, type, name)                                        \
-  glVertexArrayAttribFormat(m_vao, attr_index, sizeof(type) / sizeof(GLfloat), \
-                            GL_FLOAT, GL_FALSE, offsetof(Vertex, name));       \
+  glVertexArrayAttribFormat(m_vao,                                             \
+                            attr_index,                                        \
+                            sizeof(type) / sizeof(GLfloat),                    \
+                            GL_FLOAT,                                          \
+                            GL_FALSE,                                          \
+                            offsetof(Vertex, name));                           \
   glVertexArrayAttribBinding(m_vao, attr_index, 0);                            \
   glEnableVertexArrayAttrib(m_vao, attr_index++);
 
-class Mesh {
+class Mesh
+{
 private:
   GLuint m_vao = 0;
   GLuint m_vbo = 0;
@@ -24,18 +29,19 @@ private:
 
 public:
 #ifndef NDEBUG
-  friend std::ostream &operator<<(std::ostream &os, const Mesh &mesh);
+  friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 #endif
 
   GLuint get_id() const;
   void bind();
   void unbind();
 
-  template <typename Vertex, typename Indices>
-  void load(const std::vector<Vertex> &vertices,
-            const std::vector<Indices> &indices = {},
+  template<typename Vertex, typename Indices>
+  void load(const std::vector<Vertex>& vertices,
+            const std::vector<Indices>& indices = {},
             GLenum draw_primitive = GL_TRIANGLES,
-            GLenum usage = GL_STATIC_DRAW) {
+            GLenum usage = GL_STATIC_DRAW)
+  {
 
     static_assert(std::is_same<Vertex, SimpleVertex>::value ||
                   std::is_same<Vertex, ColoredVertex>::value ||
@@ -60,13 +66,13 @@ public:
     glCreateVertexArrays(1, &m_vao);
     glCreateBuffers(1, &m_vbo);
 
-    glNamedBufferData(m_vbo, m_vertex_count * sizeof(Vertex), vertices.data(),
-                      usage);
+    glNamedBufferData(
+      m_vbo, m_vertex_count * sizeof(Vertex), vertices.data(), usage);
 
     if (!indices.empty()) {
       glCreateBuffers(1, &m_ebo);
-      glNamedBufferData(m_ebo, m_index_count * sizeof(Indices), indices.data(),
-                        usage);
+      glNamedBufferData(
+        m_ebo, m_index_count * sizeof(Indices), indices.data(), usage);
       glVertexArrayElementBuffer(m_vao, m_ebo);
     }
 
@@ -84,13 +90,13 @@ public:
       ADVANCED_VERTEX_MEMBERS(SETUP_ATTRIB)
     }
 
-    for (const auto &vertex : vertices) {
+    for (const auto& vertex : vertices) {
       m_local_AABB.add_point(vertex.position);
     }
   }
 
   void draw(unsigned int instance_count = 1);
-  const BoundingBox &get_local_AABB() const;
+  const BoundingBox& get_local_AABB() const;
   ~Mesh();
 };
 

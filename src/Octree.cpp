@@ -6,7 +6,8 @@
 
 #include "debug.h"
 
-class OctreeNode {
+class OctreeNode
+{
 private:
   std::array<std::shared_ptr<OctreeNode>, 8> m_children;
   std::vector<SceneObject> m_scenes;
@@ -14,20 +15,25 @@ private:
 
 public:
   BoundingBox get_boundary() const;
-  static void get(const glm::vec3 &point,
-                  const std::shared_ptr<OctreeNode> &root,
-                  std::vector<std::shared_ptr<OctreeNode>> &result);
-  static void get(const BoundingBox &box, const std::shared_ptr<OctreeNode> &root,
-           std::vector<std::shared_ptr<OctreeNode>> &result);
+  static void get(const glm::vec3& point,
+                  const std::shared_ptr<OctreeNode>& root,
+                  std::vector<std::shared_ptr<OctreeNode>>& result);
+  static void get(const BoundingBox& box,
+                  const std::shared_ptr<OctreeNode>& root,
+                  std::vector<std::shared_ptr<OctreeNode>>& result);
 };
 
-BoundingBox OctreeNode::get_boundary() const {
+BoundingBox
+OctreeNode::get_boundary() const
+{
   return m_boundary;
 }
 
-void OctreeNode::get(const glm::vec3 &point,
-                     const std::shared_ptr<OctreeNode> &root,
-                     std::vector<std::shared_ptr<OctreeNode>> &result) {
+void
+OctreeNode::get(const glm::vec3& point,
+                const std::shared_ptr<OctreeNode>& root,
+                std::vector<std::shared_ptr<OctreeNode>>& result)
+{
   if (root->m_boundary.where(point) == Inside) {
     result.push_back(root);
     return;
@@ -37,19 +43,21 @@ void OctreeNode::get(const glm::vec3 &point,
     result.push_back(root);
   }
 
-  for (const auto &child : root->m_children) {
+  for (const auto& child : root->m_children) {
     get(point, child, result);
   }
 }
 
-void OctreeNode::get(const BoundingBox &box,
-                     const std::shared_ptr<OctreeNode> &root,
-                     std::vector<std::shared_ptr<OctreeNode>> &result) {
+void
+OctreeNode::get(const BoundingBox& box,
+                const std::shared_ptr<OctreeNode>& root,
+                std::vector<std::shared_ptr<OctreeNode>>& result)
+{
   if (root->m_boundary.collides(box)) {
     result.push_back(root);
   }
 
-  for (const auto &child : root->m_children) {
+  for (const auto& child : root->m_children) {
     get(box, child, result);
   }
 }
