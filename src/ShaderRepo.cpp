@@ -30,16 +30,30 @@ GLuint ShaderRepo::load_and_store_shader(const std::string& path) {
     std::cerr << "Error while compiling " << path << ":\n" << info << "\n";
   }
 
-  shaders[path] = shader;
+  m_shaders[path] = shader;
   return shader;
 }
 
 
 GLuint ShaderRepo::get_shader(const std::string& path) {
-  bool not_found = shaders.find(path) == shaders.end();
+  bool not_found = m_shaders.find(path) == m_shaders.end();
   if (not_found) {
     return load_and_store_shader(path);
   } else {
-    return shaders[path];
+    return m_shaders[path];
   }
+}
+
+
+ShaderRepo::~ShaderRepo() {
+    for (auto& [path, shader] : m_shaders)
+        glDeleteShader(shader);
+}
+
+void ShaderRepo::remove_shader(const std::string& path) {
+    auto it = m_shaders.find(path);
+    if (it != m_shaders.end()) {
+        glDeleteShader(it->second);
+        m_shaders.erase(it);
+    }
 }

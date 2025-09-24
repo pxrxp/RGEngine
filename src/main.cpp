@@ -9,7 +9,7 @@ int main() {
   App app;
   app.init();
 
-  TestScene test(app);
+  TestScene test_scene(app);
 
   while (app.is_running()) {
     app.update();
@@ -17,8 +17,9 @@ int main() {
 
     app.get_window().clear(COLOR_BLACK,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    test.update_physics(app);
-    app.get_renderer().submit(test.get_scene_ptr());
+
+    test_scene.update_physics();
+    test_scene.submit_to_renderer();
     app.get_renderer().render();
 
     app.render_debug_gui();

@@ -11,12 +11,9 @@
 #include "util.h"
 
 class Scene {
-private:
-  App &m_app_cache;
-
 protected:
+  App &m_app_cache;
   SceneObjectPtr m_scene_ptr = nullptr;
-  std::shared_ptr<SceneObject> m_player;
 
   void set_view_proj_matrix(std::shared_ptr<RenderPacket> render_packet,
                             const char *view_uniform_name = "view",
@@ -36,7 +33,7 @@ protected:
   }
 
   void set_model_matrix(std::shared_ptr<RenderPacket> render_packet,
-                        const glm::mat4 &model_matrix = glm::mat4(1.f),
+                        const glm::mat4 &model_matrix,
                         const char *uniform_name = "model") {
     render_packet->shader_program->set_uniform(uniform_name, model_matrix);
   }
@@ -75,36 +72,37 @@ protected:
   void display_AABB(std::shared_ptr<SceneObject> object,
                     bool show_controller = false) {
 
-    SceneObjectPtr object_AABB = std::make_shared<SceneObject>();
-    auto &object_AABB_render_packet =
-        object_AABB->create_render_packet(m_app_cache);
-    object_AABB->physics = PhysicsComponent({.has_gravity = false});
-    object_AABB_render_packet->shader_program->load(
-        {"AABB.vert.glsl", "AABB.frag.glsl"});
-    object_AABB_render_packet->mesh->load<SimpleVertex, LineIndices>(
-        {CUBE_VERTICES}, {CUBE_EDGES}, GL_LINES);
-    object_AABB_render_packet->render = [this, object_AABB_render_packet,
-                                         object, object_AABB, show_controller] {
-      if (show_controller)
-        draw_transform_component_editor(object->local_transform,
-                                        "object Local Transform");
+    auto object_AABB = std::make_shared<SceneObject>();
+    object_AABB->physics.set_gravity(false);
+    object_AABB->with_render_packet(m_app_cache, [=](auto packet) {
+      packet->shader_program->load({"AABB.vert.glsl", "AABB.frag.glsl"});
+      packet->mesh->template load<SimpleVertex, LineIndices>({CUBE_VERTICES},
+                                                    {CUBE_EDGES}, GL_LINES);
+      packet->render = [=] {
+        if (show_controller)
+          draw_transform_component_editor(object->local_transform,
+                                          "object Local Transform");
 
-      glm::vec3 aabb_min = object->get_world_AABB().min;
-      glm::vec3 aabb_max = object->get_world_AABB().max;
-      glm::vec3 dimensions = aabb_max - aabb_min;
-      glm::vec3 center = aabb_min + 0.5f * dimensions;
+        glm::vec3 aabb_min = object->get_world_AABB().min;
+        glm::vec3 aabb_max = object->get_world_AABB().max;
+        glm::vec3 dimensions = aabb_max - aabb_min;
+        glm::vec3 center = aabb_min + 0.5f * dimensions;
 
-      object_AABB->local_transform.set_position(center);
-      object_AABB->local_transform.set_scale(0.5f * dimensions);
+        object_AABB->local_transform.set_position(center);
+        object_AABB->local_transform.set_scale(0.5f * dimensions);
 
-      object_AABB_render_packet->shader_program->set_uniform(
-          "model", object_AABB->get_world_transformation_mat());
-      object_AABB_render_packet->shader_program->set_uniform(
-          "view", m_app_cache.get_camera().get_view_matrix());
-      object_AABB_render_packet->shader_program->set_uniform(
-          "proj", m_app_cache.get_camera().get_projection_matrix());
-      object_AABB_render_packet->mesh->draw();
-    };
+        set_view_proj_matrix(packet);
+        set_model_matrix(packet, object_AABB->get_world_transformation_mat());
+
+        packet->shader_program->set_uniform(
+            "model", object_AABB->get_world_transformation_mat());
+        packet->shader_program->set_uniform(
+            "view", m_app_cache.get_camera().get_view_matrix());
+        packet->shader_program->set_uniform(
+            "proj", m_app_cache.get_camera().get_projection_matrix());
+        packet->mesh->draw();
+      };
+    });
 
     m_scene_ptr->add_child(object_AABB);
   }
@@ -114,18 +112,17 @@ public:
       : m_scene_ptr(std::make_shared<SceneObject>()), m_app_cache(app) {
 
     SceneObjectPtr player = std::make_shared<SceneObject>();
-    player->physics = PhysicsComponent({.has_gravity = false});
+    player->physics.set_gravity(false);
     m_scene_ptr->add_child(player);
-    m_player = player;
 
     app.get_camera().setup(player);
   }
 
-  void update_physics(App &app) {
+  void update_physics() {
     static double accumulator = 0.0;
     const double FIXED_TIMESTEP = 1.0 / 60.0;
 
-    accumulator += app.get_delta_time();
+    accumulator += m_app_cache.get_delta_time();
 
     while (accumulator >= FIXED_TIMESTEP) {
       std::unordered_set<SceneObjectPtr> set;
@@ -135,6 +132,10 @@ public:
       }
       accumulator -= FIXED_TIMESTEP;
     }
+  }
+
+  void submit_to_renderer() {
+    m_app_cache.get_renderer().submit(get_scene_ptr());
   }
 
   SceneObjectPtr get_scene_ptr() const { return m_scene_ptr; }

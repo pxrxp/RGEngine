@@ -22,10 +22,6 @@ void ShaderProgram::unbind() {
   glUseProgram(0);
 }
 
-ShaderProgram::~ShaderProgram() {
-  glDeleteProgram(m_id);
-}
-
 void ShaderProgram::load(std::initializer_list<std::string> shaders) {
   if (m_id == 0) {
     m_id = glCreateProgram();

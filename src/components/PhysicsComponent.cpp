@@ -1,16 +1,20 @@
 #include "PhysicsComponent.h"
 
-PhysicsComponent::PhysicsComponent(const PhysicsConfig& config)
-    : m_velocity(0.0f),
-      m_linear_momentum(0.0f),
-      m_total_force(0.0f),
-      m_angular_velocity(0.0f),
-      m_angular_momentum(0.0f),
-      m_total_torque(0.0f),
-      m_mass(config.mass > 0.0f ? config.mass : 0.0f),
-      m_inverse_mass(config.mass > 0.0f ? 1.0f / config.mass : 0.0f),
-      m_inverse_inertia_tensor(config.inverse_inertia_tensor),
-      m_has_gravity(config.has_gravity) {}
+PhysicsComponent& PhysicsComponent::set_mass(float mass) {
+    m_mass = mass > 0.0f ? mass : 0.0f;
+    m_inverse_mass = mass > 0.0f ? 1.0f / mass : 0.0f;
+    return *this;
+}
+
+PhysicsComponent& PhysicsComponent::set_gravity(bool has_gravity) {
+    m_has_gravity = has_gravity;
+    return *this;
+}
+
+PhysicsComponent& PhysicsComponent::set_inverse_inertia_tensor(const glm::mat3& tensor) {
+    m_inverse_inertia_tensor = tensor;
+    return *this;
+}
 
 PhysicsComponent& PhysicsComponent::clear_forces() {
     m_total_force = glm::vec3(0.0f);

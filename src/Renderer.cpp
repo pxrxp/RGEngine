@@ -15,8 +15,9 @@ void Renderer::add(std::shared_ptr<RenderPacket> render_packet) {
 void Renderer::add_children(SceneObjectPtr root, std::unordered_set<SceneObjectPtr>& set) {
   set.insert(root);
 
-  if (root->render_packet.has_value())
-    add(root->render_packet.value());
+  auto render_packet = root->get_render_packet();
+  if (render_packet.has_value())
+    add(render_packet.value());
 
   for (auto& child: *root) {
     if (!set.count(child))

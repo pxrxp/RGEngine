@@ -2,16 +2,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-struct TransformConfig {
-  glm::vec3 position = glm::vec3(0.0f);
-  glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-  glm::vec3 scale = glm::vec3(1.0f);
-};
-
 class TransformComponent {
 public:
-  TransformComponent(const TransformConfig &config = {});
-
   bool is_dirty() const;
   TransformComponent &set_dirty();
 

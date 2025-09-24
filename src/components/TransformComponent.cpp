@@ -1,13 +1,6 @@
 #include "TransformComponent.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-TransformComponent::TransformComponent(const TransformConfig& config)
-    : m_position(config.position),
-      m_orientation(config.orientation),
-      m_scale(config.scale),
-      m_dirty(true),
-      m_model_matrix(1.0f) {}
-
 bool TransformComponent::is_dirty() const {
     return m_dirty;
 }

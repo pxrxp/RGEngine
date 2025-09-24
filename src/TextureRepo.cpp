@@ -71,7 +71,7 @@ GLuint TextureRepo::load_and_store_texture(const std::string &name,
   }
 
   if (id != 0)
-    textures[name] = id;
+    m_textures[name] = id;
 
   return id;
 }
@@ -239,10 +239,24 @@ GLuint TextureRepo::load_and_store_cubemap(const std::string &name,
 
 GLuint TextureRepo::get_texture(const std::string &name,
                                 const TextureDescriptor &desc) {
-  bool not_found = textures.find(name) == textures.end();
+  bool not_found = m_textures.find(name) == m_textures.end();
   if (not_found) {
     return load_and_store_texture(name, desc);
   } else {
-    return textures[name];
+    return m_textures[name];
   }
+}
+
+void TextureRepo::remove_texture(const std::string& name) {
+    auto it = m_textures.find(name);
+    if (it != m_textures.end()) {
+        glDeleteTextures(1, &it->second);
+        m_textures.erase(it);
+    }
+}
+
+TextureRepo::~TextureRepo() {
+    for (auto& [name, id] : m_textures) {
+        glDeleteTextures(1, &id);
+    }
 }
