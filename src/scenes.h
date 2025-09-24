@@ -145,6 +145,24 @@ public:
         {CUBE_VERTICES}, {CUBE_EDGES}, GL_LINES);
     cube_AABB_render_packet->render = [&app, cube_AABB_render_packet,
                                        cube_AABB] {
+      glm::vec3 aabb_min = cube_AABB->get_world_AABB().min;
+      glm::vec3 aabb_max = cube_AABB->get_world_AABB().max;
+      glm::vec3 dimensions = aabb_max - aabb_min;
+      glm::vec3 center = aabb_min + 0.5f * dimensions;
+
+      cube_AABB->local_transform.set_position(center);
+      cube_AABB->local_transform.set_scale(0.5f * dimensions);
+
+      // std::vector<glm::vec3> vertices = {CUBE_VERTICES};
+
+      // for (auto& vertex : vertices)
+      //   std::cout << app.get_camera().get_projection_matrix() * app.get_camera().get_view_matrix() * cube_AABB->get_world_transformation_mat() * glm::vec4(vertex, 1.0f) << std::endl;
+      // std::cout << "\nCOMPLETE\n";
+
+      // for (auto& vertex : cube_AABB->get_world_AABB().corners())
+      //   std::cout << app.get_camera().get_projection_matrix() * app.get_camera().get_view_matrix() * glm::vec4(vertex.position, 1.0f) << std::endl;
+      // std::cout << "\nCOMPLETE2\n";
+
       cube_AABB_render_packet->shader_program->set_uniform(
           "model", cube_AABB->get_world_transformation_mat());
       cube_AABB_render_packet->shader_program->set_uniform(
