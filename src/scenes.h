@@ -12,8 +12,8 @@ class TestScene : Scene {
 public:
   TestScene(App &app) : Scene(app) {
 
-    SceneObjectPtr skybox = std::make_shared<SceneObject>();
-    auto &skybox_render_packet = skybox->create_render_packet(app);
+    auto skybox = std::make_shared<SceneObject>();
+    auto skybox_render_packet = skybox->create_render_packet(app);
     skybox->physics = PhysicsComponent({.has_gravity = false});
 
     skybox_render_packet->mesh->load<SimpleVertex, TriangleIndices>(
@@ -27,17 +27,17 @@ public:
                                             .wrap_t = GL_CLAMP_TO_EDGE,
                                             .wrap_r = GL_CLAMP_TO_EDGE}}});
 
-    skybox_render_packet->render = [this, skybox_render_packet] {
-      set_view_proj_matrix(skybox_render_packet);
+    skybox_render_packet->render = [this, packet = skybox_render_packet] {
+      set_view_proj_matrix(packet);
       glDepthFunc(GL_LEQUAL);
-      skybox_render_packet->mesh->draw();
+      packet->mesh->draw();
       glDepthFunc(GL_LESS);
     };
 
     m_scene_ptr->add_child(skybox);
 
-    SceneObjectPtr cube = std::make_shared<SceneObject>();
-    auto &cube_render_packet = cube->create_render_packet(app);
+    auto cube = std::make_shared<SceneObject>();
+    auto cube_render_packet = cube->create_render_packet(app);
     cube->physics = PhysicsComponent({.has_gravity = false});
 
     cube_render_packet->shader_program->load(
@@ -75,11 +75,11 @@ public:
     cube->local_transform.rotate(AXIS_X, glm::radians(60.f));
     cube->local_transform.rotate(AXIS_Z, glm::radians(30.f));
 
-    cube_render_packet->render = [this, cube_render_packet, cube] {
-      set_view_proj_matrix(cube_render_packet);
-      set_model_matrix(cube_render_packet,
+    cube_render_packet->render = [this, packet = cube_render_packet, cube] {
+      set_view_proj_matrix(packet);
+      set_model_matrix(packet,
                        cube->get_world_transformation_mat());
-      cube_render_packet->mesh->draw();
+      packet->mesh->draw();
     };
     m_scene_ptr->add_child(cube);
 

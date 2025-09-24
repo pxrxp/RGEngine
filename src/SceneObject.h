@@ -14,6 +14,9 @@ using SceneObjectPtr = std::shared_ptr<SceneObject>;
 
 class SceneObject {
 private:
+  std::optional<std::shared_ptr<RenderPacket>> render_packet = std::nullopt;
+  std::shared_ptr<RenderPacket> &create_render_packet(App &app);
+
   std::optional<SceneObjectPtr> m_parent = std::nullopt;
   std::vector<SceneObjectPtr> m_children;
 
@@ -23,7 +26,6 @@ private:
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 
 public:
-  std::optional<std::shared_ptr<RenderPacket>> render_packet = std::nullopt;
 
   TransformComponent local_transform;
   PhysicsComponent physics;
@@ -33,7 +35,13 @@ public:
   BoundingBox &get_world_AABB();
   void update_world_AABB();
 
-  std::shared_ptr<RenderPacket> &create_render_packet(App &app);
+  template<typename F>
+  void with_render_packet(App& app, F&& f) {
+      auto packet = create_render_packet(app);
+      f(*packet);
+      render_packet = std::move(packet);
+  }
+
   void add_child(SceneObjectPtr child);
 
   auto begin() noexcept { return m_children.begin(); }
