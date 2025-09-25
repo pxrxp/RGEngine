@@ -14,10 +14,12 @@ public:
 
   const glm::vec3& get_velocity() const;
   const glm::vec3& get_angular_velocity() const;
+  float get_restitution() const;
   float get_mass() const;
   bool has_gravity() const;
 
   PhysicsComponent& set_mass(float mass);
+  PhysicsComponent& set_restitution(float restitution);
   PhysicsComponent& set_gravity(bool has_gravity);
   PhysicsComponent& set_inverse_inertia_tensor(const glm::mat3& tensor);
 
@@ -32,4 +34,5 @@ private:
   float m_inverse_mass = 1.f;
   glm::mat3 m_inverse_inertia_tensor = glm::mat3(1.f);
   bool m_has_gravity = true;
+  float m_restitution;
 };

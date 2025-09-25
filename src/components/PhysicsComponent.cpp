@@ -16,6 +16,13 @@ PhysicsComponent::set_gravity(bool has_gravity)
 }
 
 PhysicsComponent&
+PhysicsComponent::set_restitution(float restitution)
+{
+  m_restitution = restitution;
+  return *this;
+}
+
+PhysicsComponent&
 PhysicsComponent::set_inverse_inertia_tensor(const glm::mat3& tensor)
 {
   m_inverse_inertia_tensor = tensor;
@@ -84,4 +91,9 @@ bool
 PhysicsComponent::has_gravity() const
 {
   return m_has_gravity;
+}
+float
+PhysicsComponent::get_restitution() const
+{
+  return m_restitution;
 }

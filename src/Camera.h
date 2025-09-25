@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
 #include <glm/glm.hpp>
 #include <vector>
@@ -43,6 +44,7 @@ public:
 
   const std::vector<SimpleVertex>& get_frustum_worldspace();
   const std::vector<SimpleVertex>& get_frustum_viewspace();
+  const BoundingBox& get_AABB();
 
 private:
   glm::vec3 get_camera_move_dir(App& app) const;
@@ -61,6 +63,7 @@ private:
   float m_aspect_ratio_cache = 16.f / 9.f;
 
   bool m_frustum_viewspace_updated = true;
+  bool m_frustum_worldspace_updated = true;
   bool m_view_dirty = true;
   bool m_proj_dirty = true;
   glm::mat4 m_view = glm::mat4(1.f);
@@ -68,4 +71,5 @@ private:
 
   std::vector<SimpleVertex> m_frustum_viewspace;
   std::vector<SimpleVertex> m_frustum_worldspace;
+  BoundingBox m_AABB;
 };

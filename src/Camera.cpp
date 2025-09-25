@@ -65,20 +65,36 @@ Camera::setup(SceneObjectPtr player)
   return *this;
 }
 
+const BoundingBox&
+Camera::get_AABB()
+{
+  if (m_frustum_worldspace_updated) {
+    m_AABB = BoundingBox(get_frustum_worldspace());
+    m_frustum_worldspace_updated = false;
+  }
+
+  return m_AABB;
+}
+
 const std::vector<SimpleVertex>&
 Camera::get_frustum_worldspace()
 {
+  auto& frustum_viewspace = get_frustum_viewspace();
+
   if (!m_view_dirty && !m_frustum_viewspace_updated)
     return m_frustum_worldspace;
-  
+
   if (m_view_dirty)
     update_view_matrix();
-  
+
   m_frustum_worldspace.clear();
-  for (auto& point : get_frustum_viewspace()) {
+  for (auto& point : frustum_viewspace) {
     m_frustum_worldspace.push_back(
       { glm::vec3(glm::inverse(m_view) * glm::vec4(point.position, 1.0f)) });
   }
+
+  m_frustum_worldspace_updated = true;
+  m_frustum_viewspace_updated = true;
 
   return m_frustum_worldspace;
 }
@@ -93,7 +109,6 @@ Camera::get_frustum_viewspace()
 
   return m_frustum_viewspace;
 }
-
 
 void
 Camera::update_lazy(App& app)
@@ -150,6 +165,8 @@ Camera::update_projection_matrix(float aspect_ratio)
     { -right_far, -top_far, -m_z_far },    { -right_far, top_far, -m_z_far },
     { right_far, -top_far, -m_z_far },     { right_far, top_far, -m_z_far },
   };
+
+  m_proj_dirty = false;
 }
 
 Camera&
