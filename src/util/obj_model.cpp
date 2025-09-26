@@ -1,17 +1,25 @@
-#include "filesystem.h"
-#include <sstream>
-#include <iostream>
+// #include "filesystem.h"
+// #include <iostream>
+// #include <ranges>
 
-int main() {
-  std::string path = "";
-  std::string obj = Util::read_file("resources/" + path);
+// int
+// main()
+// {
+//   std::string path = "Box.obj";
+//   std::string obj = Util::read_file("resources/" + path);
 
-  std::stringstream ss(obj);
-  std::cout << ss.str();
-}
+//   std::vector<std::vector<float>> positions;
+//   size_t i = 0;
 
-  // template<typename Vertex, typename Indices>
-  // void load(const std::vector<Vertex>& vertices,
-  //           const std::vector<Indices>& indices = {},
-  //           GLenum draw_primitive = GL_TRIANGLES,
-  //           GLenum usage = GL_STATIC_DRAW)
+//   for (auto l : obj | std::ranges::views::split('\n')) {
+//     for (auto token : l | std::ranges::views::split(' ')) {
+//       std::cout << std::string(token.begin(), token.end());
+
+//     }
+//   }
+// }
+
+// // const std::vector<Vertex>& vertices,
+// // const std::vector<Indices>& indices = {},
+// // GLenum draw_primitive = GL_TRIANGLES,
+// // GLenum usage = GL_STATIC_DRAW)
