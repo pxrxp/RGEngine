@@ -1,7 +1,7 @@
 #pragma once
 #include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
-#include "opengl.h"
+#include "util/opengl.h"
 #include <iostream>
 #include <vector>
 

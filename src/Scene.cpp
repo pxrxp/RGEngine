@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "util.h"
+#include "util/editor.h"
 
 void
 resolve_penetration(SceneObject& a, SceneObject& b)
@@ -115,7 +115,7 @@ Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
       { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
     packet->render = [=] {
       if (show_controller)
-        draw_transform_component_editor(object->local_transform,
+        Util::draw_transform_component_editor(object->local_transform,
                                         "object Local Transform");
 
       glm::vec3 aabb_min = object->get_world_AABB().min;

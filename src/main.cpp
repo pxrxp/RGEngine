@@ -1,6 +1,5 @@
 #include "App.h"
-#include "Renderer.h"
-#include "definitions.h"
+#include "util/definitions.h"
 #include "scenes.h"
 
 int

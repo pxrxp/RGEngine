@@ -1,5 +1,4 @@
 #include "TransformComponent.h"
-#include <glm/gtc/matrix_transform.hpp>
 
 bool
 TransformComponent::is_dirty() const

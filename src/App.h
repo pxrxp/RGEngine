@@ -5,7 +5,9 @@
 #include "Repo.h"
 #include "Window.h"
 
-struct GLFWwindow;
+class GLFWwindow;
+class Window;
+class Camera;
 
 class App
 {

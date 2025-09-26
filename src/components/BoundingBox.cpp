@@ -1,5 +1,4 @@
 #include "BoundingBox.h"
-#include "vertex_formats.h"
 
 BoundingBox::BoundingBox()
   : min(glm::vec3(0.f))

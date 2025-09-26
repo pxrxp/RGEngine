@@ -4,8 +4,6 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-#include "debug.h"
-
 class OctreeNode
 {
 private:

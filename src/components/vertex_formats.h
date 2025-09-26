@@ -1,5 +1,5 @@
 #pragma once
-#include "../definitions.h"
+#include "../util/definitions.h"
 #include <glm/glm.hpp>
 #include <iostream>
 

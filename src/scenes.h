@@ -5,9 +5,7 @@
 #include "SceneObject.h"
 #include "components/PhysicsComponent.h"
 #include "components/TransformComponent.h"
-#include "definitions.h"
-
-#include "debug.h"
+#include "util/definitions.h"
 
 class TestScene : public Scene
 {

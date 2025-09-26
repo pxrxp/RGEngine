@@ -1,6 +1,6 @@
 #include "Repo.h"
-#include "opengl.h"
-#include "util.h"
+#include "util/filesystem.h"
+#include "util/opengl.h"
 #include <iostream>
 
 std::unordered_map<char, int> shader_map = {
@@ -15,7 +15,7 @@ std::unordered_map<char, int> shader_map = {
 GLuint
 ShaderRepo::load_and_store_shader(const std::string& path)
 {
-  std::string shader_src = read_file("shaders/" + path);
+  std::string shader_src = Util::read_file("shaders/" + path);
   const char* shader_src_cstr = shader_src.c_str();
   GLuint shader = glCreateShader(shader_map[path[path.size() - 6]]);
 

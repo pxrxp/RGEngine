@@ -11,7 +11,6 @@
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
-using WeakSceneObjectPtr = std::weak_ptr<SceneObject>;
 
 class SceneObject : public std::enable_shared_from_this<SceneObject>
 {
@@ -19,7 +18,7 @@ private:
   std::optional<std::shared_ptr<RenderPacket>> m_render_packet = std::nullopt;
   std::shared_ptr<RenderPacket>& create_render_packet(App& app);
 
-  WeakSceneObjectPtr m_parent;
+  std::weak_ptr<SceneObject> m_parent;
   std::vector<SceneObjectPtr> m_children;
 
   BoundingBox m_world_AABB;

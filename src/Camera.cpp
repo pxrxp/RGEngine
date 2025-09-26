@@ -1,15 +1,6 @@
 #include "Camera.h"
 #include "App.h"
-#include "Renderer.h"
 #include "SceneObject.h"
-#include "components/vertex_formats.h"
-#include "definitions.h"
-#include <cmath>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "debug.h"
 

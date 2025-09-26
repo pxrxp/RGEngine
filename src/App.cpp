@@ -1,11 +1,6 @@
 #include "App.h"
-#include "Camera.h"
-#include "Window.h"
-#include "util.h"
-#include <glm/ext/matrix_transform.hpp>
+#include "util/gl_debug.h"
 #include <iostream>
-
-#include "debug.h"
 
 #ifndef NDEBUG
 #include <imgui_impl_glfw.h>
@@ -60,7 +55,7 @@ App::init()
     exit(EXIT_FAILURE);
   }
 
-  init_gl_debug();
+  Util::init_gl_debug();
 
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);

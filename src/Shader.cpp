@@ -1,12 +1,9 @@
 #include "Shader.h"
 #include "Repo.h"
-#include "opengl.h"
-#include "util.h"
+#include "util/opengl.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <initializer_list>
 #include <iostream>
-#include <string>
 
 ShaderRepo repo;
 
