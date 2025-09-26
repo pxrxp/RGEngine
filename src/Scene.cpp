@@ -1,55 +1,65 @@
 #include "Scene.h"
 #include "util.h"
 
-void resolve_penetration(SceneObject& a, SceneObject& b) {
-    BoundingBox aabb_a = a.get_world_AABB();
-    BoundingBox aabb_b = b.get_world_AABB();
+void
+resolve_penetration(SceneObject& a, SceneObject& b)
+{
+  BoundingBox aabb_a = a.get_world_AABB();
+  BoundingBox aabb_b = b.get_world_AABB();
 
-    float overlap_x = std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x, aabb_b.min.x);
-    float overlap_y = std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y, aabb_b.min.y);
-    float overlap_z = std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z, aabb_b.min.z);
+  float overlap_x =
+    std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x, aabb_b.min.x);
+  float overlap_y =
+    std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y, aabb_b.min.y);
+  float overlap_z =
+    std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z, aabb_b.min.z);
 
-    glm::vec3 mtv;
+  glm::vec3 mtv;
 
-    if (overlap_x < overlap_y && overlap_x < overlap_z) {
-        mtv = glm::vec3(overlap_x, 0, 0);
-    } else if (overlap_y < overlap_z) {
-        mtv = glm::vec3(0, overlap_y, 0);
-    } else {
-        mtv = glm::vec3(0, 0, overlap_z);
-    }
+  if (overlap_x < overlap_y && overlap_x < overlap_z) {
+    mtv = glm::vec3(overlap_x, 0, 0);
+  } else if (overlap_y < overlap_z) {
+    mtv = glm::vec3(0, overlap_y, 0);
+  } else {
+    mtv = glm::vec3(0, 0, overlap_z);
+  }
 
-    glm::vec3 direction = b.local_transform.get_position() - a.local_transform.get_position();
-    if (glm::dot(direction, mtv) < 0.0f) {
-        mtv = -mtv;
-    }
+  glm::vec3 direction =
+    b.local_transform.get_position() - a.local_transform.get_position();
+  if (glm::dot(direction, mtv) < 0.0f) {
+    mtv = -mtv;
+  }
 
-    if (a.physics.get_mass() > 0.0001 && b.physics.get_mass() > 0.0001) {
-      a.local_transform.translate(-mtv * a.physics.get_mass() / (a.physics.get_mass() + b.physics.get_mass()));
-      b.local_transform.translate(mtv * b.physics.get_mass() / (a.physics.get_mass() + b.physics.get_mass()));
-    }
+  if (a.physics.get_mass() > 0.0001 && b.physics.get_mass() > 0.0001) {
+    a.local_transform.translate(-mtv * a.physics.get_mass() /
+                                (a.physics.get_mass() + b.physics.get_mass()));
+    b.local_transform.translate(mtv * b.physics.get_mass() /
+                                (a.physics.get_mass() + b.physics.get_mass()));
+  }
 }
 
-void resolve_velocity(SceneObject& a, SceneObject& b) {
-    glm::vec3 center_A = a.local_transform.get_position();
-    glm::vec3 center_B = b.local_transform.get_position();
+void
+resolve_velocity(SceneObject& a, SceneObject& b)
+{
+  glm::vec3 center_A = a.local_transform.get_position();
+  glm::vec3 center_B = b.local_transform.get_position();
 
-    glm::vec3 direction_vector = center_B - center_A;
-    glm::vec3 collision_normal = glm::normalize(direction_vector);
+  glm::vec3 direction_vector = center_B - center_A;
+  glm::vec3 collision_normal = glm::normalize(direction_vector);
 
-    glm::vec3 v_rel = b.physics.get_velocity() - a.physics.get_velocity();
-    float vel_along_normal = glm::dot(v_rel, collision_normal);
+  glm::vec3 v_rel = b.physics.get_velocity() - a.physics.get_velocity();
+  float vel_along_normal = glm::dot(v_rel, collision_normal);
 
-    if (vel_along_normal > 0)
-        return;
+  if (vel_along_normal > 0)
+    return;
 
-    float e = std::min(a.physics.get_restitution(), b.physics.get_restitution());
-    float j = -(1 + e) * vel_along_normal;
-    j /= (1 / a.physics.get_mass()) + (1 / b.physics.get_mass());
+  float e = std::min(a.physics.get_restitution(), b.physics.get_restitution());
+  float j = -(1 + e) * vel_along_normal;
+  j /= (1 / a.physics.get_mass()) + (1 / b.physics.get_mass());
 
-    glm::vec3 impulse_vec = j * collision_normal;
-    a.physics.apply_linear_impulse(-impulse_vec);
-    b.physics.apply_linear_impulse(impulse_vec);
+  glm::vec3 impulse_vec = j * collision_normal;
+  a.physics.apply_linear_impulse(-impulse_vec);
+  b.physics.apply_linear_impulse(impulse_vec);
 }
 
 void
@@ -95,8 +105,7 @@ Scene::set_model_matrix(std::shared_ptr<RenderPacket> render_packet,
 }
 
 void
-Scene::display_AABB(std::shared_ptr<SceneObject> object,
-                    bool show_controller)
+Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
 {
   auto object_AABB = std::make_shared<SceneObject>();
   object_AABB->physics.set_gravity(false);
@@ -180,6 +189,7 @@ Scene::step_simulation(float fixed_step)
 
     float angle =
       glm::length(object->physics.get_angular_velocity()) * fixed_step;
+
     if (angle > 0.0001f) {
       glm::vec3 axis = glm::normalize(object->physics.get_angular_velocity());
       object->local_transform.rotate(axis, angle);
