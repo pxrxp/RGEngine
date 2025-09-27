@@ -18,6 +18,7 @@ struct BoundingBox
 
   BoundingBox();
   explicit BoundingBox(const std::vector<Vertex_Pos>& points);
+  explicit operator bool() const noexcept;
 
   Where where(const glm::vec3& point) const;
   bool collides(const BoundingBox& other) const;

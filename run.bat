@@ -29,7 +29,7 @@ IF EXIST "%BINARY%" (
         start "" "qrenderdoc" "%BINARY%"
     ) ELSE IF "%GDB%"=="true" (
         echo Debugging %BINARY% using GDB...
-        start "" "gdb" "%BINARY%"
+        start "" /MAX "gdb" "%BINARY%"
     ) ELSE (
         echo Running %BINARY%...
         "%BINARY%"

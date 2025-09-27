@@ -6,6 +6,11 @@ BoundingBox::BoundingBox()
 {
 }
 
+BoundingBox::operator bool() const noexcept
+{
+  return min != max;
+}
+
 BoundingBox::BoundingBox(const std::vector<Vertex_Pos>& points)
 {
   if (points.empty()) {
