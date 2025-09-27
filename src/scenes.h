@@ -114,7 +114,6 @@ public:
     cube->local_transform.rotate(AXIS_Z, glm::radians(30.f));
 
     m_scene_ptr->add_child(cube);
-    display_AABB(cube, true);
 
     // auto frustum = std::make_shared<SceneObject>();
     // frustum->physics.set_gravity(false);
@@ -135,25 +134,37 @@ public:
 
     // m_scene_ptr->add_child(frustum);
 
-    // auto objmodel = std::make_shared<SceneObject>();
-    // objmodel->physics.set_gravity(false);
+    auto objmodel = std::make_shared<SceneObject>();
+    objmodel->physics.set_gravity(false);
 
-    // auto model = from_OBJ<Vertex_Pos, TriangleIndices>("box.obj");
+    auto model = from_OBJ<Vertex_Pos, TriangleIndices>("cube.obj");
 
-    // objmodel->with_render_packet(m_app_cache, [=](auto packet) {
-    //   packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
-    //   packet->mesh->template load<Vertex_Pos, TriangleIndices>(
-    //     model.first,
-    //     model.second,
-    //     GL_TRIANGLES);
+    for (auto& p : model.first) {
+      std::cout << p << std::endl;
+    }
+    std::cout << std::endl;
+    for (auto& p : model.second) {
+      std::cout << p << std::endl;
+    }
+    std::cout << std::endl;
 
-    //   packet->render = SceneObject::capture_weak(objmodel, [=](auto self) {
-    //     set_view_matrix(packet);
-    //     set_projection_matrix(packet);
-    //     set_model_matrix(packet, self->get_world_transformation_mat());
-    //     packet->mesh->draw();
-    //   });
-    // });
+    objmodel->with_render_packet(m_app_cache, [=](auto packet) {
+      packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+      packet->mesh->template load<Vertex_Pos, TriangleIndices>(
+        model.first,
+        model.second,
+        GL_TRIANGLES);
+
+      packet->render = SceneObject::capture_weak(objmodel, [=](auto self) {
+        set_view_matrix(packet);
+        set_projection_matrix(packet);
+        set_model_matrix(packet, self->get_world_transformation_mat());
+        packet->mesh->draw();
+      });
+    });
+
+    m_scene_ptr->add_child(objmodel);
+    display_AABB(objmodel, true);
     
   }
 };

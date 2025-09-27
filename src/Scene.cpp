@@ -8,11 +8,14 @@ resolve_penetration(SceneObject& a, SceneObject& b)
   // BoundingBox& aabb_b = b.get_world_AABB();
 
   // float overlap_x =
-  //   std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x, aabb_b.min.x);
+  //   std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x,
+  //   aabb_b.min.x);
   // float overlap_y =
-  //   std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y, aabb_b.min.y);
+  //   std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y,
+  //   aabb_b.min.y);
   // float overlap_z =
-  //   std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z, aabb_b.min.z);
+  //   std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z,
+  //   aabb_b.min.z);
 
   // glm::vec3 mtv;
 
@@ -32,9 +35,11 @@ resolve_penetration(SceneObject& a, SceneObject& b)
 
   // if (a.physics.get_mass() > 0.0001 && b.physics.get_mass() > 0.0001) {
   //   a.local_transform.translate(-mtv * a.physics.get_mass() /
-  //                               (a.physics.get_mass() + b.physics.get_mass()));
+  //                               (a.physics.get_mass() +
+  //                               b.physics.get_mass()));
   //   b.local_transform.translate(mtv * b.physics.get_mass() /
-  //                               (a.physics.get_mass() + b.physics.get_mass()));
+  //                               (a.physics.get_mass() +
+  //                               b.physics.get_mass()));
   // }
 }
 
@@ -53,9 +58,9 @@ resolve_velocity(SceneObject& a, SceneObject& b)
   // if (vel_along_normal > 0)
   //   return;
 
-  // float e = std::min(a.physics.get_restitution(), b.physics.get_restitution());
-  // float j = -(1 + e) * vel_along_normal;
-  // j /= (1 / a.physics.get_mass()) + (1 / b.physics.get_mass());
+  // float e = std::min(a.physics.get_restitution(),
+  // b.physics.get_restitution()); float j = -(1 + e) * vel_along_normal; j /=
+  // (1 / a.physics.get_mass()) + (1 / b.physics.get_mass());
 
   // glm::vec3 impulse_vec = j * collision_normal;
   // a.physics.apply_linear_impulse(-impulse_vec);
@@ -116,7 +121,7 @@ Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
     packet->render = [=] {
       if (show_controller)
         Util::draw_transform_component_editor(object->local_transform,
-                                        "object Local Transform");
+                                              "object Local Transform");
 
       glm::vec3 aabb_min = object->get_world_AABB().min;
       glm::vec3 aabb_max = object->get_world_AABB().max;
@@ -160,12 +165,6 @@ void
 Scene::step_simulation(float fixed_step)
 {
   std::vector<SceneObjectPtr> objects = get_all_physics_objects();
-
-  for (auto& object : objects) {
-    std::cout << object->local_transform.get_position() << std::endl;
-    std::cout << object->physics.get_velocity() << " | " << object->physics.get_angular_velocity() << std::endl;
-  }
-  std::cout << std::endl;
 
   for (auto& object : objects) {
     if (object->physics.has_gravity()) {
