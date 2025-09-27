@@ -13,7 +13,7 @@ set "ORIGINAL_DIR=%CD%"
 REM Move to the directory of this batch file
 cd /d "%~dp0"
 
-set CLEAN=false
+SET CLEAN=false
 if "%1"=="-c" set CLEAN=true
 
 REM Require TRIPLET
@@ -48,14 +48,20 @@ IF "%CLEAN%"=="true" (
     if exist "%BUILD_DIR%\CMakeFiles" rmdir /s /q "%BUILD_DIR%\CMakeFiles"
 )
 
+IF "ENABLE_ASAN_UBSAN"=="" SET ENABLE_ASAN_UBSAN="ON"
+IF "ENABLE_WERROR"=="" SET ENABLE_WERROR="OFF"
+
 REM Configure if missing
 IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (
     echo Configuring CMake...
     cmake -B "%BUILD_DIR%" -S . ^
-        -DVCPKG_TARGET_TRIPLET=%TRIPLET% ^
-        -DVCPKG_HOST_TRIPLET=%TRIPLET% ^
-        -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ^
+        -DENABLE_ASAN_UBSAN="%ENABLE_ASAN_UBSAN%" ^
+        -DENABLE_WERROR="%ENABLE_WERROR%" ^
+        -DVCPKG_TARGET_TRIPLET="%TRIPLET%" ^
+        -DVCPKG_HOST_TRIPLET="%TRIPLET%" ^
+        -DCMAKE_BUILD_TYPE="%BUILD_TYPE%"
 )
 
 echo Building...

@@ -41,7 +41,7 @@ public:
                                    .wrap_t = GL_CLAMP_TO_EDGE,
                                    .wrap_r = GL_CLAMP_TO_EDGE } } });
 
-      packet->render = SceneObject::capture_weak(skybox, [=, this](SceneObjectPtr self) {
+      packet->render = SceneObject::capture_weak(skybox, [=, this]([[maybe_unused]] SceneObjectPtr self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         glDepthFunc(GL_LEQUAL);

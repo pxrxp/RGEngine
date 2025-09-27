@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "util/opengl.h"
 
 GLuint
 Mesh::get_id() const

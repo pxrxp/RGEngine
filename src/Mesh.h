@@ -56,14 +56,7 @@ public:
 
     m_draw_primitive = draw_primitive;
     m_vertex_count = vertices.size();
-
-    if constexpr (std::is_same_v<Indices, TriangleIndices>) {
-      m_index_count = indices.size() * 3;
-    } else if constexpr (std::is_same_v<Indices, LineIndices>) {
-      m_index_count = indices.size() * 2;
-    } else if constexpr (std::is_same_v<Indices, PointIndex>) {
-      m_index_count = indices.size();
-    }
+    m_index_count = indices.size() * sizeof(Indices) / sizeof(GLuint);
 
     glCreateVertexArrays(1, &m_vao);
     glCreateBuffers(1, &m_vbo);
@@ -74,7 +67,7 @@ public:
     if (!indices.empty()) {
       glCreateBuffers(1, &m_ebo);
       glNamedBufferData(
-        m_ebo, m_index_count * sizeof(Indices), indices.data(), usage);
+        m_ebo, m_index_count * sizeof(GLuint), indices.data(), usage);
       glVertexArrayElementBuffer(m_vao, m_ebo);
     }
 
