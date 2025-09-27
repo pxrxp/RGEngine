@@ -50,12 +50,17 @@ if [ "$CLEAN" = true ]; then
     [ -d "$BUILD_DIR/CMakeFiles" ] && rm -rf "$BUILD_DIR/CMakeFiles"
 fi
 
+ENABLE_ASAN_UBSAN="${ENABLE_ASAN_USBAN:-ON}"
+ENABLE_WERROR="${ENABLE_WERROR:-OFF}"
+
 # Configure if missing
 if [ ! -f "$BUILD_DIR/CMakeCache.txt" ]; then
     echo "Configuring CMake..."
     cmake -B "$BUILD_DIR" -S . \
         -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+        -DENABLE_ASAN_UBSAN="$ENABLE_ASAN_UBSAN" \
+        -DENABLE_WERROR="$ENABLE_WERROR"
 fi
 
 echo "Building..."

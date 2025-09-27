@@ -29,8 +29,8 @@ protected:
 
 public:
   Scene(App& app)
-    : m_scene_ptr(std::make_shared<SceneObject>())
-    , m_app_cache(app)
+    : m_app_cache(app)
+    , m_scene_ptr(std::make_shared<SceneObject>())
   {
   }
 

@@ -32,6 +32,7 @@ struct RenderPacket
     : mesh(mesh)
     , shader_program(shader)
     , material(material)
+    , priority(priority)
   {
   }
 };

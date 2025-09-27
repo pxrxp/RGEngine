@@ -1,5 +1,6 @@
-#include "util/png_image.h"
 #include "Repo.h"
+#include "util/png_image.h"
+#include "util/opengl.h"
 #include <algorithm>
 
 inline int
@@ -141,7 +142,7 @@ TextureRepo::load_and_store_tex_2d_array(const std::string& name,
     std::cerr << "ERROR: Invalid no. of layers!" << std::endl;
   }
 
-  const int width = image.width;
+  const auto width = image.width;
 
   GLuint texture;
   glCreateTextures(desc.target, 1, &texture);
@@ -213,8 +214,8 @@ TextureRepo::load_and_store_cubemap(const std::string& name,
     return 0;
   }
 
-  const int width = image.width;
-  const int height = image.height;
+  const auto width = image.width;
+  const auto height = image.height;
 
   GLuint texture;
   glCreateTextures(desc.target, 1, &texture);
@@ -296,7 +297,10 @@ TextureRepo::remove_texture(const std::string& name)
 
 TextureRepo::~TextureRepo()
 {
-  for (auto& [name, id] : m_textures) {
-    glDeleteTextures(1, &id);
+  if (is_opengl_context_active()) {
+    for (auto& [name, id] : m_textures) {
+      glDeleteTextures(1, &id);
+    }
   }
+  m_textures.clear();
 }

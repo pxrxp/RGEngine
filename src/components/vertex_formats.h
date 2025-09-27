@@ -63,12 +63,17 @@ struct VertexAttribute
     }                                                                          \
   };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreorder"
+
 DEFINE_VERTEX_STRUCT(Vertex_Pos, VERTEX_P_FIELDS)
 DEFINE_VERTEX_STRUCT(Vertex_PosCol, VERTEX_PC_FIELDS)
 DEFINE_VERTEX_STRUCT(Vertex_PosTex, VERTEX_PT_FIELDS)
 DEFINE_VERTEX_STRUCT(Vertex_PosColNorm, VERTEX_PCN_FIELDS)
 DEFINE_VERTEX_STRUCT(Vertex_PosTexNorm, VERTEX_PTN_FIELDS)
 DEFINE_VERTEX_STRUCT(Vertex_PosTexNormTanBitan, VERTEX_PTNTB_FIELDS)
+
+#pragma GCC diagnostic pop
 
 struct PointIndex
 {

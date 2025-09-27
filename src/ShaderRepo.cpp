@@ -47,8 +47,9 @@ ShaderRepo::get_shader(const std::string& path)
 
 ShaderRepo::~ShaderRepo()
 {
-  for (auto& [path, shader] : m_shaders)
-    glDeleteShader(shader);
+  if (is_opengl_context_active())
+    for (auto& [path, shader] : m_shaders)
+      glDeleteShader(shader);
 }
 
 void

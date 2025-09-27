@@ -6,8 +6,6 @@
 #include <memory>
 #include <unordered_set>
 
-#include "debug.h"
-
 void
 Renderer::add(std::shared_ptr<RenderPacket> render_packet)
 {

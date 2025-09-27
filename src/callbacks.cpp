@@ -23,9 +23,9 @@ App::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void
 App::key_callback(GLFWwindow* window,
                   int key,
-                  int scancode,
+                  [[maybe_unused]] int scancode,
                   int action,
-                  int mods)
+                  [[maybe_unused]] int mods)
 {
   if (action != GLFW_PRESS)
     return;
