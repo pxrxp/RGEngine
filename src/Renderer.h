@@ -36,16 +36,17 @@ struct RenderPacket
   {
   }
 };
+using RenderPacketPtr = std::shared_ptr<RenderPacket>;
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
 
 class Renderer
 {
-  std::vector<std::shared_ptr<RenderPacket>> m_render_queue;
+  std::vector<RenderPacketPtr> m_render_queue;
 
 public:
-  void add(std::shared_ptr<RenderPacket> render_packet);
+  void add(RenderPacketPtr render_packet);
   void add_children(SceneObjectPtr root,
                     std::unordered_set<SceneObjectPtr>& set);
   void submit(SceneObjectPtr scene);

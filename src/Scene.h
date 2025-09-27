@@ -12,19 +12,19 @@ protected:
   App& m_app_cache;
   SceneObjectPtr m_scene_ptr;
 
-  void set_view_matrix(std::shared_ptr<RenderPacket> render_packet,
+  void set_view_matrix(RenderPacketPtr render_packet,
                        const char* view_uniform_name = "view",
                        const glm::mat4& view_matrix = glm::mat4(1.f));
 
-  void set_projection_matrix(std::shared_ptr<RenderPacket> render_packet,
+  void set_projection_matrix(RenderPacketPtr render_packet,
                              const char* proj_uniform_name = "proj",
                              const glm::mat4& proj_matrix = glm::mat4(1.f));
 
-  void set_model_matrix(std::shared_ptr<RenderPacket> render_packet,
+  void set_model_matrix(RenderPacketPtr render_packet,
                         const glm::mat4& model_matrix,
                         const char* uniform_name = "model");
 
-  void display_AABB(std::shared_ptr<SceneObject> object,
+  void display_AABB(SceneObjectPtr object,
                     bool show_controller = false);
 
 public:

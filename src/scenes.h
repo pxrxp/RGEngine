@@ -30,7 +30,7 @@ public:
     auto skybox = std::make_shared<SceneObject>();
     skybox->physics.set_gravity(false);
 
-    skybox->with_render_packet(m_app_cache, [=, this](auto packet) {
+    skybox->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
       packet->mesh->template load<Vertex_Pos, TriangleIndices>(
         { CUBE_VERTICES }, { CUBE_FACES }, GL_TRIANGLES);
       packet->shader_program->load({ "skybox.vert.glsl", "skybox.frag.glsl" });
@@ -41,7 +41,7 @@ public:
                                    .wrap_t = GL_CLAMP_TO_EDGE,
                                    .wrap_r = GL_CLAMP_TO_EDGE } } });
 
-      packet->render = SceneObject::capture_weak(skybox, [=, this]([[maybe_unused]] auto self) {
+      packet->render = SceneObject::capture_weak(skybox, [=, this](SceneObjectPtr self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         glDepthFunc(GL_LEQUAL);
@@ -56,7 +56,7 @@ public:
     cube->physics.set_gravity(false);
     cube->local_transform.translate({ 5.f, 2.f, 4.f });
 
-    cube->with_render_packet(m_app_cache, [=, this](auto packet) {
+    cube->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
       packet->shader_program->load({ "cube.vert.glsl", "cube.frag.glsl" });
       packet->mesh->template load<Vertex_PosColNorm, TriangleIndices>(
         { {
@@ -100,7 +100,7 @@ public:
         { CUBE_FACES },
         GL_TRIANGLES);
 
-      packet->render = SceneObject::capture_weak(cube, [=, this](auto self) {
+      packet->render = SceneObject::capture_weak(cube, [=, this](SceneObjectPtr self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         set_model_matrix(packet, self->get_world_transformation_mat());
@@ -120,7 +120,7 @@ public:
     // auto initial_frustum_vertices =
     //   m_app_cache.get_camera().get_frustum_worldspace();
 
-    // frustum->with_render_packet(m_app_cache, [=, this](auto packet) {
+    // frustum->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
     //   packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
     //   packet->mesh->template load<Vertex_Pos, LineIndices>(
     //     initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
@@ -147,14 +147,14 @@ public:
     // }
     // std::cout << std::endl;
 
-    objmodel->with_render_packet(m_app_cache, [=, this](auto packet) {
+    objmodel->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
       packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
       packet->mesh->template load<Vertex_Pos, TriangleIndices>(
         model.first,
         model.second,
         GL_TRIANGLES);
 
-      packet->render = SceneObject::capture_weak(objmodel, [=, this](auto self) {
+      packet->render = SceneObject::capture_weak(objmodel, [=, this](SceneObjectPtr self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         set_model_matrix(packet, self->get_world_transformation_mat());

@@ -15,8 +15,8 @@ using SceneObjectPtr = std::shared_ptr<SceneObject>;
 class SceneObject : public std::enable_shared_from_this<SceneObject>
 {
 private:
-  std::optional<std::shared_ptr<RenderPacket>> m_render_packet = std::nullopt;
-  std::shared_ptr<RenderPacket>& create_render_packet(App& app);
+  std::optional<RenderPacketPtr> m_render_packet = std::nullopt;
+  RenderPacketPtr& create_render_packet(App& app);
 
   std::weak_ptr<SceneObject> m_parent;
   std::vector<SceneObjectPtr> m_children;
@@ -48,11 +48,11 @@ public:
   template<typename F>
   void with_render_packet(App& app, F&& f)
   {
-    auto packet = create_render_packet(app);
+    RenderPacketPtr packet = create_render_packet(app);
     f(packet);
     m_render_packet = std::move(packet);
   }
-  std::optional<std::shared_ptr<RenderPacket>> get_render_packet();
+  std::optional<RenderPacketPtr> get_render_packet();
 
   void add_child(SceneObjectPtr child);
   SceneObjectPtr get_parent() const;

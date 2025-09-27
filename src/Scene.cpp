@@ -78,7 +78,7 @@ Scene::init()
 }
 
 void
-Scene::set_view_matrix(std::shared_ptr<RenderPacket> render_packet,
+Scene::set_view_matrix(RenderPacketPtr render_packet,
                        const char* view_uniform_name,
                        const glm::mat4& view_matrix)
 {
@@ -90,7 +90,7 @@ Scene::set_view_matrix(std::shared_ptr<RenderPacket> render_packet,
 }
 
 void
-Scene::set_projection_matrix(std::shared_ptr<RenderPacket> render_packet,
+Scene::set_projection_matrix(RenderPacketPtr render_packet,
                              const char* proj_uniform_name,
                              const glm::mat4& proj_matrix)
 {
@@ -102,7 +102,7 @@ Scene::set_projection_matrix(std::shared_ptr<RenderPacket> render_packet,
 }
 
 void
-Scene::set_model_matrix(std::shared_ptr<RenderPacket> render_packet,
+Scene::set_model_matrix(RenderPacketPtr render_packet,
                         const glm::mat4& model_matrix,
                         const char* uniform_name)
 {
@@ -114,7 +114,7 @@ Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
 {
   auto object_AABB = std::make_shared<SceneObject>();
   object_AABB->physics.set_gravity(false);
-  object_AABB->with_render_packet(m_app_cache, [=, this](auto packet) {
+  object_AABB->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
     packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
     packet->mesh->template load<Vertex_Pos, LineIndices>(
       { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
