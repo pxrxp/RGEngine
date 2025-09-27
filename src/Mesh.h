@@ -5,13 +5,13 @@
 #include <iostream>
 #include <vector>
 
-#define SETUP_ATTRIB(class, type, name)                                        \
+#define SETUP_ATTRIB(Type, Name)                                               \
   glVertexArrayAttribFormat(m_vao,                                             \
                             attr_index,                                        \
-                            sizeof(type) / sizeof(GLfloat),                    \
+                            sizeof(Type) / sizeof(GLfloat),                    \
                             GL_FLOAT,                                          \
                             GL_FALSE,                                          \
-                            offsetof(Vertex, name));                           \
+                            offsetof(Vertex, Name));                           \
   glVertexArrayAttribBinding(m_vao, attr_index, 0);                            \
   glEnableVertexArrayAttrib(m_vao, attr_index++);
 
@@ -81,19 +81,18 @@ public:
     glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, sizeof(Vertex));
 
     int attr_index = 0;
-
     if constexpr (std::is_same_v<Vertex, Vertex_Pos>) {
-      VERTEX_P_MEMBERS(SETUP_ATTRIB)
+      VERTEX_P_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosCol>) {
-      VERTEX_PC_MEMBERS(SETUP_ATTRIB)
+      VERTEX_PC_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosTex>) {
-      VERTEX_PT_MEMBERS(SETUP_ATTRIB)
+      VERTEX_PT_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosColNorm>) {
-      VERTEX_PCN_MEMBERS(SETUP_ATTRIB)
+      VERTEX_PCN_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNorm>) {
-      VERTEX_PTN_MEMBERS(SETUP_ATTRIB)
+      VERTEX_PTN_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNormTanBitan>) {
-      VERTEX_PTNTB_MEMBERS(SETUP_ATTRIB)
+      VERTEX_PTNTB_FIELDS(SETUP_ATTRIB)
     }
 
     for (const auto& vertex : vertices) {

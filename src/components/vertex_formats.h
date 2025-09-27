@@ -3,89 +3,76 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#define VERTEX_P_MEMBERS(X) X(Vertex_Pos, glm::vec3, position)
+#define VERTEX_P_FIELDS(X) X(glm::vec3, position)
 
-#define VERTEX_PC_MEMBERS(X)                                                   \
-  X(Vertex_PosCol, glm::vec3, position)                                        \
-  X(Vertex_PosCol, glm::vec3, color)
+#define VERTEX_PC_FIELDS(X)                                                    \
+  X(glm::vec3, position)                                                       \
+  X(glm::vec3, color)
 
-#define VERTEX_PT_MEMBERS(X)                                                   \
-  X(Vertex_PosTex, glm::vec3, position)                                        \
-  X(Vertex_PosTex, glm::vec2, texture)
+#define VERTEX_PT_FIELDS(X)                                                    \
+  X(glm::vec3, position)                                                       \
+  X(glm::vec2, texture)
 
-#define VERTEX_PCN_MEMBERS(X)                                                  \
-  X(Vertex_PosColNorm, glm::vec3, position)                                        \
-  X(Vertex_PosColNorm, glm::vec3, normal)                                          \
-  X(Vertex_PosColNorm, glm::vec3, color)
+#define VERTEX_PCN_FIELDS(X)                                                   \
+  X(glm::vec3, position)                                                       \
+  X(glm::vec3, normal)                                                         \
+  X(glm::vec3, color)
 
-#define VERTEX_PTN_MEMBERS(X)                                                  \
-  X(Vertex_PosTexNorm, glm::vec3, position)                                       \
-  X(Vertex_PosTexNorm, glm::vec3, normal)                                         \
-  X(Vertex_PosTexNorm, glm::vec2, texture)
+#define VERTEX_PTN_FIELDS(X)                                                   \
+  X(glm::vec3, position)                                                       \
+  X(glm::vec3, normal)                                                         \
+  X(glm::vec2, texture)
 
-#define VERTEX_PTNTB_MEMBERS(X)                                                \
-  X(Vertex_PosTexNormTanBitan, glm::vec3, position)                                       \
-  X(Vertex_PosTexNormTanBitan, glm::vec3, normal)                                         \
-  X(Vertex_PosTexNormTanBitan, glm::vec2, texture)                                        \
-  X(Vertex_PosTexNormTanBitan, glm::vec2, tangent)                                        \
-  X(Vertex_PosTexNormTanBitan, glm::vec2, bitangent)
+#define VERTEX_PTNTB_FIELDS(X)                                                 \
+  X(glm::vec3, position)                                                       \
+  X(glm::vec3, normal)                                                         \
+  X(glm::vec2, texture)                                                        \
+  X(glm::vec3, tangent)                                                        \
+  X(glm::vec3, bitangent)
 
-#define DECLARE_MEMBER(class, type, name) type name;
+#define DECLARE_MEMBER(Type, Name)           Type Name;
+#define DECLARE_PARAM_WITH_COMMA(Type, Name) const Type &Name,
+#define DECLARE_INIT_WITH_COMMA(Type, Name)  Name(Name),
 
-struct Vertex_Pos
-{
-  VERTEX_P_MEMBERS(DECLARE_MEMBER)
+struct VertexAttribute
+{};
 
-  Vertex_Pos(const glm::vec3& position_)
-    : position(position_)
-  {
-  }
-  Vertex_Pos(std::initializer_list<GLfloat> position_)
-  {
-    if (position_.size() != 3)
-      throw std::runtime_error(
-        "Position requires exactly 3 elements (x, y, z)");
+#define DEFINE_VERTEX_STRUCT(StructName, Fields)                               \
+  struct StructName : VertexAttribute                                          \
+  {                                                                            \
+  public:                                                                      \
+    Fields(DECLARE_MEMBER)                                                     \
+                                                                               \
+      StructName() = default;                                                  \
+                                                                               \
+    StructName(Fields(DECLARE_PARAM_WITH_COMMA) int /*unused*/ = 0)            \
+      : Fields(DECLARE_INIT_WITH_COMMA) VertexAttribute()                      \
+    {                                                                          \
+    }                                                                          \
+                                                                               \
+    template<typename T = StructName>                                          \
+    StructName(std::initializer_list<GLfloat> list)                            \
+      requires(std::is_same_v<T, Vertex_Pos>)                                  \
+    {                                                                          \
+      if (list.size() != 3)                                                    \
+        throw std::runtime_error("Position requires 3 elements");              \
+      auto it = list.begin();                                                  \
+      this->position.x = *it++;                                                \
+      this->position.y = *it++;                                                \
+      this->position.z = *it++;                                                \
+    }                                                                          \
+  };
 
-    auto it = position_.begin();
-    position.x = *it++;
-    position.y = *it++;
-    position.z = *it++;
-  }
-};
-
-struct Vertex_PosCol
-{
-  VERTEX_PCN_MEMBERS(DECLARE_MEMBER)
-};
-
-struct Vertex_PosTex
-{
-  VERTEX_PTN_MEMBERS(DECLARE_MEMBER)
-};
-
-struct Vertex_PosColNorm
-{
-  VERTEX_PCN_MEMBERS(DECLARE_MEMBER)
-};
-
-struct Vertex_PosTexNorm
-{
-  VERTEX_PTN_MEMBERS(DECLARE_MEMBER)
-};
-
-struct Vertex_PosTexNormTanBitan
-{
-  VERTEX_PTNTB_MEMBERS(DECLARE_MEMBER)
-};
-#undef DECLARE_MEMBER
+DEFINE_VERTEX_STRUCT(Vertex_Pos, VERTEX_P_FIELDS)
+DEFINE_VERTEX_STRUCT(Vertex_PosCol, VERTEX_PC_FIELDS)
+DEFINE_VERTEX_STRUCT(Vertex_PosTex, VERTEX_PT_FIELDS)
+DEFINE_VERTEX_STRUCT(Vertex_PosColNorm, VERTEX_PCN_FIELDS)
+DEFINE_VERTEX_STRUCT(Vertex_PosTexNorm, VERTEX_PTN_FIELDS)
+DEFINE_VERTEX_STRUCT(Vertex_PosTexNormTanBitan, VERTEX_PTNTB_FIELDS)
 
 struct PointIndex
 {
   GLuint vert;
-  PointIndex(GLuint vert)
-    : vert(vert)
-  {
-  }
 };
 
 struct LineIndices
@@ -99,7 +86,6 @@ struct TriangleIndices
 };
 
 #ifndef NDEBUG
-
 inline std::ostream&
 operator<<(std::ostream& os, const glm::vec2& vec)
 {
@@ -122,6 +108,20 @@ operator<<(std::ostream& os, const Vertex_Pos& v)
 }
 
 inline std::ostream&
+operator<<(std::ostream& os, const Vertex_PosCol& v)
+{
+  os << "Vertex_PosCol{ pos: " << v.position << ", col: " << v.color << " }";
+  return os;
+}
+
+inline std::ostream&
+operator<<(std::ostream& os, const Vertex_PosTex& v)
+{
+  os << "Vertex_PosTex{ pos: " << v.position << ", tex: " << v.texture << " }";
+  return os;
+}
+
+inline std::ostream&
 operator<<(std::ostream& os, const Vertex_PosColNorm& v)
 {
   os << "Vertex_PosColNorm{ pos: " << v.position << ", nrm: " << v.normal
@@ -140,9 +140,9 @@ operator<<(std::ostream& os, const Vertex_PosTexNorm& v)
 inline std::ostream&
 operator<<(std::ostream& os, const Vertex_PosTexNormTanBitan& v)
 {
-  os << "Vertex_PosTexNormTanBitan{ pos: " << v.position << ", nrm: " << v.normal
-     << ", tex: " << v.texture << ", tan: " << v.tangent
-     << ", bitan: " << v.bitangent << " }";
+  os << "Vertex_PosTexNormTanBitan{ pos: " << v.position
+     << ", nrm: " << v.normal << ", tex: " << v.texture
+     << ", tan: " << v.tangent << ", bitan: " << v.bitangent << " }";
   return os;
 }
 

@@ -4,93 +4,71 @@
 #include <charconv>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <iostream>
 #include <optional>
 #include <ranges>
 #include <string_view>
 #include <system_error>
 #include <unordered_map>
+#include <vector>
 
 inline std::optional<float>
 try_parse_float(std::string_view sv)
 {
   float result;
-  auto res = std::from_chars(sv.data(), sv.data() + sv.size(), result);
-  if (res.ec == std::errc())
+  auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), result);
+  if (ec == std::errc())
     return result;
   return std::nullopt;
 }
 
-inline int
-parse_idx(std::string_view sv, size_t storage_len)
+inline std::optional<int>
+parse_and_validate_idx(std::string_view sv, size_t storage_len)
 {
   int result;
-  auto res = std::from_chars(sv.data(), sv.data() + sv.size(), result);
-  if (res.ec == std::errc())
-    return result < 0 ? result + storage_len : result;
-  return -1;
+  auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), result);
+
+  if (ec != std::errc() || storage_len == 0) {
+    return std::nullopt;
+  }
+
+  int final_index =
+    (result > 0) ? result - 1 : static_cast<int>(storage_len) + result;
+
+  if (final_index >= 0 && static_cast<size_t>(final_index) < storage_len) {
+    return final_index;
+  }
+
+  return std::nullopt;
 }
 
-// void
-// printVerticesMap(const std::unordered_map<std::string_view, size_t>& map)
-// {
-//   std::cout << "Vertices map:\n";
-//   for (const auto& [key, value] : map) {
-//     std::cout << key << " -> " << value << "\n";
-//   }
-//   std::cout << "\n";
-// }
+struct VertexKey
+{
+  int pos_idx = -1;
+  int tex_idx = -1;
+  int norm_idx = -1;
 
-// void
-// printFaces(const std::vector<std::vector<size_t>>& faces)
-// {
-//   std::cout << "Faces:\n";
-//   for (const auto& f : faces) {
-//     std::cout << "[ ";
-//     for (auto idx : f)
-//       std::cout << idx << " ";
-//     std::cout << "]\n";
-//   }
-//   std::cout << "\n";
-// }
+  bool operator==(const VertexKey& other) const
+  {
+    return pos_idx == other.pos_idx && tex_idx == other.tex_idx &&
+           norm_idx == other.norm_idx;
+  }
+};
 
-// void
-// printPositions(const std::vector<Vert>& positions)
-// {
-//   std::cout << "Positions:\n";
-//   for (const auto& v : positions) {
-//     std::cout << "(" << v.position[0] << ", " << v.position[1] << ", "
-//               << v.position[2] << ")\n";
-//   }
-//   std::cout << "\n";
-// }
-
-// void
-// printTex(const std::vector<Vert2>& tex)
-// {
-//   std::cout << "Texture coordinates:\n";
-//   for (const auto& t : tex) {
-//     std::cout << "(" << t.position[0] << ", " << t.position[1] << ")\n";
-//   }
-//   std::cout << "\n";
-// }
-
-// void
-// printNormals(const std::vector<Vert>& normals)
-// {
-//   std::cout << "Normals:\n";
-//   for (const auto& n : normals) {
-//     std::cout << "(" << n.position[0] << ", " << n.position[1] << ", "
-//               << n.position[2] << ")\n";
-//   }
-//   std::cout << "\n";
-// }
+struct VertexKeyHasher
+{
+  std::size_t operator()(const VertexKey& k) const
+  {
+    size_t h1 = std::hash<int>{}(k.pos_idx);
+    size_t h2 = std::hash<int>{}(k.tex_idx);
+    size_t h3 = std::hash<int>{}(k.norm_idx);
+    return h1 ^ (h2 << 1) ^ (h3 << 2);
+  }
+};
 
 template<typename Vertex, typename Indices>
 std::pair<std::vector<Vertex>, std::vector<Indices>>
 from_OBJ(const std::string& path)
 {
-
   static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
                 std::is_same<Vertex, Vertex_PosCol>::value ||
                 std::is_same<Vertex, Vertex_PosTex>::value ||
@@ -98,185 +76,128 @@ from_OBJ(const std::string& path)
                 std::is_same<Vertex, Vertex_PosTexNorm>::value ||
                 std::is_same<Vertex, Vertex_PosTexNormTanBitan>::value);
 
-  std::string obj = Util::read_file("resources/" + path);
+  const std::string obj_content = Util::read_file("resources/" + path);
 
-  // Each new vertex has a unique id = vertex_count (which increments every
-  // time).
-  size_t vertex_count = 0;
-  std::unordered_map<std::string_view, size_t> vertex_to_idx_map;
-
-  // face_vertices_idx = { face, face, ... }
-  // face = { vert_index, vert_index, ... }, ...
-  std::vector<std::vector<int>> face_vertices_idx;
-
-  // E.g. For vertex with unique id = 0,
-  // position_index = vert_position_idx[0]
-  // tex_coords_index = vert_tex_coords_idx[0]
-  // normal_index = vert_normals_idx[0]
-  //
-  // positions = positions_storage[position_index]
-  // tex_coords = tex_coords_storage[tex_coord_index]
-  // normals = normals_storage[normal_index]
-  // ...
-  std::vector<int> vert_positions_idx;
-  std::vector<int> vert_tex_coords_idx;
-  std::vector<int> vert_normals_idx;
-
-  // For temporary use
-  // tokens = ["v", "1.2", "3.4", "5.6"]
-  // indices = [1,2,3] for f 1/2/3 ...
-  std::vector<std::string_view> tokens;
-  std::vector<std::string_view> indices;
+  std::vector<Vertex> final_vertices;
+  std::vector<Indices> final_indices;
+  std::unordered_map<VertexKey, GLuint, VertexKeyHasher> unique_vertices;
 
   std::vector<glm::vec3> positions_storage;
   std::vector<glm::vec2> tex_coords_storage;
   std::vector<glm::vec3> normals_storage;
 
-  for (auto l : obj | std::ranges::views::split('\n')) {
-    tokens.clear();
+  std::vector<std::string_view> tokens;
+  std::vector<std::string_view> face_vertex_tokens;
 
-    for (auto t : l | std::ranges::views::split(' ')) {
-      if (t.begin() != t.end())
-        tokens.emplace_back(&*t.begin(), &*t.end());
+  for (const auto line_view : obj_content | std::ranges::views::split('\n')) {
+    tokens.clear();
+    for (const auto token_view : line_view | std::ranges::views::split(' ')) {
+      if (!token_view.empty()) {
+        tokens.emplace_back(&*token_view.begin(), &*token_view.end());
+      }
     }
 
-    if (tokens.empty())
+    if (tokens.empty() || tokens[0].empty() || tokens[0][0] == '#') {
       continue;
+    }
 
     if (tokens[0] == "v") {
       if (tokens.size() < 4)
         continue;
-
       if (auto x = try_parse_float(tokens[1]),
           y = try_parse_float(tokens[2]),
           z = try_parse_float(tokens[3]);
           x && y && z) {
         positions_storage.push_back({ *x, *y, *z });
-      } else {
-        std::cerr << "Invalid entry in OBJ file. Vertex should be specified as "
-                     "'v x y z'"
-                  << std::endl;
       }
     } else if (tokens[0] == "vt") {
       if (tokens.size() < 3)
         continue;
-
       if (auto x = try_parse_float(tokens[1]), y = try_parse_float(tokens[2]);
           x && y) {
         tex_coords_storage.push_back({ *x, *y });
-      } else {
-        std::cerr << "Invalid entry in OBJ file. Texture coordinate should be "
-                     "specified as "
-                     "'vt x y'"
-                  << std::endl;
       }
     } else if (tokens[0] == "vn") {
-      if (tokens.size() < 3)
+      if (tokens.size() < 4)
         continue;
-
       if (auto x = try_parse_float(tokens[1]),
           y = try_parse_float(tokens[2]),
           z = try_parse_float(tokens[3]);
           x && y && z) {
         normals_storage.push_back({ *x, *y, *z });
-      } else {
-        std::cerr << "Invalid entry in OBJ file. Vertex normal should be "
-                     "specified as "
-                     "'vn x y z'"
-                  << std::endl;
       }
     } else if (tokens[0] == "f") {
-      if (tokens.size() < 3)
+      if (tokens.size() < 4)
         continue;
 
-      std::vector<int> face;
-      for (size_t i = 1; i < tokens.size(); i++) {
-        if (!tokens[i].empty() && tokens[i].back() == '\r')
-          tokens[i].remove_suffix(1);
+      std::vector<GLuint> face_corner_indices;
+      for (size_t i = 1; i < tokens.size(); ++i) {
+        face_vertex_tokens.clear();
+        for (const auto idx_token :
+             tokens[i] | std::ranges::views::split('/')) {
 
-        indices.clear();
-        for (auto idx : tokens[i] | std::ranges::views::split('/')) {
-          indices.emplace_back(&*idx.begin(), &*idx.end());
+          face_vertex_tokens.emplace_back(&*idx_token.begin(),
+                                          &*idx_token.end());
         }
 
-        vert_positions_idx.push_back(
-          parse_idx(indices[0], positions_storage.size()));
-        vert_tex_coords_idx.push_back(
-          parse_idx(indices[1], tex_coords_storage.size()));
-        vert_normals_idx.push_back(
-          parse_idx(indices[2], normals_storage.size()));
+        std::optional<int> opt_pos_idx, opt_tex_idx, opt_norm_idx;
 
-        size_t& vert_idx = vertex_to_idx_map[tokens[i]];
-        if (vert_idx == 0)
-          vert_idx = vertex_count++;
-        face.push_back(vert_idx);
+        if (!face_vertex_tokens.empty())
+          opt_pos_idx = parse_and_validate_idx(face_vertex_tokens[0],
+                                               positions_storage.size());
+        if (face_vertex_tokens.size() > 1 && !face_vertex_tokens[1].empty())
+          opt_tex_idx = parse_and_validate_idx(face_vertex_tokens[1],
+                                               tex_coords_storage.size());
+        if (face_vertex_tokens.size() > 2 && !face_vertex_tokens[2].empty())
+          opt_norm_idx = parse_and_validate_idx(face_vertex_tokens[2],
+                                                normals_storage.size());
+
+        if (!opt_pos_idx)
+          continue;
+
+        VertexKey key;
+        key.pos_idx = *opt_pos_idx;
+        if constexpr (requires { Vertex::tex_coords; }) {
+          if (opt_tex_idx)
+            key.tex_idx = *opt_tex_idx;
+        }
+        if constexpr (requires { Vertex::normal; }) {
+          if (opt_norm_idx)
+            key.norm_idx = *opt_norm_idx;
+        }
+
+        if (auto it = unique_vertices.find(key); it != unique_vertices.end()) {
+          face_corner_indices.push_back(it->second);
+        } else {
+          Vertex new_vertex;
+          if constexpr (requires { new_vertex.position; }) {
+            new_vertex.position = positions_storage[key.pos_idx];
+          }
+          if constexpr (requires { new_vertex.tex_coords; }) {
+            if (key.tex_idx != -1)
+              new_vertex.tex_coords = tex_coords_storage[key.tex_idx];
+          }
+          if constexpr (requires { new_vertex.normal; }) {
+            if (key.norm_idx != -1)
+              new_vertex.normal = normals_storage[key.norm_idx];
+          }
+
+          final_vertices.push_back(new_vertex);
+          GLuint new_idx = static_cast<GLuint>(final_vertices.size() - 1);
+          unique_vertices[key] = new_idx;
+          face_corner_indices.push_back(new_idx);
+        }
       }
-      face_vertices_idx.push_back(face);
+
+      if (face_corner_indices.size() >= 3) {
+        for (size_t i = 1; i < face_corner_indices.size() - 1; ++i) {
+          final_indices.push_back({ face_corner_indices[0],
+                                    face_corner_indices[i],
+                                    face_corner_indices[i + 1] });
+        }
+      }
     }
   }
 
-  std::vector<Vertex_Pos> to_return_vertices;
-  std::vector<TriangleIndices> to_return_indices;
-
-  for (auto& pos_i : vert_positions_idx) {
-    if (pos_i < positions_storage.size())
-      to_return_vertices.push_back({ positions_storage[pos_i] });
-  }
-
-  for (auto& face : face_vertices_idx) {
-    if (face.size() == 4) {
-      to_return_indices.push_back(
-        { (GLuint)face[0], (GLuint)face[1], (GLuint)face[2] });
-      to_return_indices.push_back(
-        { (GLuint)face[0], (GLuint)face[2], (GLuint)face[3] });
-    } else if (face.size() == 3) {
-      to_return_indices.push_back(
-        { (GLuint)face[0], (GLuint)face[1], (GLuint)face[2] });
-    }
-  }
-
-  return std::pair<std::vector<Vertex>, std::vector<Indices>>(
-    std::move(to_return_vertices), std::move(to_return_indices));
-
-  // if constexpr (std::is_same_v<Vertex, Vertex_Pos>) {
-  //   if (face_vertices_idx.size() >= 3) {
-  //     for (auto&)
-  //   }
-
-  //   for (auto& face : face_vertices_idx) {
-
-  //   }
-  // } else if constexpr (std::is_same_v<Vertex, Vertex_PosCol>) {
-
-  // } else if constexpr (std::is_same_v<Vertex, Vertex_PosTex>) {
-  // } else if constexpr (std::is_same_v<Vertex, Vertex_PosColNorm>) {
-  // } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNorm>) {
-  // } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNormTanBitan>) {
-  // }
-
-  // if (tex_coords.empty() && normals.empty()) {
-  //   std::vector<SimpleVertex> vertices;
-  //   vertices.reserve(positions.size());
-
-  //   std::ranges::views::transform(
-  //     positions, vertices.begin(), [](const glm::vec3& position) {
-  //       return SimpleVertex{ position };
-  //     });
-
-  //   return vertices;
-  // }
-
-  // printFaces(faces);
-  // printPositions(positions);
-  // std::cout << "\n";
-  // printTex(tex);
-  // std::cout << "\n";
-  // printNormals(normals);
-  // std::cout << "\n";
-  // printVerticesMap(vertices);
+  return { std::move(final_vertices), std::move(final_indices) };
 }
-
-// const std::vector<Vertex>& vertices,
-// const std::vector<Indices>& indices = {},
-// GLenum draw_primitive = GL_TRIANGLES,
-// GLenum usage = GL_STATIC_DRAW)

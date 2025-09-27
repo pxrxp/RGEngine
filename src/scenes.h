@@ -138,15 +138,14 @@ public:
     objmodel->physics.set_gravity(false);
 
     auto model = from_OBJ<Vertex_Pos, TriangleIndices>("cube.obj");
-
-    for (auto& p : model.first) {
-      std::cout << p << std::endl;
-    }
-    std::cout << std::endl;
-    for (auto& p : model.second) {
-      std::cout << p << std::endl;
-    }
-    std::cout << std::endl;
+    // for (auto& p : model.first) {
+    //   std::cout << p << std::endl;
+    // }
+    // std::cout << std::endl;
+    // for (auto& p : model.second) {
+    //   std::cout << p << std::endl;
+    // }
+    // std::cout << std::endl;
 
     objmodel->with_render_packet(m_app_cache, [=](auto packet) {
       packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
