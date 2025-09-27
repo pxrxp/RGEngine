@@ -6,7 +6,7 @@ BoundingBox::BoundingBox()
 {
 }
 
-BoundingBox::BoundingBox(const std::vector<SimpleVertex>& points)
+BoundingBox::BoundingBox(const std::vector<Vertex_Pos>& points)
 {
   if (points.empty()) {
     min = glm::vec3(0.f);
@@ -62,7 +62,7 @@ BoundingBox::add_point(const glm::vec3& point)
   return *this;
 }
 
-std::vector<SimpleVertex>
+std::vector<Vertex_Pos>
 BoundingBox::corners() const
 {
   return { { min.x, min.y, min.z }, { max.x, min.y, min.z },

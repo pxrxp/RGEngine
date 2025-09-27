@@ -17,12 +17,12 @@ struct BoundingBox
   glm::vec3 max;
 
   BoundingBox();
-  explicit BoundingBox(const std::vector<SimpleVertex>& points);
+  explicit BoundingBox(const std::vector<Vertex_Pos>& points);
 
   Where where(const glm::vec3& point) const;
   bool collides(const BoundingBox& other) const;
   BoundingBox& add_point(const glm::vec3& point);
-  std::vector<SimpleVertex> corners() const;
+  std::vector<Vertex_Pos> corners() const;
   static std::vector<LineIndices> indices();
 };
 

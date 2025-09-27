@@ -43,10 +43,12 @@ public:
             GLenum usage = GL_STATIC_DRAW)
   {
 
-    static_assert(std::is_same<Vertex, SimpleVertex>::value ||
-                  std::is_same<Vertex, ColoredVertex>::value ||
-                  std::is_same<Vertex, TexturedVertex>::value ||
-                  std::is_same<Vertex, AdvancedVertex>::value);
+    static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
+                  std::is_same<Vertex, Vertex_PosCol>::value ||
+                  std::is_same<Vertex, Vertex_PosTex>::value ||
+                  std::is_same<Vertex, Vertex_PosColNorm>::value ||
+                  std::is_same<Vertex, Vertex_PosTexNorm>::value ||
+                  std::is_same<Vertex, Vertex_PosTexNormTanBitan>::value);
 
     static_assert(std::is_same<Indices, PointIndex>::value ||
                   std::is_same<Indices, LineIndices>::value ||
@@ -80,14 +82,18 @@ public:
 
     int attr_index = 0;
 
-    if constexpr (std::is_same_v<Vertex, SimpleVertex>) {
-      SIMPLE_VERTEX_MEMBERS(SETUP_ATTRIB)
-    } else if constexpr (std::is_same_v<Vertex, ColoredVertex>) {
-      COLORED_VERTEX_MEMBERS(SETUP_ATTRIB)
-    } else if constexpr (std::is_same_v<Vertex, TexturedVertex>) {
-      TEXTURED_VERTEX_MEMBERS(SETUP_ATTRIB)
-    } else if constexpr (std::is_same_v<Vertex, AdvancedVertex>) {
-      ADVANCED_VERTEX_MEMBERS(SETUP_ATTRIB)
+    if constexpr (std::is_same_v<Vertex, Vertex_Pos>) {
+      VERTEX_P_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, Vertex_PosCol>) {
+      VERTEX_PC_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, Vertex_PosTex>) {
+      VERTEX_PT_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, Vertex_PosColNorm>) {
+      VERTEX_PCN_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNorm>) {
+      VERTEX_PTN_MEMBERS(SETUP_ATTRIB)
+    } else if constexpr (std::is_same_v<Vertex, Vertex_PosTexNormTanBitan>) {
+      VERTEX_PTNTB_MEMBERS(SETUP_ATTRIB)
     }
 
     for (const auto& vertex : vertices) {

@@ -5,7 +5,9 @@
 #include "SceneObject.h"
 #include "components/PhysicsComponent.h"
 #include "components/TransformComponent.h"
+#include "components/vertex_formats.h"
 #include "util/definitions.h"
+#include "util/obj_model.h"
 
 class TestScene : public Scene
 {
@@ -28,8 +30,8 @@ public:
     auto skybox = std::make_shared<SceneObject>();
     skybox->physics.set_gravity(false);
 
-    skybox->with_render_packet(m_app_cache, [=, this](auto packet) {
-      packet->mesh->template load<SimpleVertex, TriangleIndices>(
+    skybox->with_render_packet(m_app_cache, [=](auto packet) {
+      packet->mesh->template load<Vertex_Pos, TriangleIndices>(
         { CUBE_VERTICES }, { CUBE_FACES }, GL_TRIANGLES);
       packet->shader_program->load({ "skybox.vert.glsl", "skybox.frag.glsl" });
       packet->material->load(packet->shader_program,
@@ -39,7 +41,7 @@ public:
                                    .wrap_t = GL_CLAMP_TO_EDGE,
                                    .wrap_r = GL_CLAMP_TO_EDGE } } });
 
-      packet->render = SceneObject::capture_weak(skybox, [=, this](auto self) {
+      packet->render = SceneObject::capture_weak(skybox, [=](auto self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         glDepthFunc(GL_LEQUAL);
@@ -52,39 +54,53 @@ public:
 
     auto cube = std::make_shared<SceneObject>();
     cube->physics.set_gravity(false);
-    cube->local_transform.translate({5.f, 2.f, 4.f});
+    cube->local_transform.translate({ 5.f, 2.f, 4.f });
 
-    cube->with_render_packet(m_app_cache, [=, this](auto packet) {
+    cube->with_render_packet(m_app_cache, [=](auto packet) {
       packet->shader_program->load({ "cube.vert.glsl", "cube.frag.glsl" });
-      packet->mesh->template load<ColoredVertex, TriangleIndices>(
-        { { 0.5f * glm::vec3(CUBE_VERT0),
+      packet->mesh->template load<Vertex_PosColNorm, TriangleIndices>(
+        { {
+            0.5f * glm::vec3(CUBE_VERT0),
+            { 0, 0, 0 },
             { -0.577f, -0.577f, -0.577f },
-            { 0, 0, 0 } },
-          { 0.5f * glm::vec3(CUBE_VERT1),
+          },
+          {
+            0.5f * glm::vec3(CUBE_VERT1),
+            { 1, 0, 0 },
             { 0.577f, -0.577f, -0.577f },
-            { 1, 0, 0 } },
+          },
           { 0.5f * glm::vec3(CUBE_VERT2),
             { 0.577f, 0.577f, -0.577f },
             { 1, 1, 0 } },
-          { 0.5f * glm::vec3(CUBE_VERT3),
+          {
+            0.5f * glm::vec3(CUBE_VERT3),
+            { 0, 1, 0 },
             { -0.577f, 0.577f, -0.577f },
-            { 0, 1, 0 } },
-          { 0.5f * glm::vec3(CUBE_VERT4),
+          },
+          {
+            0.5f * glm::vec3(CUBE_VERT4),
+            { 0, 0, 1 },
             { -0.577f, -0.577f, 0.577f },
-            { 0, 0, 1 } },
-          { 0.5f * glm::vec3(CUBE_VERT5),
+          },
+          {
+            0.5f * glm::vec3(CUBE_VERT5),
+            { 1, 0, 1 },
             { 0.577f, -0.577f, 0.577f },
-            { 1, 0, 1 } },
-          { 0.5f * glm::vec3(CUBE_VERT6),
+          },
+          {
+            0.5f * glm::vec3(CUBE_VERT6),
+            { 1, 1, 1 },
             { 0.577f, 0.577f, 0.577f },
-            { 1, 1, 1 } },
-          { 0.5f * glm::vec3(CUBE_VERT7),
+          },
+          {
+            0.5f * glm::vec3(CUBE_VERT7),
+            { 0, 1, 1 },
             { -0.577f, 0.577f, 0.577f },
-            { 0, 1, 1 } } },
+          } },
         { CUBE_FACES },
         GL_TRIANGLES);
 
-      packet->render = SceneObject::capture_weak(cube, [=, this](auto self) {
+      packet->render = SceneObject::capture_weak(cube, [=](auto self) {
         set_view_matrix(packet);
         set_projection_matrix(packet);
         set_model_matrix(packet, self->get_world_transformation_mat());
@@ -100,23 +116,44 @@ public:
     m_scene_ptr->add_child(cube);
     display_AABB(cube, true);
 
-    auto frustum = std::make_shared<SceneObject>();
-    frustum->physics.set_gravity(false);
-    auto initial_frustum_vertices =
-      m_app_cache.get_camera().get_frustum_worldspace();
+    // auto frustum = std::make_shared<SceneObject>();
+    // frustum->physics.set_gravity(false);
+    // auto initial_frustum_vertices =
+    //   m_app_cache.get_camera().get_frustum_worldspace();
 
-    frustum->with_render_packet(m_app_cache, [=, this](auto packet) {
-      packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
-      packet->mesh->template load<SimpleVertex, LineIndices>(
-        initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
-      packet->render = [=, this] {
-        set_model_matrix(packet, frustum->get_world_transformation_mat());
-        set_view_matrix(packet);
-        set_projection_matrix(packet);
-        packet->mesh->draw();
-      };
-    });
+    // frustum->with_render_packet(m_app_cache, [=](auto packet) {
+    //   packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+    //   packet->mesh->template load<Vertex_Pos, LineIndices>(
+    //     initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
+    //   packet->render = [=] {
+    //     set_model_matrix(packet, frustum->get_world_transformation_mat());
+    //     set_view_matrix(packet);
+    //     set_projection_matrix(packet);
+    //     packet->mesh->draw();
+    //   };
+    // });
 
-    m_scene_ptr->add_child(frustum);
+    // m_scene_ptr->add_child(frustum);
+
+    // auto objmodel = std::make_shared<SceneObject>();
+    // objmodel->physics.set_gravity(false);
+
+    // auto model = from_OBJ<Vertex_Pos, TriangleIndices>("box.obj");
+
+    // objmodel->with_render_packet(m_app_cache, [=](auto packet) {
+    //   packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+    //   packet->mesh->template load<Vertex_Pos, TriangleIndices>(
+    //     model.first,
+    //     model.second,
+    //     GL_TRIANGLES);
+
+    //   packet->render = SceneObject::capture_weak(objmodel, [=](auto self) {
+    //     set_view_matrix(packet);
+    //     set_projection_matrix(packet);
+    //     set_model_matrix(packet, self->get_world_transformation_mat());
+    //     packet->mesh->draw();
+    //   });
+    // });
+    
   }
 };

@@ -67,7 +67,7 @@ Camera::get_AABB()
   return m_AABB;
 }
 
-const std::vector<SimpleVertex>&
+const std::vector<Vertex_Pos>&
 Camera::get_frustum_worldspace()
 {
   auto& frustum_viewspace = get_frustum_viewspace();
@@ -90,7 +90,7 @@ Camera::get_frustum_worldspace()
   return m_frustum_worldspace;
 }
 
-const std::vector<SimpleVertex>&
+const std::vector<Vertex_Pos>&
 Camera::get_frustum_viewspace()
 {
   if (m_proj_dirty) {

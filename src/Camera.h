@@ -42,8 +42,8 @@ public:
   float get_near_plane() const;
   Camera& set_near_plane(float z_near);
 
-  const std::vector<SimpleVertex>& get_frustum_worldspace();
-  const std::vector<SimpleVertex>& get_frustum_viewspace();
+  const std::vector<Vertex_Pos>& get_frustum_worldspace();
+  const std::vector<Vertex_Pos>& get_frustum_viewspace();
   const BoundingBox& get_AABB();
 
 private:
@@ -69,7 +69,7 @@ private:
   glm::mat4 m_view = glm::mat4(1.f);
   glm::mat4 m_proj = glm::mat4(1.f);
 
-  std::vector<SimpleVertex> m_frustum_viewspace;
-  std::vector<SimpleVertex> m_frustum_worldspace;
+  std::vector<Vertex_Pos> m_frustum_viewspace;
+  std::vector<Vertex_Pos> m_frustum_worldspace;
   BoundingBox m_AABB;
 };
