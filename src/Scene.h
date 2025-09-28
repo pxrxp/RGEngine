@@ -12,15 +12,15 @@ protected:
   App& m_app_cache;
   SceneObjectPtr m_scene_ptr;
 
-  void set_view_matrix(RenderPacketPtr render_packet,
+  void set_view_matrix(RenderPacketStrongPtr render_packet,
                        const char* view_uniform_name = "view",
                        const glm::mat4& view_matrix = glm::mat4(1.f));
 
-  void set_projection_matrix(RenderPacketPtr render_packet,
+  void set_projection_matrix(RenderPacketStrongPtr render_packet,
                              const char* proj_uniform_name = "proj",
                              const glm::mat4& proj_matrix = glm::mat4(1.f));
 
-  void set_model_matrix(RenderPacketPtr render_packet,
+  void set_model_matrix(RenderPacketStrongPtr render_packet,
                         const glm::mat4& model_matrix,
                         const char* uniform_name = "model");
 

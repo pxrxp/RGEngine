@@ -38,17 +38,18 @@ struct RenderPacket
 
   ~RenderPacket() = default;
 };
-using RenderPacketPtr = std::shared_ptr<RenderPacket>;
+using RenderPacketStrongPtr = std::shared_ptr<RenderPacket>;
+using RenderPacketWeakPtr = std::weak_ptr<RenderPacket>;
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
 
 class Renderer
 {
-  std::vector<RenderPacketPtr> m_render_queue;
+  std::vector<RenderPacketStrongPtr> m_render_queue;
 
 public:
-  void add(RenderPacketPtr render_packet);
+  void add(RenderPacketStrongPtr render_packet);
   void add_children(SceneObjectPtr root,
                     std::unordered_set<SceneObjectPtr>& set);
   void submit(SceneObjectPtr scene);

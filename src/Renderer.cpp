@@ -7,7 +7,7 @@
 #include <unordered_set>
 
 void
-Renderer::add(RenderPacketPtr render_packet)
+Renderer::add(RenderPacketStrongPtr render_packet)
 {
   m_render_queue.push_back(render_packet);
 }

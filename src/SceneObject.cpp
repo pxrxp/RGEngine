@@ -8,7 +8,7 @@
 #include <memory>
 #include <optional>
 
-RenderPacketPtr&
+RenderPacketStrongPtr&
 SceneObject::create_render_packet(App& app)
 {
   m_render_packet.emplace(
@@ -19,7 +19,7 @@ SceneObject::create_render_packet(App& app)
   return m_render_packet.value();
 }
 
-std::optional<RenderPacketPtr>
+std::optional<RenderPacketStrongPtr>
 SceneObject::get_render_packet()
 {
   return m_render_packet;
