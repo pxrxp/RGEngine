@@ -58,12 +58,11 @@ void
 TestScene::setup_skybox(const SceneObjectStrongPtr& skybox)
 {
   skybox->physics.set_gravity(false);
-  skybox->with_render_packet(
-    m_app_cache, [this, skybox](RenderPacketWeakPtr weak_packet) {
-      if (auto packet = weak_packet.lock()) {
-        packet->mesh->template load<Vertex_Pos, TriangleIndices>(
-          { CUBE_VERTICES }, { CUBE_FACES }, GL_TRIANGLES);
-        packet->shader_program->load(
+  skybox->set_render_packet(
+                            m_app_cache.mesh_repo.load_mesh
+        <Vertex_Pos, TriangleIndices>(
+          { CUBE_VERTICES }, { CUBE_FACES }, GL_TRIANGLES)),
+        m_app_cache.shader_program_repo.(
           m_app_cache.shader_repo, { "skybox.vert.glsl", "skybox.frag.glsl" });
         packet->material->load(m_app_cache.tex_repo,
                                packet->shader_program,
@@ -74,7 +73,8 @@ TestScene::setup_skybox(const SceneObjectStrongPtr& skybox)
                                      .wrap_r = GL_CLAMP_TO_EDGE } } });
 
         packet->render = SceneObject::capture_weak(
-          skybox, [this, weak_packet]([[maybe_unused]] SceneObjectStrongPtr self) {
+          skybox,
+          [this, weak_packet]([[maybe_unused]] SceneObjectStrongPtr self) {
             if (auto packet = weak_packet.lock()) {
               set_view_matrix(packet);
               set_projection_matrix(packet);
@@ -150,26 +150,20 @@ TestScene::setup_frustum(const SceneObjectStrongPtr& frustum)
   auto initial_frustum_vertices =
     m_app_cache.get_camera().get_frustum_worldspace();
 
-  frustum->with_render_packet(
-    m_app_cache,
-    [this, frustum, initial_frustum_vertices](RenderPacketWeakPtr weak_packet) {
-      if (auto packet = weak_packet.lock()) {
-        packet->shader_program->load(m_app_cache.shader_repo,
-                                     { "AABB.vert.glsl", "AABB.frag.glsl" });
-        packet->mesh->template load<Vertex_Pos, LineIndices>(
-          initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
+  render_packet->shader_program->load(m_app_cache.shader_repo,
+                               { "AABB.vert.glsl", "AABB.frag.glsl" });
+  render_packet->mesh->template load<Vertex_Pos, LineIndices>(
+    initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
 
-        packet->render = SceneObject::capture_weak(
-          frustum, [this, weak_packet](SceneObjectStrongPtr self) {
-            if (auto packet = weak_packet.lock()) {
-              set_model_matrix(packet, self->get_world_transformation_mat());
-              set_view_matrix(packet);
-              set_projection_matrix(packet);
-              packet->mesh->draw();
-            }
-          });
-      }
-    });
+  render_packet->render =
+    capture_weak(frustum, render_packet, [this](auto self, auto packet))
+  {
+
+    set_model_matrix(packet, self->get_world_transformation_mat());
+    set_view_matrix(packet);
+    set_projection_matrix(packet);
+    packet->mesh->draw();
+  };
 }
 
 void

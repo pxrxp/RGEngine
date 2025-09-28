@@ -17,12 +17,12 @@ struct TextureDescriptor
   GLenum wrap_s = GL_REPEAT;
   GLenum wrap_t = GL_REPEAT;
   GLenum wrap_r = GL_CLAMP_TO_EDGE;
-  int layers = -1; // ONLY DEFINED FOR GL_TEXTURE_2D_ARRAY
+  int layers = -1;
 };
 
 struct Texture
 {
-  std::string name;
+  GLuint id;
   TextureDescriptor desc;
 };
 
@@ -31,10 +31,8 @@ inline TextureDescriptor DEFAULT_TEXTURE_DESCRIPTOR;
 class Material
 {
 private:
-  static int m_id, m_current_texture_slot;
   int m_texture_slot;
-  std::vector<Texture> m_textures;
-  TextureRepo* m_tex_repo;
+  std::vector<std::string> m_textures;
 
 public:
   int get_id();

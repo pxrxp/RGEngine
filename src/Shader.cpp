@@ -38,3 +38,7 @@ Shader::operator=(Shader&& other) noexcept
   }
   return *this;
 }
+
+GLuint Shader::get_id() const {
+  return m_id;
+}

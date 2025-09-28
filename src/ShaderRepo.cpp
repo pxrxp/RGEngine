@@ -1,4 +1,4 @@
-#include "Repo.h"
+#include "ShaderRepo.h"
 #include "util/filesystem.h"
 #include <iostream>
 
@@ -11,8 +11,8 @@ std::unordered_map<char, int> shader_map = {
   { 'a', GL_TESS_EVALUATION_SHADER } // .eva
 };
 
-GLuint
-ShaderRepo::load_and_store_shader(const std::string& path)
+ShaderStrongPtr
+ShaderRepo::load_shader(const std::string& path)
 {
   std::string shader_src = Util::read_file("shaders/" + path);
   const char* shader_src_cstr = shader_src.c_str();
@@ -29,35 +29,15 @@ ShaderRepo::load_and_store_shader(const std::string& path)
     std::cerr << "Error while compiling " << path << ":\n" << info << "\n";
   }
 
-  m_shaders[path] = shader;
-  return shader;
+  return RepoBase::create(path, shader);
 }
 
-GLuint
+ShaderStrongPtr
 ShaderRepo::get_shader(const std::string& path)
 {
-  bool not_found = m_shaders.find(path) == m_shaders.end();
-  if (not_found) {
-    return load_and_store_shader(path);
+  if (auto shader = RepoBase::get(path); shader.has_value()) {
+    return shader.value();
   } else {
-    return m_shaders[path];
-  }
-}
-
-void ShaderRepo::clear()
-{
-  for (auto& [path, shader] : m_shaders)
-    glDeleteShader(shader);
-
-  m_shaders.clear();
-}
-
-void
-ShaderRepo::remove_shader(const std::string& path)
-{
-  auto it = m_shaders.find(path);
-  if (it != m_shaders.end()) {
-    glDeleteShader(it->second);
-    m_shaders.erase(it);
+    return load_shader(path);
   }
 }

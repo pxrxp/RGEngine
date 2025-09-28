@@ -3,6 +3,21 @@
 #include "Renderer.h"
 #include "SceneObject.h"
 
+template<typename F>
+auto capture_weak(SceneObjectStrongPtr object_strong, RenderPacketStrongPtr packet_strong, F&& f)
+{
+  SceneObjectWeakPtr obj_weak = object_strong;
+  RenderPacketWeakPtr packet_weak = packet_strong;
+  return [obj_weak, packet_weak, f = std::forward<F>(f)] {
+    SceneObjectStrongPtr self = obj_weak.lock();
+    RenderPacketStrongPtr packet = packet_weak.lock();
+
+    if (self && packet)
+      f(self, packet);
+  };
+}
+
+
 class Scene
 {
 private:

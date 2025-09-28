@@ -8,17 +8,6 @@
 #include <memory>
 #include <optional>
 
-RenderPacketStrongPtr&
-SceneObject::create_render_packet(App& app)
-{
-  m_render_packet.emplace(
-    std::make_shared<RenderPacket>(app.mesh_repo.create(),
-                                   app.shader_program_repo.create(),
-                                   app.material_repo.create()));
-
-  return m_render_packet.value();
-}
-
 std::optional<RenderPacketStrongPtr>
 SceneObject::get_render_packet()
 {

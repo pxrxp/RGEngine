@@ -13,6 +13,7 @@ public:
   Shader& operator=(const Shader&) = delete;
   Shader(Shader&& other) noexcept;
   Shader& operator=(Shader&& other) noexcept;
+  GLuint get_id() const;
 };
 
 using ShaderResourcePtr = std::shared_ptr<Shader>;

@@ -7,7 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
-#include <optional>
 
 class SceneObject;
 using SceneObjectStrongPtr = std::shared_ptr<SceneObject>;
@@ -19,7 +18,7 @@ private:
   std::optional<RenderPacketStrongPtr> m_render_packet = std::nullopt;
   RenderPacketStrongPtr& create_render_packet(App& app);
 
-  std::weak_ptr<SceneObject> m_parent;
+  SceneObjectWeakPtr m_parent;
   std::vector<SceneObjectStrongPtr> m_children;
 
   BoundingBox m_world_AABB;
@@ -28,16 +27,6 @@ private:
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 
 public:
-  template<typename F>
-  static auto capture_weak(std::shared_ptr<SceneObject> obj, F&& f)
-  {
-    auto weak_obj = obj->weak_from_this();
-    return [weak_obj, f = std::forward<F>(f)] {
-      if (auto self = weak_obj.lock())
-        f(self);
-    };
-  }
-
   TransformComponent local_transform;
   PhysicsComponent physics;
 
@@ -46,14 +35,12 @@ public:
   BoundingBox& get_world_AABB();
   void update_world_AABB();
 
-  template<typename F>
-  void with_render_packet(App& app, F&& f)
+  template<typename... Args>
+  void set_render_packet(Args&&... args)
   {
-    RenderPacketStrongPtr packet = create_render_packet(app);
-    std::weak_ptr<RenderPacket> packet_ptr = packet;
-    f(packet_ptr);
-    m_render_packet = std::move(packet);
+    m_render_packet.emplace(std::forward<Args>(args)...);
   }
+
   std::optional<RenderPacketStrongPtr> get_render_packet();
 
   void add_child(SceneObjectStrongPtr child);

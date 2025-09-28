@@ -11,6 +11,11 @@ private:
   GLuint m_id = 0;
 
 public:
+  ShaderProgram(GLuint id)
+    : m_id(id)
+  {
+  }
+
   GLuint get_id() const;
   void load(ShaderRepo& shader_repo,
             std::initializer_list<std::string> shaders);

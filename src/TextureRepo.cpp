@@ -1,4 +1,4 @@
-#include "Repo.h"
+#include "TextureRepo.h"
 #include "util/png_image.h"
 #include <algorithm>
 
@@ -42,29 +42,34 @@ fix_filter(bool generate_mipmaps, GLenum min_filter, GLenum mag_filter)
   return { _min_filter, _mag_filter };
 }
 
-GLuint
-TextureRepo::load_and_store_texture(const std::string& name,
+std::shared_ptr<Texture>
+TextureRepo::load_texture(const std::string& name,
                                     const TextureDescriptor& desc)
 {
 
   if (name.empty()) {
-    std::cerr << "Provide at least one texture!\n";
-    return 0;
+    std::cerr << "Provide at least one texture!" << std::endl;
+    return nullptr;
   }
 
-  GLuint id = 0;
+  if (RepoBase::get(name).has_value()) {
+    std::cerr << "Texture " << name << " already exists!" << std::endl;
+    return nullptr;
+  }
+
+  std::shared_ptr<Texture> tex = nullptr;
 
   switch (desc.target) {
     case GL_TEXTURE_2D:
-      id = load_and_store_tex_2d(name, desc);
+      tex = load_tex_2d(name, desc);
       break;
 
     case GL_TEXTURE_CUBE_MAP:
-      id = load_and_store_cubemap(name, desc);
+      tex = load_cubemap(name, desc);
       break;
 
     case GL_TEXTURE_2D_ARRAY:
-      id = load_and_store_tex_2d_array(name, desc);
+      tex = load_tex_2d_array(name, desc);
       break;
 
     default:
@@ -74,14 +79,14 @@ TextureRepo::load_and_store_texture(const std::string& name,
       break;
   }
 
-  if (id != 0)
-    m_textures[name] = id;
+  if (tex)
+    m_resources[name] = tex;
 
-  return id;
+  return tex;
 }
 
-GLuint
-TextureRepo::load_and_store_tex_2d(const std::string& name,
+std::shared_ptr<Texture>
+TextureRepo::load_tex_2d(const std::string& name,
                                    const TextureDescriptor& desc)
 {
 
@@ -119,11 +124,11 @@ TextureRepo::load_and_store_tex_2d(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return texture;
+  return std::make_shared<Texture>(texture);
 }
 
-GLuint
-TextureRepo::load_and_store_tex_2d_array(const std::string& name,
+std::shared_ptr<Texture>
+TextureRepo::load_tex_2d_array(const std::string& name,
                                          const TextureDescriptor& desc)
 {
   PNGImage image = PNGImage(name + "_0.png");
@@ -200,11 +205,11 @@ TextureRepo::load_and_store_tex_2d_array(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return texture;
+  return std::make_shared<Texture>(texture);
 }
 
-GLuint
-TextureRepo::load_and_store_cubemap(const std::string& name,
+std::shared_ptr<Texture>
+TextureRepo::load_cubemap(const std::string& name,
                                     const TextureDescriptor& desc)
 {
   PNGImage image = PNGImage(name + "_0.png");
@@ -270,35 +275,5 @@ TextureRepo::load_and_store_cubemap(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_R, desc.wrap_r);
 
-  return texture;
-}
-
-GLuint
-TextureRepo::get_texture(const std::string& name, const TextureDescriptor& desc)
-{
-  bool not_found = m_textures.find(name) == m_textures.end();
-  if (not_found) {
-    return load_and_store_texture(name, desc);
-  } else {
-    return m_textures[name];
-  }
-}
-
-void
-TextureRepo::remove_texture(const std::string& name)
-{
-  auto it = m_textures.find(name);
-  if (it != m_textures.end()) {
-    glDeleteTextures(1, &it->second);
-    m_textures.erase(it);
-  }
-}
-
-void TextureRepo::clear()
-{
-  for (auto& [name, id] : m_textures) {
-    glDeleteTextures(1, &id);
-  }
-
-  m_textures.clear();
+  return std::make_shared<Texture>(texture);
 }

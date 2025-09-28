@@ -1,9 +1,18 @@
 #include "ShaderProgram.h"
-#include "Repo.h"
 #include "util/opengl.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+
+ShaderProgram::~ShaderProgram() {
+  if (m_id) { 
+#ifndef NDEBUG
+    std::cout << "Deleting shader program " << m_id << std::endl;
+#endif
+
+    glDeleteProgram(m_id);
+  }
+}
 
 GLuint
 ShaderProgram::get_id() const
@@ -21,29 +30,6 @@ void
 ShaderProgram::unbind()
 {
   glUseProgram(0);
-}
-
-void
-ShaderProgram::load(ShaderRepo& shader_repo,
-                    std::initializer_list<std::string> shaders)
-{
-  if (m_id == 0) {
-    m_id = glCreateProgram();
-  }
-
-  for (const auto& path : shaders) {
-    GLuint shader = shader_repo.get_shader(path);
-    glAttachShader(m_id, shader);
-  }
-  glLinkProgram(m_id);
-
-  GLint success;
-  glGetProgramiv(m_id, GL_LINK_STATUS, &success);
-  if (!success) {
-    char info[512];
-    glGetProgramInfoLog(m_id, 512, nullptr, info);
-    std::cerr << "Program link error:\n" << info << "\n";
-  }
 }
 
 ShaderProgram&

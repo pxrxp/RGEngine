@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "util/opengl.h"
 
 Mesh::~Mesh()
 {
