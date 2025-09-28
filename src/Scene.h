@@ -8,6 +8,7 @@ class Scene
 private:
   void collect_physics_objects_recursive(SceneObjectPtr object,
                                          std::vector<SceneObjectPtr>& objects);
+
 protected:
   App& m_app_cache;
   SceneObjectPtr m_scene_ptr;
@@ -24,7 +25,7 @@ protected:
                         const glm::mat4& model_matrix,
                         const char* uniform_name = "model");
 
-  void display_AABB(SceneObjectPtr object,
+  void display_AABB(std::weak_ptr<SceneObject> weak_object,
                     bool show_controller = false);
 
 public:

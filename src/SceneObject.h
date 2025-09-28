@@ -49,7 +49,7 @@ public:
   void with_render_packet(App& app, F&& f)
   {
     RenderPacketStrongPtr packet = create_render_packet(app);
-    std::weak_ptr<RenderPacket> packet_ptr;
+    std::weak_ptr<RenderPacket> packet_ptr = packet;
     f(packet_ptr);
     m_render_packet = std::move(packet);
   }

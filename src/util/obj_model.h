@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../components/vertex_formats.h"
 #include "filesystem.h"
 

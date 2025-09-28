@@ -110,35 +110,53 @@ Scene::set_model_matrix(RenderPacketStrongPtr render_packet,
 }
 
 void
-Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
+Scene::display_AABB(std::weak_ptr<SceneObject> weak_object,
+                    bool show_controller)
 {
-  auto object_AABB = std::make_shared<SceneObject>();
-  object_AABB->physics.set_gravity(false);
-  object_AABB->with_render_packet(m_app_cache, [=, this](RenderPacketStrongPtr packet) {
-    packet->shader_program->load(m_app_cache.shader_repo, { "AABB.vert.glsl", "AABB.frag.glsl" });
-    packet->mesh->template load<Vertex_Pos, LineIndices>(
-      { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
-    packet->render = [=, this] {
-      if (show_controller)
-        Util::draw_transform_component_editor(object->local_transform,
-                                              "object Local Transform");
+  if (auto object_s = weak_object.lock()) {
+    auto aabb_visualizer = std::make_shared<SceneObject>();
+    aabb_visualizer->physics.set_gravity(false);
 
-      glm::vec3 aabb_min = object->get_world_AABB().min;
-      glm::vec3 aabb_max = object->get_world_AABB().max;
-      glm::vec3 dimensions = aabb_max - aabb_min;
-      glm::vec3 center = aabb_min + 0.5f * dimensions;
+    std::weak_ptr<SceneObject> weak_visualizer = aabb_visualizer;
 
-      object_AABB->local_transform.set_position(center);
-      object_AABB->local_transform.set_scale(0.5f * dimensions);
+    aabb_visualizer->with_render_packet(
+      m_app_cache, [=, this](RenderPacketWeakPtr weak_packet) {
+        if (auto packet = weak_packet.lock()) {
+          packet->shader_program->load(m_app_cache.shader_repo,
+                                       { "AABB.vert.glsl", "AABB.frag.glsl" });
+          packet->mesh->template load<Vertex_Pos, LineIndices>(
+            { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
 
-      set_view_matrix(packet);
-      set_projection_matrix(packet);
-      set_model_matrix(packet, object_AABB->get_world_transformation_mat());
-      packet->mesh->draw();
-    };
-  });
+          packet->render = [this, weak_packet, weak_object, weak_visualizer, show_controller] {
+            auto packet_s = weak_packet.lock();
+            auto object_s_render = weak_object.lock();
+            auto visualizer_s = weak_visualizer.lock();
 
-  m_scene_ptr->add_child(object_AABB);
+            if (packet_s && object_s_render && visualizer_s) {
+              if (show_controller) {
+                Util::draw_transform_component_editor(
+                  object_s_render->local_transform, "object Local Transform");
+              }
+
+              const BoundingBox& aabb = object_s_render->get_world_AABB();
+              const glm::vec3 dimensions = aabb.max - aabb.min;
+              const glm::vec3 center = aabb.min + 0.5f * dimensions;
+
+              visualizer_s->local_transform.set_position(center);
+              visualizer_s->local_transform.set_scale(0.5f * dimensions);
+
+              set_view_matrix(packet_s);
+              set_projection_matrix(packet_s);
+              set_model_matrix(packet_s,
+                               visualizer_s->get_world_transformation_mat());
+              packet_s->mesh->draw();
+            }
+          };
+        }
+      });
+
+    m_scene_ptr->add_child(aabb_visualizer);
+  }
 }
 
 void

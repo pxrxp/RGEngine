@@ -1,6 +1,7 @@
 #pragma once
 #include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
+#include "util/obj_model.h"
 #include "util/opengl.h"
 #include <iostream>
 #include <vector>
@@ -95,14 +96,14 @@ public:
     }
   }
 
-  // template<typename Vertex, typename Indices>
-  // void load(const std::string& obj_filename,
-  //           GLenum draw_primitive = GL_TRIANGLES,
-  //           GLenum usage = GL_STATIC_DRAW)
-  // {
-  //   auto& pair = from_OBJ<Vertex, Indices>(obj_filename);
-  //   load<Vertex, Indices>(pair.first, pair.second, draw_primitive, usage);
-  // }
+  template<typename Vertex, typename Indices>
+  void load(const std::string& obj_filename,
+            GLenum draw_primitive = GL_TRIANGLES,
+            GLenum usage = GL_STATIC_DRAW)
+  {
+    auto pair = from_OBJ<Vertex, Indices>(obj_filename);
+    load<Vertex, Indices>(pair.first, pair.second, draw_primitive, usage);
+  }
 
   void draw(unsigned int instance_count = 1);
   const BoundingBox& get_local_AABB() const;
