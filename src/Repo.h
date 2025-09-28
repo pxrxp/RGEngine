@@ -7,35 +7,37 @@
 #include "Mesh.h"
 #include "Shader.h"
 
-#define REPO_CLASS(ClassName, ResourceType)                                    \
-  class ClassName                                                              \
-  {                                                                            \
-  private:                                                                     \
-    std::unordered_map<unsigned int, std::shared_ptr<ResourceType>>            \
-      m_resources;                                                             \
-                                                                               \
-  public:                                                                      \
-    std::shared_ptr<ResourceType> create()                                     \
-    {                                                                          \
-      auto resource = std::make_shared<ResourceType>();                        \
-      m_resources[resource->get_id()] = resource;                              \
-      return resource;                                                         \
-    }                                                                          \
-    std::shared_ptr<ResourceType> get(unsigned int id)                         \
-    {                                                                          \
-      auto it = m_resources.find(id);                                          \
-      if (it != m_resources.end()) {                                           \
-        return it->second;                                                     \
-      }                                                                        \
-      return nullptr;                                                          \
-    }                                                                          \
-    ~ClassName();                                                              \
-  };
+template <typename ResourceType>
+class RepoBase
+{
+protected:
+  std::unordered_map<unsigned int, std::shared_ptr<ResourceType>> m_resources;
 
-// void remove(unsigned int id)
-//  {
-//    m_resources.erase(id);
-//  }
+public:
+  virtual ~RepoBase() = default;
+
+  template <typename... Args>
+  std::shared_ptr<ResourceType> create(Args&&... args)
+  {
+    auto resource = std::make_shared<ResourceType>(std::forward<Args>(args)...);
+    m_resources[resource->get_id()] = resource;
+    return resource;
+  }
+
+  std::shared_ptr<ResourceType> get(unsigned int id)
+  {
+    auto it = m_resources.find(id);
+    if (it != m_resources.end()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+
+  void remove(unsigned int id)
+  {
+    m_resources.erase(id);
+  }
+};
 
 class ShaderRepo
 {
@@ -71,10 +73,15 @@ public:
   ~TextureRepo();
 };
 
-REPO_CLASS(MeshRepo, Mesh)
-REPO_CLASS(ShaderProgramRepo, ShaderProgram)
-REPO_CLASS(MaterialRepo, Material)
-
-inline MaterialRepo::~MaterialRepo() = default;
-
-#undef REPO_CLASS
+class MeshRepo : public RepoBase<Mesh> {
+  public:
+    ~MeshRepo();
+};
+class ShaderProgramRepo : public RepoBase<ShaderProgram> {
+  public:
+    ~ShaderProgramRepo();
+};
+class MaterialRepo : public RepoBase<Material> {
+  public:
+    ~MaterialRepo() = default;
+};
