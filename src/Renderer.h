@@ -35,6 +35,8 @@ struct RenderPacket
     , priority(priority)
   {
   }
+
+  ~RenderPacket() = default;
 };
 using RenderPacketPtr = std::shared_ptr<RenderPacket>;
 
@@ -51,4 +53,5 @@ public:
                     std::unordered_set<SceneObjectPtr>& set);
   void submit(SceneObjectPtr scene);
   void render();
+  ~Renderer() = default;
 };

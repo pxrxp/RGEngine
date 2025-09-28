@@ -4,6 +4,8 @@
 #include <initializer_list>
 #include <string>
 
+class ShaderRepo;
+
 class ShaderProgram
 {
 private:
@@ -11,7 +13,8 @@ private:
 
 public:
   GLuint get_id() const;
-  void load(std::initializer_list<std::string> shaders);
+  void load(ShaderRepo& shader_repo,
+            std::initializer_list<std::string> shaders);
   void bind();
   void unbind();
 

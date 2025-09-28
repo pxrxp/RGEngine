@@ -33,6 +33,8 @@ public:
 #endif
 
   GLuint get_id() const;
+  GLuint get_vbo() const;
+  GLuint get_ebo() const;
   void bind();
   void unbind();
 
@@ -93,9 +95,17 @@ public:
     }
   }
 
+  // template<typename Vertex, typename Indices>
+  // void load(const std::string& obj_filename,
+  //           GLenum draw_primitive = GL_TRIANGLES,
+  //           GLenum usage = GL_STATIC_DRAW)
+  // {
+  //   auto& pair = from_OBJ<Vertex, Indices>(obj_filename);
+  //   load<Vertex, Indices>(pair.first, pair.second, draw_primitive, usage);
+  // }
+
   void draw(unsigned int instance_count = 1);
   const BoundingBox& get_local_AABB() const;
-  ~Mesh();
 };
 
 #undef SETUP_ATTRIB

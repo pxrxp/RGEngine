@@ -41,7 +41,6 @@ public:
   Scene& operator=(Scene&&) = delete;
 
   virtual ~Scene() = default;
-
   virtual void init();
 
   std::vector<SceneObjectPtr> get_all_physics_objects();

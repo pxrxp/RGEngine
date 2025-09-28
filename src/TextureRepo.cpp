@@ -1,6 +1,5 @@
 #include "Repo.h"
 #include "util/png_image.h"
-#include "util/opengl.h"
 #include <algorithm>
 
 inline int
@@ -297,10 +296,9 @@ TextureRepo::remove_texture(const std::string& name)
 
 TextureRepo::~TextureRepo()
 {
-  if (is_opengl_context_active()) {
-    for (auto& [name, id] : m_textures) {
-      glDeleteTextures(1, &id);
-    }
+  for (auto& [name, id] : m_textures) {
+    glDeleteTextures(1, &id);
   }
+
   m_textures.clear();
 }

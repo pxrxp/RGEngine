@@ -5,6 +5,7 @@
 #include <vector>
 
 class ShaderProgram;
+class TextureRepo;
 
 struct TextureDescriptor
 {
@@ -33,15 +34,14 @@ private:
   static int m_id, m_current_texture_slot;
   int m_texture_slot;
   std::vector<Texture> m_textures;
+  TextureRepo* m_tex_repo;
 
 public:
   int get_id();
-  void load(std::shared_ptr<ShaderProgram> shader_program,
+  void load(TextureRepo& tex_repo,
+            std::shared_ptr<ShaderProgram> shader_program,
             const std::vector<Texture>& textures);
   int get_texture_slot(const std::string& texture);
   void bind();
   void unbind();
 };
-
-inline int Material::m_id = 0;
-inline int Material::m_current_texture_slot = 0;

@@ -5,7 +5,7 @@
 #include "Repo.h"
 #include "Window.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 class Window;
 class Camera;
 
@@ -39,8 +39,14 @@ public:
   ShaderProgramRepo shader_program_repo;
   MaterialRepo material_repo;
   MeshRepo mesh_repo;
+  TextureRepo tex_repo;
+  ShaderRepo shader_repo;
 
+  App() = default;
+  App(const App&) = delete;
+  App& operator=(const App&) = delete;
   ~App();
+
   void init();
   void update();
 

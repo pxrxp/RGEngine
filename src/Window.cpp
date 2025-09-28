@@ -71,3 +71,9 @@ Window::clear(GLfloat color_r,
   glClearColor(color_r, color_g, color_b, color_a);
   glClear(mask);
 }
+
+Window::~Window() {
+  if (m_raw_window)
+    glfwDestroyWindow(m_raw_window);
+  glfwTerminate();
+}

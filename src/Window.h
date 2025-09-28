@@ -33,5 +33,7 @@ public:
              GLfloat color_a,
              GLbitfield mask);
 
+  ~Window();
+
   friend class App;
 };

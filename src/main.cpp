@@ -1,6 +1,7 @@
 #include "App.h"
 #include "util/definitions.h"
 #include "scenes.h"
+#include <cstdlib>
 
 int
 main()
@@ -25,4 +26,5 @@ main()
     app.render_debug_gui();
     app.get_window().swap_buffers();
   }
+  return EXIT_SUCCESS;
 }

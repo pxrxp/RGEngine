@@ -5,8 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-ShaderRepo repo;
-
 GLuint
 ShaderProgram::get_id() const
 {
@@ -26,14 +24,14 @@ ShaderProgram::unbind()
 }
 
 void
-ShaderProgram::load(std::initializer_list<std::string> shaders)
+ShaderProgram::load(ShaderRepo& shader_repo, std::initializer_list<std::string> shaders)
 {
   if (m_id == 0) {
     m_id = glCreateProgram();
   }
 
   for (const auto& path : shaders) {
-    GLuint shader = repo.get_shader(path);
+    GLuint shader = shader_repo.get_shader(path);
     glAttachShader(m_id, shader);
   }
   glLinkProgram(m_id);

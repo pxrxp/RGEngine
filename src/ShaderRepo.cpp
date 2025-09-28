@@ -1,6 +1,5 @@
 #include "Repo.h"
 #include "util/filesystem.h"
-#include "util/opengl.h"
 #include <iostream>
 
 std::unordered_map<char, int> shader_map = {
@@ -47,9 +46,10 @@ ShaderRepo::get_shader(const std::string& path)
 
 ShaderRepo::~ShaderRepo()
 {
-  if (is_opengl_context_active())
-    for (auto& [path, shader] : m_shaders)
-      glDeleteShader(shader);
+  for (auto& [path, shader] : m_shaders)
+    glDeleteShader(shader);
+
+  m_shaders.clear();
 }
 
 void

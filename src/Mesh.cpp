@@ -6,6 +6,18 @@ Mesh::get_id() const
   return m_vao;
 }
 
+GLuint
+Mesh::get_vbo() const
+{
+  return m_vbo;
+}
+
+GLuint
+Mesh::get_ebo() const
+{
+  return m_ebo;
+}
+
 void
 Mesh::bind()
 {
@@ -51,16 +63,6 @@ const BoundingBox&
 Mesh::get_local_AABB() const
 {
   return m_local_AABB;
-}
-
-Mesh::~Mesh()
-{
-  if (m_ebo)
-    glDeleteBuffers(1, &m_ebo);
-  if (m_vbo)
-    glDeleteBuffers(1, &m_vbo);
-  if (m_vao)
-    glDeleteVertexArrays(1, &m_vao);
 }
 
 #ifndef NDEBUG

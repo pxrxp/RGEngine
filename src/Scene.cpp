@@ -115,7 +115,7 @@ Scene::display_AABB(std::shared_ptr<SceneObject> object, bool show_controller)
   auto object_AABB = std::make_shared<SceneObject>();
   object_AABB->physics.set_gravity(false);
   object_AABB->with_render_packet(m_app_cache, [=, this](RenderPacketPtr packet) {
-    packet->shader_program->load({ "AABB.vert.glsl", "AABB.frag.glsl" });
+    packet->shader_program->load(m_app_cache.shader_repo, { "AABB.vert.glsl", "AABB.frag.glsl" });
     packet->mesh->template load<Vertex_Pos, LineIndices>(
       { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
     packet->render = [=, this] {

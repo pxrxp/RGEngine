@@ -113,12 +113,6 @@ App::~App()
     ImGui::DestroyContext();
   }
 #endif
-
-  if (m_window.m_raw_window)
-    glfwDestroyWindow(m_window.m_raw_window);
-
-  glfwTerminate();
-  exit(EXIT_SUCCESS);
 }
 
 void

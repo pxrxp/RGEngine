@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <memory>
 
-TextureRepo texture_repo;
+int Material::m_id = 0;
+int Material::m_current_texture_slot = 0;
 
 int
 Material::get_id()
@@ -13,9 +14,11 @@ Material::get_id()
 }
 
 void
-Material::load(std::shared_ptr<ShaderProgram> shader_program,
+Material::load(TextureRepo& tex_repo,
+               std::shared_ptr<ShaderProgram> shader_program,
                const std::vector<Texture>& textures)
 {
+  m_tex_repo = &tex_repo;
   m_textures = textures;
   m_texture_slot = m_current_texture_slot;
   for (const auto& texture : m_textures) {
@@ -39,9 +42,13 @@ Material::get_texture_slot(const std::string& texture)
 void
 Material::bind()
 {
+  if (m_tex_repo == nullptr) {
+    return;
+  }
+
   for (const auto& texture : m_textures) {
     glBindTextureUnit(get_texture_slot(texture.name),
-                      texture_repo.get_texture(texture.name, texture.desc));
+                      m_tex_repo->get_texture(texture.name, texture.desc));
   }
 }
 
