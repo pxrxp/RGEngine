@@ -13,8 +13,8 @@ Renderer::add(RenderPacketStrongPtr render_packet)
 }
 
 void
-Renderer::add_children(SceneObjectPtr root,
-                       std::unordered_set<SceneObjectPtr>& set)
+Renderer::add_children(SceneObjectStrongPtr root,
+                       std::unordered_set<SceneObjectStrongPtr>& set)
 {
   set.insert(root);
 
@@ -29,9 +29,9 @@ Renderer::add_children(SceneObjectPtr root,
 }
 
 void
-Renderer::submit(SceneObjectPtr scene)
+Renderer::submit(SceneObjectStrongPtr scene)
 {
-  std::unordered_set<SceneObjectPtr> set;
+  std::unordered_set<SceneObjectStrongPtr> set;
   for (auto& child : *scene) {
     if (!set.count(child))
       add_children(child, set);
@@ -75,5 +75,11 @@ Renderer::render()
     render_packet->render();
   }
 
+  m_render_queue.clear();
+}
+
+void
+Renderer::clear()
+{
   m_render_queue.clear();
 }

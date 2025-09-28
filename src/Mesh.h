@@ -34,8 +34,6 @@ public:
 #endif
 
   GLuint get_id() const;
-  GLuint get_vbo() const;
-  GLuint get_ebo() const;
   void bind();
   void unbind();
 
@@ -107,6 +105,8 @@ public:
 
   void draw(unsigned int instance_count = 1);
   const BoundingBox& get_local_AABB() const;
+
+  ~Mesh();
 };
 
 #undef SETUP_ATTRIB

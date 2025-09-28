@@ -50,7 +50,7 @@ Camera::get_camera_move_dir(App& app) const
 }
 
 Camera&
-Camera::setup(SceneObjectPtr player)
+Camera::setup(SceneObjectStrongPtr player)
 {
   m_target_player = player;
   return *this;

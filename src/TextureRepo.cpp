@@ -294,7 +294,7 @@ TextureRepo::remove_texture(const std::string& name)
   }
 }
 
-TextureRepo::~TextureRepo()
+void TextureRepo::clear()
 {
   for (auto& [name, id] : m_textures) {
     glDeleteTextures(1, &id);

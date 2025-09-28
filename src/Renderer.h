@@ -1,6 +1,8 @@
 #pragma once
+#include <cassert>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <vector>
 
@@ -20,20 +22,22 @@ struct RenderPacket
 {
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<ShaderProgram> shader_program;
-  std::shared_ptr<Material> material;
+  std::optional<std::shared_ptr<Material>> material;
   Priority priority;
 
   std::function<void()> render;
 
   RenderPacket(std::shared_ptr<Mesh> mesh,
                std::shared_ptr<ShaderProgram> shader,
-               std::shared_ptr<Material> material,
+               std::optional<std::shared_ptr<Material>> material = std::nullopt,
                Priority priority = NORMAL_PRIORITY)
-    : mesh(mesh)
-    , shader_program(shader)
-    , material(material)
+    : mesh(std::move(mesh))
+    , shader_program(std::move(shader))
+    , material(std::move(material))
     , priority(priority)
   {
+    assert(this->mesh != nullptr && "A RenderPacket must have a valid Mesh");
+    assert(this->shader_program != nullptr && "A RenderPacket must have a valid ShaderProgram");
   }
 
   ~RenderPacket() = default;
@@ -42,7 +46,7 @@ using RenderPacketStrongPtr = std::shared_ptr<RenderPacket>;
 using RenderPacketWeakPtr = std::weak_ptr<RenderPacket>;
 
 class SceneObject;
-using SceneObjectPtr = std::shared_ptr<SceneObject>;
+using SceneObjectStrongPtr = std::shared_ptr<SceneObject>;
 
 class Renderer
 {
@@ -50,9 +54,10 @@ class Renderer
 
 public:
   void add(RenderPacketStrongPtr render_packet);
-  void add_children(SceneObjectPtr root,
-                    std::unordered_set<SceneObjectPtr>& set);
-  void submit(SceneObjectPtr scene);
+  void add_children(SceneObjectStrongPtr root,
+                    std::unordered_set<SceneObjectStrongPtr>& set);
+  void submit(SceneObjectStrongPtr scene);
   void render();
+  void clear();
   ~Renderer() = default;
 };

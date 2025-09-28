@@ -1,21 +1,42 @@
 #include "Mesh.h"
 
+Mesh::~Mesh()
+{
+#ifndef NDEBUG
+  std::cout << "Destroying Mesh ID: " << m_vao << std::endl;
+#endif
+
+  if (m_ebo) {
+    glDeleteBuffers(1, &m_ebo);
+
+#ifndef NDEBUG
+    std::cout << "Deleted element buffer object " << m_ebo << std::endl;
+#endif
+  }
+  if (m_ebo) {
+    glDeleteBuffers(1, &m_vbo);
+
+#ifndef NDEBUG
+    std::cout << "Deleted vertex buffer object " << m_vbo << std::endl;
+#endif
+  }
+  if (m_vao) {
+    glDeleteVertexArrays(1, &m_vao);
+
+#ifndef NDEBUG
+    std::cout << "Deleted vertex array object " << m_ebo << std::endl;
+#endif
+  }
+
+#ifndef NDEBUG
+  std::cout << std::endl;
+#endif
+}
+
 GLuint
 Mesh::get_id() const
 {
   return m_vao;
-}
-
-GLuint
-Mesh::get_vbo() const
-{
-  return m_vbo;
-}
-
-GLuint
-Mesh::get_ebo() const
-{
-  return m_ebo;
 }
 
 void

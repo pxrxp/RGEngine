@@ -49,6 +49,7 @@ public:
 
   void init();
   void update();
+  void cleanup();
 
   bool is_running() const;
 

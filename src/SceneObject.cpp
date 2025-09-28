@@ -78,7 +78,7 @@ SceneObject::add_child(std::shared_ptr<SceneObject> child)
   child->m_parent = this->shared_from_this();
 }
 
-SceneObjectPtr
+SceneObjectStrongPtr
 SceneObject::get_parent() const
 {
   return m_parent.lock();

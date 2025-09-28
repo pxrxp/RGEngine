@@ -15,7 +15,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Camera& cam);
 #endif
 
-  Camera& setup(SceneObjectPtr player);
+  Camera& setup(SceneObjectStrongPtr player);
   void update_lazy(App& app);
   void update_projection_matrix(float aspect_ratio);
 
@@ -50,7 +50,7 @@ private:
   glm::vec3 get_camera_move_dir(App& app) const;
   void update_view_matrix();
 
-  SceneObjectPtr m_target_player;
+  SceneObjectStrongPtr m_target_player;
 
   float m_speed = 3.f;
   float m_sensitivity = 0.5f;

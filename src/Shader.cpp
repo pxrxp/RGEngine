@@ -1,130 +1,40 @@
 #include "Shader.h"
-#include "Repo.h"
 #include "util/opengl.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-GLuint
-ShaderProgram::get_id() const
+Shader::Shader(GLuint id)
+  : m_id(id)
 {
-  return m_id;
 }
-
-void
-ShaderProgram::bind()
+Shader::~Shader()
 {
-  glUseProgram(m_id);
-}
+  if (m_id) {
+#ifndef NDEBUG
+    std::cout << "Deleting shader " << m_id << std::endl;
+#endif
 
-void
-ShaderProgram::unbind()
-{
-  glUseProgram(0);
-}
-
-void
-ShaderProgram::load(ShaderRepo& shader_repo, std::initializer_list<std::string> shaders)
-{
-  if (m_id == 0) {
-    m_id = glCreateProgram();
-  }
-
-  for (const auto& path : shaders) {
-    GLuint shader = shader_repo.get_shader(path);
-    glAttachShader(m_id, shader);
-  }
-  glLinkProgram(m_id);
-
-  GLint success;
-  glGetProgramiv(m_id, GL_LINK_STATUS, &success);
-  if (!success) {
-    char info[512];
-    glGetProgramInfoLog(m_id, 512, nullptr, info);
-    std::cerr << "Program link error:\n" << info << "\n";
+    glDeleteShader(m_id);
   }
 }
 
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, float value)
+Shader::Shader(Shader&& other) noexcept
+  : m_id(other.m_id)
 {
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniform1f(m_id, loc, value);
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
+  other.m_id = 0;
 }
 
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, int value)
+Shader&
+Shader::operator=(Shader&& other) noexcept
 {
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniform1i(m_id, loc, value);
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
-}
-
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, const glm::vec2& v)
-{
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniform2fv(m_id, loc, 1, glm::value_ptr(v));
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
-}
-
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, const glm::vec3& v)
-{
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniform3fv(m_id, loc, 1, glm::value_ptr(v));
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
-}
-
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, const glm::vec4& v)
-{
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniform4fv(m_id, loc, 1, glm::value_ptr(v));
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
-}
-
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, const glm::mat3& m)
-{
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniformMatrix3fv(m_id, loc, 1, GL_FALSE, glm::value_ptr(m));
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
-  return *this;
-}
-
-ShaderProgram&
-ShaderProgram::set_uniform(const char* name, const glm::mat4& m)
-{
-  GLint loc = glGetUniformLocation(m_id, name);
-  if (loc != -1)
-    glProgramUniformMatrix4fv(m_id, loc, 1, GL_FALSE, glm::value_ptr(m));
-  else
-    std::cerr << "Warning: uniform \"" << name << "\" not found in program "
-              << m_id << "\n";
+  if (this != &other) {
+    if (m_id != 0) {
+#ifndef NDEBUG
+      std::cout << "Deleting shader " << m_id << std::endl;
+#endif
+      glDeleteShader(m_id);
+    }
+    m_id = other.m_id;
+    other.m_id = 0;
+  }
   return *this;
 }

@@ -139,6 +139,15 @@ App::update()
   update_delta_time();
 }
 
+void App::cleanup()
+{
+  m_renderer.clear();
+  shader_program_repo.clear();
+  material_repo.clear();
+  mesh_repo.clear();
+  tex_repo.clear();
+  shader_repo.clear();
+}
 void
 App::init_debug_gui()
 {

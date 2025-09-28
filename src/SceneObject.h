@@ -10,7 +10,8 @@
 #include <optional>
 
 class SceneObject;
-using SceneObjectPtr = std::shared_ptr<SceneObject>;
+using SceneObjectStrongPtr = std::shared_ptr<SceneObject>;
+using SceneObjectWeakPtr = std::weak_ptr<SceneObject>;
 
 class SceneObject : public std::enable_shared_from_this<SceneObject>
 {
@@ -19,7 +20,7 @@ private:
   RenderPacketStrongPtr& create_render_packet(App& app);
 
   std::weak_ptr<SceneObject> m_parent;
-  std::vector<SceneObjectPtr> m_children;
+  std::vector<SceneObjectStrongPtr> m_children;
 
   BoundingBox m_world_AABB;
   bool m_world_AABB_dirty = true;
@@ -55,8 +56,8 @@ public:
   }
   std::optional<RenderPacketStrongPtr> get_render_packet();
 
-  void add_child(SceneObjectPtr child);
-  SceneObjectPtr get_parent() const;
+  void add_child(SceneObjectStrongPtr child);
+  SceneObjectStrongPtr get_parent() const;
 
   auto begin() noexcept { return m_children.begin(); }
   auto end() noexcept { return m_children.end(); }

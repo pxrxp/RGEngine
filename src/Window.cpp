@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "util/opengl.h"
+#include <iostream>
 
 glm::ivec2
 Window::get_dimensions() const
@@ -72,8 +73,19 @@ Window::clear(GLfloat color_r,
   glClear(mask);
 }
 
-Window::~Window() {
-  if (m_raw_window)
+Window::~Window()
+{
+  if (m_raw_window) {
+#ifndef NDEBUG
+    std::cout << "Destroying window" << std::endl;
+#endif
+
     glfwDestroyWindow(m_raw_window);
+  }
+
+#ifndef NDEBUG
+  std::cout << "Terminating windowing library" << std::endl;
+#endif
+
   glfwTerminate();
 }

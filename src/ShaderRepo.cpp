@@ -44,7 +44,7 @@ ShaderRepo::get_shader(const std::string& path)
   }
 }
 
-ShaderRepo::~ShaderRepo()
+void ShaderRepo::clear()
 {
   for (auto& [path, shader] : m_shaders)
     glDeleteShader(shader);

@@ -26,10 +26,10 @@ public:
   void init() override;
 
 private:
-  void setup_skybox(const SceneObjectPtr& skybox);
-  void setup_cube(const SceneObjectPtr& cube);
-  void setup_frustum(const SceneObjectPtr& frustum);
-  void setup_objmodel(const SceneObjectPtr& objmodel);
+  void setup_skybox(const SceneObjectStrongPtr& skybox);
+  void setup_cube(const SceneObjectStrongPtr& cube);
+  void setup_frustum(const SceneObjectStrongPtr& frustum);
+  void setup_objmodel(const SceneObjectStrongPtr& objmodel);
 };
 
 void
@@ -55,7 +55,7 @@ TestScene::init()
 }
 
 void
-TestScene::setup_skybox(const SceneObjectPtr& skybox)
+TestScene::setup_skybox(const SceneObjectStrongPtr& skybox)
 {
   skybox->physics.set_gravity(false);
   skybox->with_render_packet(
@@ -74,7 +74,7 @@ TestScene::setup_skybox(const SceneObjectPtr& skybox)
                                      .wrap_r = GL_CLAMP_TO_EDGE } } });
 
         packet->render = SceneObject::capture_weak(
-          skybox, [this, weak_packet]([[maybe_unused]] SceneObjectPtr self) {
+          skybox, [this, weak_packet]([[maybe_unused]] SceneObjectStrongPtr self) {
             if (auto packet = weak_packet.lock()) {
               set_view_matrix(packet);
               set_projection_matrix(packet);
@@ -88,7 +88,7 @@ TestScene::setup_skybox(const SceneObjectPtr& skybox)
 }
 
 void
-TestScene::setup_cube(const SceneObjectPtr& cube)
+TestScene::setup_cube(const SceneObjectStrongPtr& cube)
 {
   cube->physics.set_gravity(false);
   cube->local_transform.translate({ 5.f, 2.f, 4.f });
@@ -126,7 +126,7 @@ TestScene::setup_cube(const SceneObjectPtr& cube)
           GL_TRIANGLES);
 
         packet->render = SceneObject::capture_weak(
-          cube, [this, weak_packet](SceneObjectPtr self) {
+          cube, [this, weak_packet](SceneObjectStrongPtr self) {
             if (auto packet = weak_packet.lock()) {
               set_view_matrix(packet);
               set_projection_matrix(packet);
@@ -144,7 +144,7 @@ TestScene::setup_cube(const SceneObjectPtr& cube)
 }
 
 void
-TestScene::setup_frustum(const SceneObjectPtr& frustum)
+TestScene::setup_frustum(const SceneObjectStrongPtr& frustum)
 {
   frustum->physics.set_gravity(false);
   auto initial_frustum_vertices =
@@ -160,7 +160,7 @@ TestScene::setup_frustum(const SceneObjectPtr& frustum)
           initial_frustum_vertices, { CUBE_EDGES }, GL_LINES);
 
         packet->render = SceneObject::capture_weak(
-          frustum, [this, weak_packet](SceneObjectPtr self) {
+          frustum, [this, weak_packet](SceneObjectStrongPtr self) {
             if (auto packet = weak_packet.lock()) {
               set_model_matrix(packet, self->get_world_transformation_mat());
               set_view_matrix(packet);
@@ -173,7 +173,7 @@ TestScene::setup_frustum(const SceneObjectPtr& frustum)
 }
 
 void
-TestScene::setup_objmodel(const SceneObjectPtr& objmodel)
+TestScene::setup_objmodel(const SceneObjectStrongPtr& objmodel)
 {
   objmodel->physics.set_gravity(false);
   objmodel->with_render_packet(
@@ -185,7 +185,7 @@ TestScene::setup_objmodel(const SceneObjectPtr& objmodel)
                                                                  GL_TRIANGLES);
 
         packet->render = SceneObject::capture_weak(
-          objmodel, [this, weak_packet](SceneObjectPtr self) {
+          objmodel, [this, weak_packet](SceneObjectStrongPtr self) {
             if (auto packet = weak_packet.lock()) {
               set_view_matrix(packet);
               set_projection_matrix(packet);

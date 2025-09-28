@@ -6,12 +6,12 @@
 class Scene
 {
 private:
-  void collect_physics_objects_recursive(SceneObjectPtr object,
-                                         std::vector<SceneObjectPtr>& objects);
+  void collect_physics_objects_recursive(SceneObjectStrongPtr object,
+                                         std::vector<SceneObjectStrongPtr>& objects);
 
 protected:
   App& m_app_cache;
-  SceneObjectPtr m_scene_ptr;
+  SceneObjectStrongPtr m_scene_ptr;
 
   void set_view_matrix(RenderPacketStrongPtr render_packet,
                        const char* view_uniform_name = "view",
@@ -44,11 +44,11 @@ public:
   virtual ~Scene() = default;
   virtual void init();
 
-  std::vector<SceneObjectPtr> get_all_physics_objects();
+  std::vector<SceneObjectStrongPtr> get_all_physics_objects();
   void step_simulation(float fixed_step);
   void update_physics();
 
   void submit_to_renderer();
 
-  SceneObjectPtr get_scene_ptr() const;
+  SceneObjectStrongPtr get_scene_ptr() const;
 };

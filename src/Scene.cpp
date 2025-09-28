@@ -1,4 +1,6 @@
 #include "Scene.h"
+#include "Renderer.h"
+#include "SceneObject.h"
 #include "util/editor.h"
 
 void
@@ -70,7 +72,7 @@ resolve_velocity(SceneObject& a, SceneObject& b)
 void
 Scene::init()
 {
-  SceneObjectPtr player = std::make_shared<SceneObject>();
+  SceneObjectStrongPtr player = std::make_shared<SceneObject>();
   player->physics.set_gravity(false);
   m_scene_ptr->add_child(player);
 
@@ -108,6 +110,54 @@ Scene::set_model_matrix(RenderPacketStrongPtr render_packet,
 {
   render_packet->shader_program->set_uniform(uniform_name, model_matrix);
 }
+
+// void
+// Scene::display_AABB(std::weak_ptr<SceneObject> weak_object,
+//                     bool show_controller)
+// {
+//   if (auto object_s = weak_object.lock()) {
+//     auto aabb_visualizer = std::make_shared<SceneObject>();
+//     aabb_visualizer->physics.set_gravity(false);
+
+//     packet->shader_program->load(m_app_cache.shader_repo,
+//                                  { "AABB.vert.glsl", "AABB.frag.glsl" });
+//     packet->mesh->template load<Vertex_Pos, LineIndices>(
+//       { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
+
+//     packet->render = [this,
+//                       weak_object,
+//                       weak_packet = RenderPacketWeakPtr(packet),
+//                       weak_visualizer = SceneObjectWeakPtr(aabb_visualizer),
+//                       show_controller] {
+
+//       auto packet_s = weak_packet.lock();
+//       auto object_s_render = weak_object.lock();
+//       auto visualizer_s = weak_visualizer.lock();
+
+//       if (packet_s && object_s_render && visualizer_s) {
+//         if (show_controller) {
+//           Util::draw_transform_component_editor(
+//             object_s_render->local_transform, "object Local Transform");
+//         }
+
+//         const BoundingBox& aabb = object_s_render->get_world_AABB();
+//         const glm::vec3 dimensions = aabb.max - aabb.min;
+//         const glm::vec3 center = aabb.min + 0.5f * dimensions;
+
+//         visualizer_s->local_transform.set_position(center);
+//         visualizer_s->local_transform.set_scale(0.5f * dimensions);
+
+//         set_view_matrix(packet_s);
+//         set_projection_matrix(packet_s);
+//         set_model_matrix(packet_s,
+//                          visualizer_s->get_world_transformation_mat());
+//         packet_s->mesh->draw();
+//       }
+//     };
+
+//     m_scene_ptr->add_child(aabb_visualizer);
+//   }
+// }
 
 void
 Scene::display_AABB(std::weak_ptr<SceneObject> weak_object,
@@ -160,8 +210,9 @@ Scene::display_AABB(std::weak_ptr<SceneObject> weak_object,
 }
 
 void
-Scene::collect_physics_objects_recursive(SceneObjectPtr object,
-                                         std::vector<SceneObjectPtr>& objects)
+Scene::collect_physics_objects_recursive(
+  SceneObjectStrongPtr object,
+  std::vector<SceneObjectStrongPtr>& objects)
 {
   objects.push_back(object);
   for (auto& child : *object) {
@@ -169,10 +220,10 @@ Scene::collect_physics_objects_recursive(SceneObjectPtr object,
   }
 }
 
-std::vector<SceneObjectPtr>
+std::vector<SceneObjectStrongPtr>
 Scene::get_all_physics_objects()
 {
-  std::vector<SceneObjectPtr> objects;
+  std::vector<SceneObjectStrongPtr> objects;
   for (auto& child : *m_scene_ptr) {
     collect_physics_objects_recursive(child, objects);
   }
@@ -182,7 +233,7 @@ Scene::get_all_physics_objects()
 void
 Scene::step_simulation(float fixed_step)
 {
-  std::vector<SceneObjectPtr> objects = get_all_physics_objects();
+  std::vector<SceneObjectStrongPtr> objects = get_all_physics_objects();
 
   for (auto& object : objects) {
     if (object->physics.has_gravity()) {
@@ -194,8 +245,8 @@ Scene::step_simulation(float fixed_step)
 
   for (size_t i = 0; i < objects.size(); ++i) {
     for (size_t j = i + 1; j < objects.size(); ++j) {
-      SceneObjectPtr& a = objects[i];
-      SceneObjectPtr& b = objects[j];
+      SceneObjectStrongPtr& a = objects[i];
+      SceneObjectStrongPtr& b = objects[j];
 
       const BoundingBox& aabb_a = a->get_world_AABB();
       const BoundingBox& aabb_b = a->get_world_AABB();
@@ -247,7 +298,7 @@ Scene::submit_to_renderer()
   m_app_cache.get_renderer().submit(get_scene_ptr());
 }
 
-SceneObjectPtr
+SceneObjectStrongPtr
 Scene::get_scene_ptr() const
 {
   return m_scene_ptr;
