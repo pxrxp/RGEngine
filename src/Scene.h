@@ -2,12 +2,17 @@
 #include "App.h"
 #include "Renderer.h"
 #include "SceneObject.h"
+#include <cassert>
+#include <optional>
 
 template<typename F>
-auto capture_weak(SceneObjectStrongPtr object_strong, RenderPacketStrongPtr packet_strong, F&& f)
+auto capture_weak(SceneObjectStrongPtr object_strong, F&& f)
 {
   SceneObjectWeakPtr obj_weak = object_strong;
-  RenderPacketWeakPtr packet_weak = packet_strong;
+  std::optional<RenderPacketStrongPtr> packet_strong = object_strong->get_render_packet();
+  assert(packet_strong.has_value() && "Render packet not set yet!");
+  
+  RenderPacketWeakPtr packet_weak = packet_strong.value();
   return [obj_weak, packet_weak, f = std::forward<F>(f)] {
     SceneObjectStrongPtr self = obj_weak.lock();
     RenderPacketStrongPtr packet = packet_weak.lock();

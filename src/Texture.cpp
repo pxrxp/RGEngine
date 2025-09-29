@@ -1,11 +1,8 @@
 #include "Texture.h"
 #include "util/opengl.h"
+#include <glad/glad.h>
 #include <iostream>
 
-Texture::Texture(GLuint id)
-  : m_id(id)
-{
-}
 Texture::~Texture()
 {
   if (m_id) {
@@ -13,7 +10,7 @@ Texture::~Texture()
     std::cout << "Deleting textures " << m_id << std::endl;
 #endif
 
-    glDeleteTextures(m_id);
+    glDeleteTextures(1, &m_id);
   }
 }
 
@@ -31,7 +28,7 @@ Texture::operator=(Texture&& other) noexcept
 #ifndef NDEBUG
       std::cout << "Deleting textures " << m_id << std::endl;
 #endif
-      glDeleteTextures(m_id);
+      glDeleteTextures(1, &m_id);
     }
     m_id = other.m_id;
     other.m_id = 0;

@@ -1,7 +1,7 @@
 #include "Renderer.h"
 #include "Material.h"
-#include "Scene.h"
-#include "Shader.h"
+#include "SceneObject.h"
+#include "ShaderProgram.h"
 #include <algorithm>
 #include <memory>
 #include <unordered_set>
@@ -41,26 +41,28 @@ Renderer::submit(SceneObjectStrongPtr scene)
 void
 Renderer::render()
 {
-  std::sort(
-    m_render_queue.begin(),
-    m_render_queue.end(),
-    [](const auto& a, const auto& b) {
-      if (a->priority != b->priority) {
-        if (a->shader_program->get_id() != b->shader_program->get_id()) {
-          return a->shader_program->get_id() < b->shader_program->get_id();
-        }
-        return a->material->get_id() < b->material->get_id();
-      }
-      return a->priority < b->priority;
-    });
+  std::sort(m_render_queue.begin(),
+            m_render_queue.end(),
+            [](const auto& a, const auto& b) {
+              if (a->priority != b->priority) {
+                if (a->material->get_shader_program()->get_id() !=
+                    b->material->get_shader_program()->get_id()) {
+                  return a->material->get_shader_program()->get_id() <
+                         b->material->get_shader_program()->get_id();
+                }
+                return a->material->get_id() < b->material->get_id();
+              }
+              return a->priority < b->priority;
+            });
 
   std::shared_ptr<ShaderProgram> current_shader_program = nullptr;
   std::shared_ptr<Material> current_material = nullptr;
 
   for (auto& render_packet : m_render_queue) {
-    if (!current_shader_program || render_packet->shader_program->get_id() !=
-                                     current_shader_program->get_id()) {
-      current_shader_program = render_packet->shader_program;
+    if (!current_shader_program ||
+        render_packet->material->get_shader_program()->get_id() !=
+          current_shader_program->get_id()) {
+      current_shader_program = render_packet->material->get_shader_program();
       current_shader_program->bind();
     }
 

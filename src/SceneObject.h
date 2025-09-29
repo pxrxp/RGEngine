@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
+#include <optional>
 
 class SceneObject;
 using SceneObjectStrongPtr = std::shared_ptr<SceneObject>;
@@ -38,7 +39,7 @@ public:
   template<typename... Args>
   void set_render_packet(Args&&... args)
   {
-    m_render_packet.emplace(std::forward<Args>(args)...);
+    m_render_packet = std::make_shared<RenderPacket>(std::forward<Args>(args)...);
   }
 
   std::optional<RenderPacketStrongPtr> get_render_packet();

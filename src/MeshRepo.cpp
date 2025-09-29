@@ -1,7 +1,6 @@
 #include "MeshRepo.h"
 #include "components/BoundingBox.h"
 #include "components/vertex_formats.h"
-#include "util/obj_model.h"
 
 #define SETUP_ATTRIB(Type, Name)                                               \
   glVertexArrayAttribFormat(vao,                                               \
@@ -15,11 +14,7 @@
 
 template<typename Vertex, typename Indices>
 MeshStrongPtr
-MeshRepo::load_mesh(const std::string& mesh_name,
-                    const std::vector<Vertex>& vertices,
-                    const std::vector<Indices>& indices,
-                    GLenum draw_primitive,
-                    GLenum usage)
+MeshRepo::load_mesh(const MeshDescriptor<Vertex, Indices>& desc)
 {
 
   static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
@@ -33,22 +28,25 @@ MeshRepo::load_mesh(const std::string& mesh_name,
                 std::is_same<Indices, LineIndices>::value ||
                 std::is_same<Indices, TriangleIndices>::value);
 
-  if (RepoBase::get(mesh_name).has_value()) {
-    std::cerr << "Mesh " << mesh_name << " already exists!" << std::endl;
+  if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
+    std::cerr << "Mesh " << desc.mesh_name << " already exists!" << std::endl;
+    return mesh.value();
   }
 
   GLuint vao = 0, vbo = 0, ebo = 0;
-  GLuint vertex_count = vertices.size();
-  GLuint index_count = indices.size() * sizeof(Indices) / sizeof(GLuint);
+  GLuint vertex_count = desc.vertices.size();
+  GLuint index_count = desc.indices.size() * sizeof(Indices) / sizeof(GLuint);
 
   glCreateVertexArrays(1, &vao);
   glCreateBuffers(1, &vbo);
 
-  glNamedBufferData(vbo, vertex_count * sizeof(Vertex), vertices.data(), usage);
+  glNamedBufferData(
+    vbo, vertex_count * sizeof(Vertex), desc.vertices.data(), desc.usage);
 
-  if (!indices.empty()) {
+  if (!desc.indices.empty()) {
     glCreateBuffers(1, &ebo);
-    glNamedBufferData(ebo, index_count * sizeof(GLuint), indices.data(), usage);
+    glNamedBufferData(
+      ebo, index_count * sizeof(GLuint), desc.indices.data(), desc.usage);
     glVertexArrayElementBuffer(vao, ebo);
   }
 
@@ -70,29 +68,18 @@ MeshRepo::load_mesh(const std::string& mesh_name,
   }
 
   BoundingBox local_AABB;
-  for (const auto& vertex : vertices) {
+  for (const auto& vertex : desc.vertices) {
     local_AABB.add_point(vertex.position);
   }
 
-  return RepoBase::create(mesh_name,
+  return RepoBase::create(desc.mesh_name,
                           vao,
                           vbo,
                           ebo,
                           vertex_count,
                           index_count,
-                          draw_primitive,
+                          desc.draw_primitive,
                           local_AABB);
-}
-
-template<typename Vertex, typename Indices>
-MeshStrongPtr
-MeshRepo::load_mesh(const std::string& obj_filename,
-                    GLenum draw_primitive,
-                    GLenum usage)
-{
-  auto pair = from_OBJ<Vertex, Indices>(obj_filename);
-  return load_mesh<Vertex, Indices>(
-    pair.first, pair.second, draw_primitive, usage);
 }
 
 #undef SETUP_ATTRIB

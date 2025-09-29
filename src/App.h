@@ -2,8 +2,8 @@
 
 #include "Camera.h"
 #include "Renderer.h"
-#include "ShaderProgramRepo.h"
 #include "MeshRepo.h"
+#include "MaterialRepo.h"
 #include "Window.h"
 
 struct GLFWwindow;
@@ -37,10 +37,8 @@ private:
   static void mouse_move_callback(GLFWwindow* window, double xpos, double ypos);
 
 public:
-  ShaderProgramRepo shader_program_repo;
-  MaterialRepo material_repo;
   MeshRepo mesh_repo;
-  TextureRepo tex_repo;
+  MaterialRepo material_repo;
 
   App() = default;
   App(const App&) = delete;

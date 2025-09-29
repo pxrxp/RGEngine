@@ -1,7 +1,6 @@
 #include "App.h"
-#include "scenes.h"
+#include "TestScene.h"
 #include "util/definitions.h"
-#include <cstdlib>
 
 int
 main()

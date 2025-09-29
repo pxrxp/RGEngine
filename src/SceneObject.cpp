@@ -1,5 +1,6 @@
 #include "SceneObject.h"
 #include "App.h"
+#include "Mesh.h"
 #include "components/BoundingBox.h"
 #include <cmath>
 #include <glm/glm.hpp>

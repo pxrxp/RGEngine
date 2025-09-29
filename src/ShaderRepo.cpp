@@ -1,4 +1,6 @@
 #include "ShaderRepo.h"
+#include "Shader.h"
+#include "util/opengl.h"
 #include "util/filesystem.h"
 #include <iostream>
 
@@ -14,9 +16,13 @@ std::unordered_map<char, int> shader_map = {
 ShaderStrongPtr
 ShaderRepo::load_shader(const std::string& path)
 {
-  std::string shader_src = Util::read_file("shaders/" + path);
+  if (auto shader = RepoBase::get(path); shader.has_value()) {
+    return shader.value();
+  }
+
+  std::string shader_src = Util::read_file("shaders/" + path + ".glsl");
   const char* shader_src_cstr = shader_src.c_str();
-  GLuint shader = glCreateShader(shader_map[path[path.size() - 6]]);
+  GLuint shader = glCreateShader(shader_map[path.back()]);
 
   GLint success;
   glShaderSource(shader, 1, &shader_src_cstr, nullptr);
@@ -30,14 +36,4 @@ ShaderRepo::load_shader(const std::string& path)
   }
 
   return RepoBase::create(path, shader);
-}
-
-ShaderStrongPtr
-ShaderRepo::get_shader(const std::string& path)
-{
-  if (auto shader = RepoBase::get(path); shader.has_value()) {
-    return shader.value();
-  } else {
-    return load_shader(path);
-  }
 }

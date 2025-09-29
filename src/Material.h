@@ -1,45 +1,56 @@
 #pragma once
-#include "util/opengl.h"
+#include <glm/glm.hpp>
+#include "MaterialRepo.h"
 #include <memory>
-#include <string>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
 class ShaderProgram;
-class TextureRepo;
+class Texture;
 
-struct TextureDescriptor
-{
-  GLenum target = GL_TEXTURE_2D;
-  GLenum internal_format = GL_RGBA8;
-  bool generate_mipmaps = true;
-  GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
-  GLenum mag_filter = GL_LINEAR;
-  GLenum wrap_s = GL_REPEAT;
-  GLenum wrap_t = GL_REPEAT;
-  GLenum wrap_r = GL_CLAMP_TO_EDGE;
-  int layers = -1;
-};
+using ShaderProgramStrongPtr = std::shared_ptr<ShaderProgram>;
+using TextureStrongPtr = std::shared_ptr<Texture>;
 
-struct Texture
-{
-  GLuint id;
-  TextureDescriptor desc;
-};
-
-inline TextureDescriptor DEFAULT_TEXTURE_DESCRIPTOR;
+using TextureName = std::string;
+using UniformValue = std::variant<int,
+                                  float,
+                                  glm::vec2,
+                                  glm::vec3,
+                                  glm::vec4,
+                                  glm::mat3,
+                                  glm::mat4,
+                                  TextureName>;
 
 class Material
 {
 private:
-  int m_texture_slot;
-  std::vector<std::string> m_textures;
+  static int m_id_counter;
+  int m_id;
+  MaterialRepo&  m_repo_cache;
+  std::string m_mesh_name;
+  ShaderProgramStrongPtr m_shader_program;
+  std::vector<TextureStrongPtr> m_textures;
+  std::unordered_map<std::string, UniformValue> m_uniforms;
 
 public:
-  int get_id();
-  void load(TextureRepo& tex_repo,
-            std::shared_ptr<ShaderProgram> shader_program,
-            const std::vector<Texture>& textures);
-  int get_texture_slot(const std::string& texture);
+  Material(MaterialRepo& repo, const std::string& mesh_name, ShaderProgramStrongPtr shader_program,
+           const std::vector<TextureStrongPtr>& textures,
+           const std::unordered_map<std::string, UniformValue>& uniforms = {})
+    : m_id(++m_id_counter)
+    , m_repo_cache(repo)
+    , m_mesh_name(mesh_name)
+    , m_shader_program(shader_program)
+    , m_textures(textures)
+    , m_uniforms(uniforms)
+  {
+  }
+
+  ShaderProgramStrongPtr get_shader_program() const { return m_shader_program; }
+
+  int get_id() { return m_id; }
+  const std::string& get_name() { return m_mesh_name; }
+  
   void bind();
   void unbind();
 };

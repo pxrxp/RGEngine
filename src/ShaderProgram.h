@@ -1,8 +1,6 @@
 #pragma once
 #include "util/definitions.h"
 #include <glm/glm.hpp>
-#include <initializer_list>
-#include <string>
 
 class ShaderRepo;
 class ShaderProgram
@@ -17,8 +15,6 @@ public:
   }
 
   GLuint get_id() const;
-  void load(ShaderRepo& shader_repo,
-            std::initializer_list<std::string> shaders);
   void bind();
   void unbind();
 

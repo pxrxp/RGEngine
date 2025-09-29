@@ -1,8 +1,12 @@
 #include "TextureRepo.h"
+#include "Texture.h"
 #include "util/png_image.h"
 #include <algorithm>
+#include <cmath>
+#include <iostream>
 
-inline int
+namespace {
+int
 calculate_mip_levels(int width, int height, int depth = 1)
 {
   return 1 + static_cast<int>(
@@ -41,35 +45,34 @@ fix_filter(bool generate_mipmaps, GLenum min_filter, GLenum mag_filter)
 
   return { _min_filter, _mag_filter };
 }
+}
 
-std::shared_ptr<Texture>
-TextureRepo::load_texture(const std::string& name,
-                                    const TextureDescriptor& desc)
+TextureStrongPtr
+TextureRepo::load_texture(const TextureDescriptor& desc)
 {
-
-  if (name.empty()) {
+  if (desc.texture_name.empty()) {
     std::cerr << "Provide at least one texture!" << std::endl;
     return nullptr;
   }
 
-  if (RepoBase::get(name).has_value()) {
-    std::cerr << "Texture " << name << " already exists!" << std::endl;
-    return nullptr;
+  if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
+    std::cerr << "Texture " << desc.texture_name << " already exists!" << std::endl;
+    return tex.value();
   }
 
   std::shared_ptr<Texture> tex = nullptr;
 
   switch (desc.target) {
     case GL_TEXTURE_2D:
-      tex = load_tex_2d(name, desc);
+      tex = load_tex_2d(desc);
       break;
 
     case GL_TEXTURE_CUBE_MAP:
-      tex = load_cubemap(name, desc);
+      tex = load_cubemap(desc);
       break;
 
     case GL_TEXTURE_2D_ARRAY:
-      tex = load_tex_2d_array(name, desc);
+      tex = load_tex_2d_array(desc);
       break;
 
     default:
@@ -80,19 +83,18 @@ TextureRepo::load_texture(const std::string& name,
   }
 
   if (tex)
-    m_resources[name] = tex;
+    m_resources[desc.texture_name] = tex;
 
   return tex;
 }
 
-std::shared_ptr<Texture>
-TextureRepo::load_tex_2d(const std::string& name,
-                                   const TextureDescriptor& desc)
+TextureStrongPtr
+TextureRepo::load_tex_2d(const TextureDescriptor& desc)
 {
 
-  PNGImage image(name + ".png");
+  PNGImage image(desc.texture_name + ".png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << name + ".png\n";
+    std::cerr << "ERROR: Invalid file" << desc.texture_name + ".png\n";
   }
 
   GLuint texture;
@@ -124,16 +126,15 @@ TextureRepo::load_tex_2d(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return std::make_shared<Texture>(texture);
+  return RepoBase::create(desc.texture_name, texture);
 }
 
 std::shared_ptr<Texture>
-TextureRepo::load_tex_2d_array(const std::string& name,
-                                         const TextureDescriptor& desc)
+TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
 {
-  PNGImage image = PNGImage(name + "_0.png");
+  PNGImage image = PNGImage(desc.texture_name + "_0.png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << name + "_0.png\n";
+    std::cerr << "ERROR: Invalid file" << desc.texture_name + "_0.png\n";
     return 0;
   }
 
@@ -164,7 +165,7 @@ TextureRepo::load_tex_2d_array(const std::string& name,
   bool flag = false;
 
   for (int i = 0; i < desc.layers; ++i) {
-    std::string file_name = name + "_" + std::to_string(i) + ".png";
+    std::string file_name = desc.texture_name + "_" + std::to_string(i) + ".png";
     if (flag)
       image = PNGImage(file_name);
 
@@ -205,16 +206,15 @@ TextureRepo::load_tex_2d_array(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return std::make_shared<Texture>(texture);
+  return RepoBase::create(desc.texture_name, texture);
 }
 
 std::shared_ptr<Texture>
-TextureRepo::load_cubemap(const std::string& name,
-                                    const TextureDescriptor& desc)
+TextureRepo::load_cubemap(const TextureDescriptor& desc)
 {
-  PNGImage image = PNGImage(name + "_0.png");
+  PNGImage image = PNGImage(desc.texture_name + "_0.png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << name + "_0.png\n";
+    std::cerr << "ERROR: Invalid file" << desc.texture_name + "_0.png\n";
     return 0;
   }
 
@@ -233,7 +233,7 @@ TextureRepo::load_cubemap(const std::string& name,
   bool flag = false;
 
   for (int i = 0; i < 6; ++i) {
-    std::string file_name = name + "_" + std::to_string(i) + ".png";
+    std::string file_name = desc.texture_name + "_" + std::to_string(i) + ".png";
     if (flag)
       image = PNGImage(file_name);
 
@@ -275,5 +275,5 @@ TextureRepo::load_cubemap(const std::string& name,
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_R, desc.wrap_r);
 
-  return std::make_shared<Texture>(texture);
+  return RepoBase::create(desc.texture_name, texture);
 }

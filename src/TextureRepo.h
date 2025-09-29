@@ -1,20 +1,35 @@
 #pragma once
 #include "Repo.h"
+#include "util/opengl.h"
 
-class TextureRepo : RepoBase<std::string, Texture>
+class Texture;
+using TextureStrongPtr = std::shared_ptr<Texture>;
+using TextureWeakPtr = std::weak_ptr<Texture>;
+
+struct TextureDescriptor
+{
+  std::string texture_name;
+  GLenum target = GL_TEXTURE_2D;
+  GLenum internal_format = GL_RGBA8;
+  GLenum wrap_s = GL_REPEAT;
+  GLenum wrap_t = GL_REPEAT;
+  GLenum wrap_r = GL_CLAMP_TO_EDGE;
+  GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
+  GLenum mag_filter = GL_LINEAR;
+  bool generate_mipmaps = true;
+  int layers = -1;
+};
+
+class TextureRepo : public RepoBase<std::string, Texture>
 {
 private:
-  std::shared_ptr<Texture> load_texture(const std::string& names,
-                                const TextureDescriptor& desc);
-  std::shared_ptr<Texture> load_tex_2d(const std::string& names,
+  TextureStrongPtr load_tex_2d(
                                const TextureDescriptor& desc);
-  std::shared_ptr<Texture> load_tex_2d_array(const std::string& names,
+  TextureStrongPtr load_tex_2d_array(
                                      const TextureDescriptor& desc);
-  std::shared_ptr<Texture> load_cubemap(const std::string& names,
+  TextureStrongPtr load_cubemap(
                                 const TextureDescriptor& desc);
 
 public:
-  std::shared_ptr<Texture> get_texture(
-    const std::string& name,
-    const TextureDescriptor& desc = DEFAULT_TEXTURE_DESCRIPTOR);
+  TextureStrongPtr load_texture(const TextureDescriptor& desc);
 };

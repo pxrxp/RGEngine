@@ -1,38 +1,47 @@
 #pragma once
+#include "ShaderProgramRepo.h"
 #include "TextureRepo.h"
-#include "TextureRepo.h"
-#include <string>
+#include <glm/glm.hpp>
+#include <set>
+#include <unordered_map>
+#include <variant>
+#include <vector>
+
+class Material;
+using MaterialStrongPtr = std::shared_ptr<Material>;
+using MaterialWeakPtr = std::weak_ptr<Material>;
+
+using TextureName = std::string;
+using UniformValue = std::variant<int,
+                                  float,
+                                  glm::vec2,
+                                  glm::vec3,
+                                  glm::vec4,
+                                  glm::mat3,
+                                  glm::mat4,
+                                  TextureName>;
+
+struct MaterialDescriptor
+{
+  std::string material_name;
+  ShaderProgramDescriptor shader_program_desc;
+  std::vector<TextureDescriptor> texture_desc_list = {};
+  std::unordered_map<std::string, UniformValue> uniforms = {};
+};
 
 class MaterialRepo : public RepoBase<std::string, Material>
 {
 private:
-  TextureRepo tex_repo;
-  int m_id = 0;
-  int m_current_texture_slot = 0;
-  
+  std::unordered_map<std::string, GLuint> texture_slots_map;
+  std::set<unsigned int> full_texture_slots;
+  std::set<unsigned int> empty_texture_slots;
+
 public:
-  void
-  load_material(
-                 std::shared_ptr<ShaderProgram> shader_program,
-                 const std::vector<Texture>& textures)
-  {
-    int m_texture_slot = m_current_texture_slot;
-    for (const auto& texture : textures) {
-      shader_program->set_uniform(texture.name.c_str(), m_current_texture_slot++);
-    }
-  }
+  TextureRepo tex_repo;
+  ShaderProgramRepo shader_program_repo;
 
-  // int
-  // get_texture_slot(const std::string& texture)
-  // {
-  //   auto it = std::find_if(m_textures.begin(),
-  //                          m_textures.end(),
-  //                          [&](const auto& x) { return x.name == texture; });
+  MaterialRepo();
 
-  //   if (it == m_textures.end())
-  //     return -1;
-
-  //   return m_current_texture_slot + std::distance(m_textures.begin(), it);
-  // }
-  
+  MaterialStrongPtr load_material(const MaterialDescriptor& desc);
+  std::optional<unsigned int> assign_slot(const std::string& texture_name);
 };

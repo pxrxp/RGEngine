@@ -1,59 +1,39 @@
 #include "Material.h"
-#include "Repo.h"
-#include "Shader.h"
-#include <algorithm>
-#include <memory>
+#include "ShaderProgram.h"
+#include "Texture.h"
+#include <iostream>
 
-int Material::m_id = 0;
-int Material::m_current_texture_slot = 0;
-
-int
-Material::get_id()
-{
-  return ++m_id;
-}
-
-void
-Material::load(TextureRepo& tex_repo,
-               std::shared_ptr<ShaderProgram> shader_program,
-               const std::vector<Texture>& textures)
-{
-  m_tex_repo = &tex_repo;
-  m_textures = textures;
-  m_texture_slot = m_current_texture_slot;
-  for (const auto& texture : m_textures) {
-    shader_program->set_uniform(texture.name.c_str(), m_current_texture_slot++);
-  }
-}
-
-int
-Material::get_texture_slot(const std::string& texture)
-{
-  auto it = std::find_if(m_textures.begin(),
-                         m_textures.end(),
-                         [&](const auto& x) { return x.name == texture; });
-
-  if (it == m_textures.end())
-    return -1;
-
-  return m_current_texture_slot + std::distance(m_textures.begin(), it);
-}
+int Material::m_id_counter = -1;
 
 void
 Material::bind()
 {
-  if (m_tex_repo == nullptr) {
-    return;
-  }
+  for (const auto& [uniform_name, uniform_value] : m_uniforms) {
+    std::visit(
+      [&](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
 
-  for (const auto& texture : m_textures) {
-    glBindTextureUnit(get_texture_slot(texture.name),
-                      m_tex_repo->get_texture(texture.name, texture.desc));
+        if constexpr (std::is_same_v<T, TextureName>) {
+          const TextureName& tex_name_to_find = arg;
+
+          for (size_t i = 0; i < m_textures.size(); i++) {
+            auto texture_ptr = m_textures[i];
+            auto slot = m_repo_cache.assign_slot(texture_ptr->get_name());
+            if (texture_ptr && texture_ptr->get_name() == tex_name_to_find) {
+              m_shader_program->set_uniform(uniform_name.c_str(),
+                                            static_cast<GLint>(slot));
+
+              break;
+            }
+          }
+        } else {
+          m_shader_program->set_uniform(uniform_name.c_str(), arg);
+        }
+      },
+      uniform_value);
   }
 }
 
-void
-Material::unbind()
-{
-  m_current_texture_slot = 0;
+void Material::unbind() {
+  m_repo_cache.clear_all_slots();
 }

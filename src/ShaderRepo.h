@@ -9,9 +9,6 @@ using ShaderWeakPtr = std::weak_ptr<Shader>;
 
 class ShaderRepo : public RepoBase<std::string, Shader>
 {
-private:
-  ShaderStrongPtr load_shader(const std::string& path);
-
 public:
-  ShaderStrongPtr get_shader(const std::string& path);
+  ShaderStrongPtr load_shader(const std::string& path);
 };
