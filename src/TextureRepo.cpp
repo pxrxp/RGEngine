@@ -56,8 +56,7 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
   }
 
   if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
-    // If only texture_name provided, the user wants to access it only => no error
-    if (desc != TextureDescriptor { desc.texture_name })
+    if (!desc.is_getter_desc())
       std::cerr << "Texture " << desc.texture_name << " already exists!" << std::endl;
     return tex.value();
   }

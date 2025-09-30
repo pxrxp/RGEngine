@@ -20,6 +20,9 @@ struct TextureDescriptor
   int layers = -1;
 
   auto operator<=>(const TextureDescriptor&) const = default;
+  bool is_getter_desc() const {
+    return *this == TextureDescriptor { .texture_name = this->texture_name };
+  }
 };
 
 class TextureRepo : public RepoBase<std::string, Texture>

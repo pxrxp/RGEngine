@@ -1,17 +1,19 @@
 #include "ShaderProgramRepo.h"
+#include "Shader.h"
 #include "ShaderProgram.h"
 #include "util/opengl.h"
-#include "Shader.h"
 #include <iostream>
 
 ShaderProgramStrongPtr
 ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
 {
   if (auto program = RepoBase::get(desc.program_name); program) {
-    std::cerr << "Shader program " << desc.program_name << " already exists!" << std::endl;
+    if (!desc.is_getter_desc())
+      std::cerr << "Shader program " << desc.program_name << " already exists!"
+                << std::endl;
     return program.value();
   }
-  
+
   GLuint id = glCreateProgram();
 
   for (const auto& path : desc.shaders) {

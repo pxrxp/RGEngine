@@ -14,7 +14,7 @@ struct ShaderProgramDescriptor
   std::string program_name;
   std::vector<std::string> shaders;
 
-  auto operator<=>(const ShaderProgramDescriptor&) const = default;
+  bool is_getter_desc() const { return shaders.empty(); }
 };
 
 class ShaderProgramRepo : public RepoBase<std::string, ShaderProgram>

@@ -19,6 +19,12 @@ struct MeshDescriptor
   std::vector<Indices> indices = {};
   GLenum draw_primitive = GL_TRIANGLES;
   GLenum usage = GL_STATIC_DRAW;
+
+  bool is_getter_desc() const
+  {
+    return vertices.empty() && indices.empty() &&
+           draw_primitive == GL_TRIANGLES && usage == GL_STATIC_DRAW;
+  }
 };
 
 #define SETUP_ATTRIB(Type, Name)                                               \
@@ -50,9 +56,7 @@ public:
                   std::is_same<Indices, TriangleIndices>::value);
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
-      // If only mesh_name provided, the user wants to access it only => no
-      // error
-      if (!desc.vertices.empty() && !desc.indices.empty())
+      if (!desc.is_getter_desc())
         std::cerr << "Mesh " << desc.mesh_name << " already exists!"
                   << std::endl;
       return mesh.value();
