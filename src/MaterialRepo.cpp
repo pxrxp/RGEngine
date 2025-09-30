@@ -1,12 +1,8 @@
 #include "MaterialRepo.h"
+#include "Material.h"
 #include <cmath>
 #include <iostream>
-
-MaterialRepo::MaterialRepo() {
-  GLint max_slots;
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_slots);
-  clear_all_slots();
-}
+#include <vector>
 
 void
 MaterialRepo::clear_all_slots()
@@ -44,24 +40,67 @@ MaterialRepo::load_material(const MaterialDescriptor& desc)
     desc.uniforms);
 }
 
-unsigned int
+std::optional<unsigned int>
 MaterialRepo::assign_slot(const std::string& texture_name)
 {
-  if (auto it = texture_slots_map.find(texture_name); it != texture_slots_map.end())
-    return it->second;
-  
-  auto slot = *empty_texture_slots.begin();
-  empty_texture_slots.erase(slot);
-  full_texture_slots.insert(slot);
+  unsigned int slot;
+  if (auto it = texture_slots_map.find(texture_name);
+      it != texture_slots_map.end()) {
+    slot = it->second;
+  } else if (auto it = empty_texture_slots.begin();
+             it != empty_texture_slots.end()) {
+    slot = *empty_texture_slots.begin();
+    empty_texture_slots.erase(slot);
+    full_texture_slots.insert(slot);
+
+    std::erase_if(texture_slots_map,
+                  [&](const auto& pair) { return pair.second == slot; });
+
+    texture_slots_map[texture_name] = slot;
+  } else {
+    std::cerr << "No empty slots for " << texture_name << std::endl;
+    return std::nullopt;
+  }
+
+  activate_slot(slot);
   return slot;
 }
 
 void
-MaterialRepo::empty_slot(unsigned int slot)
+MaterialRepo::activate_slot(unsigned int slot)
+{
+  empty_texture_slots.erase(slot);
+  full_texture_slots.insert(slot);
+}
+
+void
+MaterialRepo::deactivate_slot(unsigned int slot)
 {
   full_texture_slots.erase(slot);
   empty_texture_slots.insert(slot);
 }
 
-void MaterialRepo::activate_slot(const std::string& texture_name) {
+void
+MaterialRepo::activate_slot(const std::string& texture_name)
+{
+  auto it = texture_slots_map.find(texture_name);
+  if (it == texture_slots_map.end())
+    std::cout << "Slot not assigned for " << texture_name << std::endl;
+
+  unsigned int slot = it->second;
+  empty_texture_slots.erase(slot);
+  full_texture_slots.insert(slot);
+}
+
+void
+MaterialRepo::deactivate_slot(const std::string& texture_name)
+{
+  auto it = texture_slots_map.find(texture_name);
+  if (it == texture_slots_map.end())
+    std::cout << "Slot not assigned for " << texture_name << std::endl;
+
+  unsigned int slot = it->second;
+
+  empty_texture_slots.erase(slot);
+  full_texture_slots.insert(slot);
 }

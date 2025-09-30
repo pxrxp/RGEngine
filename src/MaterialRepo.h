@@ -25,8 +25,8 @@ struct MaterialDescriptor
 {
   std::string material_name;
   ShaderProgramDescriptor shader_program_desc;
-  std::vector<TextureDescriptor> texture_desc_list = {};
-  std::unordered_map<std::string, UniformValue> uniforms = {};
+  std::vector<TextureDescriptor> texture_desc_list;
+  std::unordered_map<std::string, UniformValue> uniforms;
 };
 
 class MaterialRepo : public RepoBase<std::string, Material>
@@ -40,8 +40,12 @@ public:
   TextureRepo tex_repo;
   ShaderProgramRepo shader_program_repo;
 
-  MaterialRepo();
+  void clear_all_slots();
 
   MaterialStrongPtr load_material(const MaterialDescriptor& desc);
   std::optional<unsigned int> assign_slot(const std::string& texture_name);
+  void activate_slot(unsigned int slot);
+  void activate_slot(const std::string& texture_name);
+  void deactivate_slot(unsigned int slot);
+  void deactivate_slot(const std::string& texture_name);
 };

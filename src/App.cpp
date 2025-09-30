@@ -73,6 +73,8 @@ App::init()
   ImGui_ImplOpenGL3_Init("#version 330");
   m_imgui_initialized = true;
 #endif
+
+  material_repo.clear_all_slots();
 }
 
 bool

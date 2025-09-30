@@ -126,7 +126,7 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return RepoBase::create(desc.texture_name, texture);
+  return RepoBase::create(desc.texture_name, texture, desc.texture_name);
 }
 
 std::shared_ptr<Texture>
@@ -206,7 +206,7 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
 
-  return RepoBase::create(desc.texture_name, texture);
+  return RepoBase::create(desc.texture_name, texture, desc.texture_name);
 }
 
 std::shared_ptr<Texture>
@@ -275,5 +275,5 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_R, desc.wrap_r);
 
-  return RepoBase::create(desc.texture_name, texture);
+  return RepoBase::create(desc.texture_name, texture, desc.texture_name);
 }

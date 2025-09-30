@@ -15,8 +15,8 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
   GLuint id = glCreateProgram();
 
   for (const auto& path : desc.shaders) {
-    if (auto shader = shader_repo.get(path); shader.has_value())
-      glAttachShader(id, shader.value()->get_id());
+    if (auto shader = shader_repo.load_shader(path); shader)
+      glAttachShader(id, shader->get_id());
   }
   glLinkProgram(id);
 

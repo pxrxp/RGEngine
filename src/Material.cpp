@@ -1,4 +1,5 @@
 #include "Material.h"
+#include "util/opengl.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include <iostream>
@@ -16,14 +17,15 @@ Material::bind()
         if constexpr (std::is_same_v<T, TextureName>) {
           const TextureName& tex_name_to_find = arg;
 
-          for (size_t i = 0; i < m_textures.size(); i++) {
-            auto texture_ptr = m_textures[i];
-            auto slot = m_repo_cache.assign_slot(texture_ptr->get_name());
+          for (auto& texture_ptr : m_textures) {
             if (texture_ptr && texture_ptr->get_name() == tex_name_to_find) {
-              m_shader_program->set_uniform(uniform_name.c_str(),
-                                            static_cast<GLint>(slot));
-
-              break;
+              if (auto slot = m_repo_cache.assign_slot(texture_ptr->get_name());
+                  slot.has_value()) {
+                glBindTextureUnit(slot.value(), texture_ptr->get_id());
+                m_shader_program->set_uniform(uniform_name.c_str(),
+                                              static_cast<GLint>(slot.value()));
+                break;
+              }
             }
           }
         } else {
@@ -34,6 +36,10 @@ Material::bind()
   }
 }
 
-void Material::unbind() {
-  m_repo_cache.clear_all_slots();
+void
+Material::unbind()
+{
+  for (auto& texture_ptr : m_textures) {
+    m_repo_cache.deactivate_slot(texture_ptr->get_name());
+  }
 }

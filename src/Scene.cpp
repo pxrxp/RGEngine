@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Material.h"
 #include "Renderer.h"
 #include "SceneObject.h"
 #include "ShaderProgram.h"

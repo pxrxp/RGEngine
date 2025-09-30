@@ -9,16 +9,14 @@ template<typename F>
 auto capture_weak(SceneObjectStrongPtr object_strong, F&& f)
 {
   SceneObjectWeakPtr obj_weak = object_strong;
-  std::optional<RenderPacketStrongPtr> packet_strong = object_strong->get_render_packet();
-  assert(packet_strong.has_value() && "Render packet not set yet!");
-  
-  RenderPacketWeakPtr packet_weak = packet_strong.value();
-  return [obj_weak, packet_weak, f = std::forward<F>(f)] {
+  return [obj_weak, f = std::forward<F>(f)] {
     SceneObjectStrongPtr self = obj_weak.lock();
-    RenderPacketStrongPtr packet = packet_weak.lock();
 
-    if (self && packet)
-      f(self, packet);
+    if (self) {
+      auto packet_strong_opt = self->get_render_packet();
+      if (packet_strong_opt)
+        f(self, packet_strong_opt.value());
+    }
   };
 }
 
