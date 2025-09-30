@@ -1,14 +1,14 @@
 #version 330 core
-layout(location=0) in vec3 aPos;
+layout(location=0) in vec3 a_pos;
 
-uniform mat4 proj;
-uniform mat4 view;
+uniform mat4 u_proj;
+uniform mat4 u_view;
 
-out vec3 texCoords;
+out vec3 o_tex_coords;
 
 void main() {
-    texCoords = aPos;
+    o_tex_coords = a_pos;
 
-    vec4 pos = proj * mat4(mat3(view)) * vec4(aPos, 1.0);
+    vec4 pos = u_proj * mat4(mat3(u_view)) * vec4(a_pos, 1.0);
     gl_Position = pos.xyww;
 }

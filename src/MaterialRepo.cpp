@@ -21,8 +21,11 @@ MaterialStrongPtr
 MaterialRepo::load_material(const MaterialDescriptor& desc)
 {
   if (auto material = RepoBase::get(desc.material_name); material.has_value()) {
-    std::cerr << "Material " << desc.material_name << " already exists!"
-              << std::endl;
+    // If only material_name provided, the user wants to access it only => no
+    // error
+    if (desc != MaterialDescriptor{ desc.material_name })
+      std::cerr << "Material " << desc.material_name << " already exists!"
+                << std::endl;
     return material.value();
   }
 

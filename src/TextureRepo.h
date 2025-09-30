@@ -18,6 +18,8 @@ struct TextureDescriptor
   GLenum mag_filter = GL_LINEAR;
   bool generate_mipmaps = true;
   int layers = -1;
+
+  auto operator<=>(const TextureDescriptor&) const = default;
 };
 
 class TextureRepo : public RepoBase<std::string, Texture>

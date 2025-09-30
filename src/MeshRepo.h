@@ -50,7 +50,11 @@ public:
                   std::is_same<Indices, TriangleIndices>::value);
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
-      std::cerr << "Mesh " << desc.mesh_name << " already exists!" << std::endl;
+      // If only mesh_name provided, the user wants to access it only => no
+      // error
+      if (!desc.vertices.empty() && !desc.indices.empty())
+        std::cerr << "Mesh " << desc.mesh_name << " already exists!"
+                  << std::endl;
       return mesh.value();
     }
 

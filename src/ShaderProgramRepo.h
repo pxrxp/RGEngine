@@ -3,6 +3,7 @@
 #include "Repo.h"
 #include "ShaderRepo.h"
 #include <memory>
+#include <vector>
 
 class ShaderProgram;
 using ShaderProgramStrongPtr = std::shared_ptr<ShaderProgram>;
@@ -11,7 +12,9 @@ using ShaderProgramWeakPtr = std::weak_ptr<ShaderProgram>;
 struct ShaderProgramDescriptor
 {
   std::string program_name;
-  std::initializer_list<std::string> shaders;
+  std::vector<std::string> shaders;
+
+  auto operator<=>(const ShaderProgramDescriptor&) const = default;
 };
 
 class ShaderProgramRepo : public RepoBase<std::string, ShaderProgram>

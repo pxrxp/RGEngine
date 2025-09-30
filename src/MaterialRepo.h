@@ -27,6 +27,8 @@ struct MaterialDescriptor
   ShaderProgramDescriptor shader_program_desc;
   std::vector<TextureDescriptor> texture_desc_list;
   std::unordered_map<std::string, UniformValue> uniforms;
+
+  auto operator<=>(const MaterialDescriptor&) const = default;
 };
 
 class MaterialRepo : public RepoBase<std::string, Material>

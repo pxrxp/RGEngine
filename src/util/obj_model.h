@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../components/vertex_formats.h"
 #include "../MeshRepo.h"
+#include "../components/vertex_formats.h"
 #include "filesystem.h"
 
 #include <charconv>
@@ -70,7 +70,9 @@ struct VertexKeyHasher
 
 template<typename Vertex, typename Indices>
 MeshDescriptor<Vertex, Indices>
-from_OBJ(const std::string& path, GLenum draw_primitive, GLenum usage)
+from_OBJ(const std::string& path,
+         GLenum draw_primitive = GL_TRIANGLES,
+         GLenum usage = GL_STATIC_DRAW)
 {
   static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
                 std::is_same<Vertex, Vertex_PosCol>::value ||
@@ -202,5 +204,9 @@ from_OBJ(const std::string& path, GLenum draw_primitive, GLenum usage)
     }
   }
 
-  return {path, std::move(final_vertices), std::move(final_indices), draw_primitive, usage};
+  return { path,
+           std::move(final_vertices),
+           std::move(final_indices),
+           draw_primitive,
+           usage };
 }

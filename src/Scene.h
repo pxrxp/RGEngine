@@ -32,16 +32,16 @@ protected:
   SceneObjectStrongPtr m_scene_ptr;
 
   void set_view_matrix(RenderPacketStrongPtr render_packet,
-                       const char* view_uniform_name = "view",
+                       const char* view_uniform_name = "u_view",
                        const glm::mat4& view_matrix = glm::mat4(1.f));
 
   void set_projection_matrix(RenderPacketStrongPtr render_packet,
-                             const char* proj_uniform_name = "proj",
+                             const char* proj_uniform_name = "u_proj",
                              const glm::mat4& proj_matrix = glm::mat4(1.f));
 
   void set_model_matrix(RenderPacketStrongPtr render_packet,
                         const glm::mat4& model_matrix,
-                        const char* uniform_name = "model");
+                        const char* uniform_name = "u_model");
 
   void display_AABB(std::weak_ptr<SceneObject> weak_object,
                     bool show_controller = false);

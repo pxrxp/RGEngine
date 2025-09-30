@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Material.h"
+#include "Mesh.h"
 #include "Renderer.h"
 #include "SceneObject.h"
 #include "ShaderProgram.h"
@@ -90,7 +91,8 @@ Scene::set_view_matrix(RenderPacketStrongPtr render_packet,
                   ? view_matrix
                   : m_app_cache.get_camera().get_view_matrix();
 
-  render_packet->material->get_shader_program()->set_uniform(view_uniform_name, V);
+  render_packet->material->get_shader_program()->set_uniform(view_uniform_name,
+                                                             V);
 }
 
 void
@@ -102,7 +104,8 @@ Scene::set_projection_matrix(RenderPacketStrongPtr render_packet,
                   ? proj_matrix
                   : m_app_cache.get_camera().get_projection_matrix();
 
-  render_packet->material->get_shader_program()->set_uniform(proj_uniform_name, P);
+  render_packet->material->get_shader_program()->set_uniform(proj_uniform_name,
+                                                             P);
 }
 
 void
@@ -110,7 +113,8 @@ Scene::set_model_matrix(RenderPacketStrongPtr render_packet,
                         const glm::mat4& model_matrix,
                         const char* uniform_name)
 {
-  render_packet->material->get_shader_program()->set_uniform(uniform_name, model_matrix);
+  render_packet->material->get_shader_program()->set_uniform(uniform_name,
+                                                             model_matrix);
 }
 
 // void
@@ -165,52 +169,52 @@ void
 Scene::display_AABB(std::weak_ptr<SceneObject> weak_object,
                     bool show_controller)
 {
-  // if (auto object_s = weak_object.lock()) {
-  //   auto aabb_visualizer = std::make_shared<SceneObject>();
-  //   aabb_visualizer->physics.set_gravity(false);
+  if (auto object_s = weak_object.lock()) {
+    auto aabb_visualizer = std::make_shared<SceneObject>();
+    aabb_visualizer->physics.set_gravity(false);
 
-  //   std::weak_ptr<SceneObject> weak_visualizer = aabb_visualizer;
+    aabb_visualizer->set_render_packet(
+      m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
+        .mesh_name = "AABB_visualizer_mesh",
+        .vertices = { CUBE_VERTICES },
+        .indices = { CUBE_EDGES },
+        .draw_primitive = GL_LINES }),
 
-  //   aabb_visualizer->with_render_packet(
-  //     m_app_cache, [=, this](RenderPacketWeakPtr weak_packet) {
-  //       if (auto packet = weak_packet.lock()) {
-  //         packet->material->get_shader_program()->load(m_app_cache.shader_repo,
-  //                                      { "AABB.vert.glsl", "AABB.frag.glsl" });
-  //         packet->mesh->template load<Vertex_Pos, LineIndices>(
-  //           { CUBE_VERTICES }, { CUBE_EDGES }, GL_LINES);
+      m_app_cache.material_repo.load_material(MaterialDescriptor{
+        .material_name = "AABB_visualizer_material",
+        .shader_program_desc = { .program_name = "AABB_program",
+                                 .shaders = { "AABB.vert.glsl",
+                                              "AABB.frag.glsl" } },
+        .texture_desc_list = {},
+        .uniforms = {} }),
 
-  //         packet->render = [this, weak_packet, weak_object, weak_visualizer, show_controller] {
-  //           auto packet_s = weak_packet.lock();
-  //           auto object_s_render = weak_object.lock();
-  //           auto visualizer_s = weak_visualizer.lock();
+      capture_weak(
+        aabb_visualizer,
+        [this, weak_object, show_controller](SceneObjectStrongPtr self,
+                                             RenderPacketStrongPtr packet) {
+          if (auto object_to_visualize = weak_object.lock()) {
+            if (show_controller) {
+              Util::draw_transform_component_editor(
+                object_to_visualize->local_transform, "object Local Transform");
+            }
 
-  //           if (packet_s && object_s_render && visualizer_s) {
-  //             if (show_controller) {
-  //               Util::draw_transform_component_editor(
-  //                 object_s_render->local_transform, "object Local Transform");
-  //             }
+            const BoundingBox& aabb = object_to_visualize->get_world_AABB();
+            const glm::vec3 dimensions = aabb.max - aabb.min;
+            const glm::vec3 center = aabb.min + 0.5f * dimensions;
 
-  //             const BoundingBox& aabb = object_s_render->get_world_AABB();
-  //             const glm::vec3 dimensions = aabb.max - aabb.min;
-  //             const glm::vec3 center = aabb.min + 0.5f * dimensions;
+            self->local_transform.set_position(center);
+            self->local_transform.set_scale(0.5f * dimensions);
 
-  //             visualizer_s->local_transform.set_position(center);
-  //             visualizer_s->local_transform.set_scale(0.5f * dimensions);
+            set_view_matrix(packet);
+            set_projection_matrix(packet);
+            set_model_matrix(packet, self->get_world_transformation_mat());
+            packet->mesh->draw();
+          }
+        }));
 
-  //             set_view_matrix(packet_s);
-  //             set_projection_matrix(packet_s);
-  //             set_model_matrix(packet_s,
-  //                              visualizer_s->get_world_transformation_mat());
-  //             packet_s->mesh->draw();
-  //           }
-  //         };
-  //       }
-  //     });
-
-  //   m_scene_ptr->add_child(aabb_visualizer);
-  // }
+    m_scene_ptr->add_child(aabb_visualizer);
+  }
 }
-
 void
 Scene::collect_physics_objects_recursive(
   SceneObjectStrongPtr object,
