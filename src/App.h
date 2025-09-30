@@ -2,8 +2,8 @@
 
 #include "Camera.h"
 #include "Renderer.h"
-#include "MeshRepo.h"
-#include "MaterialRepo.h"
+#include "repos/MeshRepo.h"
+#include "repos/MaterialRepo.h"
 #include "Window.h"
 
 struct GLFWwindow;

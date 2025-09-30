@@ -178,7 +178,7 @@ private:
     objmodel->physics.set_gravity(false);
     objmodel->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
-        from_OBJ<Vertex_Pos, TriangleIndices>("cube.obj", GL_TRIANGLES)),
+        from_OBJ<Vertex_Pos, TriangleIndices>("Box.obj", GL_TRIANGLES)),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "debug_obj_material",

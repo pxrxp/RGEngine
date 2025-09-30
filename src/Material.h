@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "MaterialRepo.h"
+#include "repos/MaterialRepo.h"
 #include <memory>
 #include <unordered_map>
 #include <variant>

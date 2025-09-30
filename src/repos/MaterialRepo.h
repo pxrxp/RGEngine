@@ -1,4 +1,5 @@
 #pragma once
+#include "RepoBase.h"
 #include "ShaderProgramRepo.h"
 #include "TextureRepo.h"
 #include <glm/glm.hpp>

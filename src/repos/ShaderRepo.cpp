@@ -1,7 +1,7 @@
 #include "ShaderRepo.h"
-#include "Shader.h"
-#include "util/opengl.h"
-#include "util/filesystem.h"
+#include "../Shader.h"
+#include "../util/opengl.h"
+#include "../util/filesystem.h"
 #include <iostream>
 
 std::unordered_map<char, int> shader_map = {

@@ -1,7 +1,7 @@
 #include "ShaderProgramRepo.h"
-#include "Shader.h"
-#include "ShaderProgram.h"
-#include "util/opengl.h"
+#include "../Shader.h"
+#include "../ShaderProgram.h"
+#include "../util/opengl.h"
 #include <iostream>
 
 ShaderProgramStrongPtr

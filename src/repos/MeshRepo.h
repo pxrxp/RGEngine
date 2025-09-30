@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Repo.h"
-#include "components/BoundingBox.h"
-#include "components/vertex_formats.h"
-#include "util/opengl.h"
+#include "RepoBase.h"
+#include "../components/BoundingBox.h"
+#include "../components/vertex_formats.h"
+#include "../util/opengl.h"
 #include <memory>
 #include <vector>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../MeshRepo.h"
+#include "../repos/MeshRepo.h"
 #include "../components/vertex_formats.h"
 #include "filesystem.h"
 

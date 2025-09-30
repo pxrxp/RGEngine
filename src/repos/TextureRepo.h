@@ -1,6 +1,6 @@
 #pragma once
-#include "Repo.h"
-#include "util/opengl.h"
+#include "RepoBase.h"
+#include "../util/opengl.h"
 
 class Texture;
 using TextureStrongPtr = std::shared_ptr<Texture>;

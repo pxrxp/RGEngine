@@ -1,6 +1,6 @@
 #include "TextureRepo.h"
-#include "Texture.h"
-#include "util/png_image.h"
+#include "../Texture.h"
+#include "../util/png_image.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
