@@ -7,6 +7,8 @@
 #include "SceneObject.h"
 #include "ShaderProgram.h"
 #include "components/vertex_formats.h"
+#include "repos/MaterialRepo.h"
+#include "repos/MeshRepo.h"
 #include "util/obj_model.h"
 #include "util/opengl.h"
 
@@ -34,22 +36,22 @@ public:
 
     auto cube = std::make_shared<SceneObject>();
     cube->physics.set_gravity(false);
-    cube->local_transform.translate({ 5.f, 2.f, 4.f });
     setup_cube(cube);
-    cube->local_transform.scale({ 2.f, 1.f, 3.f });
-    cube->local_transform.rotate(AXIS_Y, glm::radians(45.f));
-    cube->local_transform.rotate(AXIS_X, glm::radians(60.f));
-    cube->local_transform.rotate(AXIS_Z, glm::radians(30.f));
     m_scene_ptr->add_child(cube);
 
-    auto frustum = std::make_shared<SceneObject>();
-    setup_frustum(frustum);
-    m_scene_ptr->add_child(frustum);
+    auto axes = std::make_shared<SceneObject>();
+    setup_axes(axes);
+    m_scene_ptr->add_child(axes);
+    debug_object(axes, "axes");
 
-    auto objmodel = std::make_shared<SceneObject>();
-    setup_obj_model(objmodel);
-    m_scene_ptr->add_child(objmodel);
-    display_AABB(objmodel, true);
+    // auto frustum = std::make_shared<SceneObject>();
+    // setup_frustum(frustum);
+    // m_scene_ptr->add_child(frustum);
+
+    // auto objmodel = std::make_shared<SceneObject>();
+    // setup_obj_model(objmodel);
+    // m_scene_ptr->add_child(objmodel);
+    // display_AABB(objmodel, true);
   }
 
 private:
@@ -67,8 +69,7 @@ private:
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "skybox_material",
         .shader_program_desc = { .program_name = "skybox_program",
-                                 .shaders = { "skybox.vert",
-                                              "skybox.frag" } },
+                                 .shaders = { "skybox.vert", "skybox.frag" } },
         .texture_desc_list = { { .texture_name = "skybox",
                                  .target = GL_TEXTURE_CUBE_MAP,
                                  .wrap_s = GL_CLAMP_TO_EDGE,
@@ -90,6 +91,32 @@ private:
         }));
   }
 
+  void setup_axes(const SceneObjectStrongPtr& axes)
+  {
+    axes->physics.set_gravity(false);
+    axes->set_render_packet(
+      m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
+        .mesh_name = "axes_mesh",
+        .vertices = { ORIGIN, AXIS_X, AXIS_Y, AXIS_Z },
+        .indices = { { 0, 1 }, { 0, 2 }, { 0, 3 } },
+        .draw_primitive = GL_LINES }),
+      m_app_cache.material_repo.load_material(MaterialDescriptor{
+        .material_name = "axes_material",
+        .shader_program_desc = { .program_name = "axes_program",
+                                 .shaders = { "axes.vert", "axes.frag", "axes.geo" } },
+        .texture_desc_list = {},
+        .uniforms = {{"u_line_thickness", 0.05f}} }),
+      capture_weak(axes,
+                   [this]([[maybe_unused]] SceneObjectStrongPtr self,
+                          RenderPacketStrongPtr packet) {
+                     set_view_matrix(packet);
+                     set_projection_matrix(packet);
+                     set_model_matrix(packet,
+                                      self->get_world_transformation_mat());
+                     packet->mesh->draw();
+                   }));
+  }
+
   void setup_cube(const SceneObjectStrongPtr& cube)
   {
     cube->set_render_packet(
@@ -98,38 +125,38 @@ private:
           .mesh_name = "colored_cube_mesh",
           .vertices = { {
             { 0.5f * glm::vec3(CUBE_VERT0),
-              { 0, 0, 0 },
-              { -0.577f, -0.577f, -0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT1),
-              { 1, 0, 0 },
-              { 0.577f, -0.577f, -0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT2),
-              { 1, 1, 0 },
-              { 0.577f, 0.577f, -0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT3),
-              { 0, 1, 0 },
-              { -0.577f, 0.577f, -0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT4),
-              { 0, 0, 1 },
-              { -0.577f, -0.577f, 0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT5),
-              { 1, 0, 1 },
-              { 0.577f, -0.577f, 0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT6),
-              { 1, 1, 1 },
-              { 0.577f, 0.577f, 0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
             { 0.5f * glm::vec3(CUBE_VERT7),
-              { 0, 1, 1 },
-              { -0.577f, 0.577f, 0.577f } },
+              { 1.f, 1.f, 1.f },
+              { 0.f, 0.f, 0.f } },
           } },
           .indices = { CUBE_FACES },
-          .draw_primitive = GL_TRIANGLES }),
+          .draw_primitive = GL_TRIANGLES }
+          .recalculate_normals()),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "colored_cube_material",
         .shader_program_desc = { .program_name = "cube_program",
-                                 .shaders = { "cube.vert",
-                                              "cube.frag" } },
+                                 .shaders = { "cube.vert", "cube.frag" } },
         .texture_desc_list = {},
         .uniforms = {} }),
 
@@ -158,8 +185,7 @@ private:
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "debug_line_material",
         .shader_program_desc = { .program_name = "AABB_program",
-                                 .shaders = { "AABB.vert",
-                                              "AABB.frag" } },
+                                 .shaders = { "AABB.vert", "AABB.frag" } },
         .texture_desc_list = {},
         .uniforms = {} }),
 
@@ -183,8 +209,7 @@ private:
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "debug_obj_material",
         .shader_program_desc = { .program_name = "AABB_program",
-                                 .shaders = { "AABB.vert",
-                                              "AABB.frag" } },
+                                 .shaders = { "AABB.vert", "AABB.frag" } },
         .texture_desc_list = {},
         .uniforms = {} }),
 

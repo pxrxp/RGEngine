@@ -1,10 +1,11 @@
 #pragma once
 
-#include "RepoBase.h"
 #include "../components/BoundingBox.h"
 #include "../components/vertex_formats.h"
 #include "../util/opengl.h"
+#include "RepoBase.h"
 #include <memory>
+#include <ranges>
 #include <vector>
 
 class Mesh;
@@ -24,6 +25,40 @@ struct MeshDescriptor
   {
     return vertices.empty() && indices.empty() &&
            draw_primitive == GL_TRIANGLES && usage == GL_STATIC_DRAW;
+  }
+
+  MeshDescriptor& recalculate_normals(bool ccw = true)
+  {
+    if constexpr (!requires { Vertex::normal; })
+      return *this;
+
+    if (!indices.empty()) {
+      if constexpr (std::is_same_v<Indices, TriangleIndices>) {
+        if (draw_primitive != GL_TRIANGLES)
+          return *this;
+
+        for (auto const& index : indices) {
+          if (index.vert1 >= vertices.size() ||
+              index.vert2 >= vertices.size() || index.vert3 >= vertices.size())
+            continue;
+          glm::vec3 A =
+            vertices[index.vert2].position - vertices[index.vert1].position;
+          glm::vec3 B =
+            vertices[index.vert3].position - vertices[index.vert1].position;
+          glm::vec3 normal = glm::cross(A, B);
+          vertices[index.vert1].normal = normal;
+          vertices[index.vert2].normal = normal;
+          vertices[index.vert3].normal = normal;
+        }
+      }
+    }
+
+    return *this;
+
+    // auto first_elements = vertices | std::views::take(vertices.size() - 1);
+    // auto second_elements = vertices | std::views::drop(1);
+
+    // for (auto const& [first, second] : )
   }
 };
 

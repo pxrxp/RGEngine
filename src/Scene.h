@@ -43,8 +43,7 @@ protected:
                         const glm::mat4& model_matrix,
                         const char* uniform_name = "u_model");
 
-  void display_AABB(std::weak_ptr<SceneObject> weak_object,
-                    bool show_controller = false);
+  void debug_object(std::weak_ptr<SceneObject> weak_object, const char* header);
 
 public:
   Scene(App& app)

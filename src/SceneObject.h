@@ -36,6 +36,10 @@ public:
   BoundingBox& get_world_AABB();
   void update_world_AABB();
 
+  #ifndef NDEBUG
+  bool display_AABB = false;
+  #endif
+
   template<typename... Args>
   void set_render_packet(Args&&... args)
   {

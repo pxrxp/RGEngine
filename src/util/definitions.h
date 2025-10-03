@@ -45,6 +45,7 @@ using GLbitfield = unsigned int;
 #define PALETTE_CORAL     0.85f, 0.45f, 0.4f, 1.0f
 #define PALETTE_SALMON    0.9f, 0.55f, 0.5f, 1.0f
 
+#define ORIGIN     { 0.0f, 0.0f, 0.0f }
 #define AXIS_X     { 1.0f, 0.0f, 0.0f }
 #define AXIS_NEG_X { -1.0f, 0.0f, 0.0f }
 #define AXIS_Y     { 0.0f, 1.0f, 0.0f }

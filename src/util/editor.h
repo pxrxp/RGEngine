@@ -6,8 +6,7 @@ class TransformComponent;
 namespace Util {
 
 void
-draw_transform_component_editor(TransformComponent& component,
-                                const char* label);
+draw_transform_component_editor(TransformComponent& component);
 }
 
 #endif

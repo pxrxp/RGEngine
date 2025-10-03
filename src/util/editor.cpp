@@ -9,13 +9,8 @@
 namespace Util {
 
 void
-draw_transform_component_editor(TransformComponent& component,
-                                const char* label)
+draw_transform_component_editor(TransformComponent& component)
 {
-  if (!ImGui::CollapsingHeader(label)) {
-    return;
-  }
-
   glm::vec3 position = component.get_position();
   if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
     component.set_position(position);
