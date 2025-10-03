@@ -1,11 +1,5 @@
 #include "BoundingBox.h"
 
-BoundingBox::BoundingBox()
-  : min(glm::vec3(0.f))
-  , max(glm::vec3(0.f))
-{
-}
-
 BoundingBox::operator bool() const noexcept
 {
   return min != max;
@@ -46,7 +40,7 @@ BoundingBox::where(const glm::vec3& point) const
 }
 
 bool
-BoundingBox::collides(const BoundingBox& other) const
+BoundingBox::intersects(const BoundingBox& other) const
 {
   return (min.x <= other.max.x && max.x >= other.min.x) &&
          (min.y <= other.max.y && max.y >= other.min.y) &&

@@ -257,7 +257,7 @@ Scene::step_simulation(float fixed_step)
       const BoundingBox& aabb_a = a->get_world_AABB();
       const BoundingBox& aabb_b = a->get_world_AABB();
 
-      if (aabb_a && aabb_b && aabb_a.collides(aabb_b)) {
+      if (aabb_a && aabb_b && aabb_a.intersects(aabb_b)) {
         resolve_penetration(*a, *b);
         resolve_velocity(*a, *b);
       }

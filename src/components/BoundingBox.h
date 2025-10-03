@@ -16,12 +16,23 @@ struct BoundingBox
   glm::vec3 min;
   glm::vec3 max;
 
-  BoundingBox();
+  BoundingBox()
+    : min(glm::vec3(0.f))
+    , max(glm::vec3(0.f))
+  {
+  }
+
+  BoundingBox(const glm::vec3& min, const glm::vec3& max)
+    : min(min)
+    , max(max)
+  {
+  }
+
   explicit BoundingBox(const std::vector<Vertex_Pos>& points);
   explicit operator bool() const noexcept;
 
   Where where(const glm::vec3& point) const;
-  bool collides(const BoundingBox& other) const;
+  bool intersects(const BoundingBox& other) const;
   BoundingBox& add_point(const glm::vec3& point);
   std::vector<Vertex_Pos> corners() const;
   static std::vector<LineIndices> indices();
