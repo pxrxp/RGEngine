@@ -213,9 +213,18 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
 std::shared_ptr<Texture>
 TextureRepo::load_cubemap(const TextureDescriptor& desc)
 {
-  PNGImage image = PNGImage(desc.texture_name + "_0.png");
+  std::unordered_map<int, std::string> names = {
+    {0, "_right.png"},
+    {1, "_left.png"},
+    {2, "_top.png"},
+    {3, "_bottom.png"},
+    {4, "_front.png"},
+    {5, "_back.png"},
+  };
+
+  PNGImage image = PNGImage(desc.texture_name + names[0]);
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << desc.texture_name + "_0.png\n";
+    std::cerr << "ERROR: Invalid file" << desc.texture_name + names[0] << std::endl;
     return 0;
   }
 
@@ -234,7 +243,7 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
   bool flag = false;
 
   for (int i = 0; i < 6; ++i) {
-    std::string file_name = desc.texture_name + "_" + std::to_string(i) + ".png";
+    std::string file_name = desc.texture_name + names[i];
     if (flag)
       image = PNGImage(file_name);
 

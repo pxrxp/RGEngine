@@ -62,18 +62,18 @@ using GLbitfield = unsigned int;
 #define CUBE_VERT6 { 1.0f, 1.0f, -1.0f }
 #define CUBE_VERT7 { 1.0f, 1.0f, 1.0f }
 
-#define CUBE_FACE_BACK1   { 0, 4, 6 }
-#define CUBE_FACE_BACK2   { 0, 6, 2 }
-#define CUBE_FACE_FRONT1  { 5, 1, 3 }
-#define CUBE_FACE_FRONT2  { 5, 3, 7 }
-#define CUBE_FACE_LEFT1   { 1, 0, 2 }
-#define CUBE_FACE_LEFT2   { 1, 2, 3 }
-#define CUBE_FACE_RIGHT1  { 4, 5, 7 }
-#define CUBE_FACE_RIGHT2  { 4, 7, 6 }
-#define CUBE_FACE_TOP1    { 2, 6, 7 }
-#define CUBE_FACE_TOP2    { 2, 7, 3 }
-#define CUBE_FACE_BOTTOM1 { 1, 5, 4 }
-#define CUBE_FACE_BOTTOM2 { 4, 0, 1 }
+#define CUBE_FACE_BACK1   { 0, 6, 4 }
+#define CUBE_FACE_BACK2   { 0, 2, 6 }
+#define CUBE_FACE_FRONT1  { 5, 3, 1 }
+#define CUBE_FACE_FRONT2  { 5, 7, 3 }
+#define CUBE_FACE_LEFT1   { 1, 2, 0 }
+#define CUBE_FACE_LEFT2   { 1, 3, 2 }
+#define CUBE_FACE_RIGHT1  { 4, 7, 5 }
+#define CUBE_FACE_RIGHT2  { 4, 6, 7 }
+#define CUBE_FACE_TOP1    { 2, 7, 6 }
+#define CUBE_FACE_TOP2    { 2, 3, 7 }
+#define CUBE_FACE_BOTTOM1 { 1, 4, 5 }
+#define CUBE_FACE_BOTTOM2 { 4, 1, 0 }
 
 #define CUBE_FACE_BACK   CUBE_FACE_BACK1, CUBE_FACE_BACK2
 #define CUBE_FACE_FRONT  CUBE_FACE_FRONT1, CUBE_FACE_FRONT2
@@ -98,6 +98,7 @@ using GLbitfield = unsigned int;
 #define CUBE_VERTICES                                                          \
   CUBE_VERT0, CUBE_VERT1, CUBE_VERT2, CUBE_VERT3, CUBE_VERT4, CUBE_VERT5,      \
     CUBE_VERT6, CUBE_VERT7
+
 #define CUBE_FACES                                                             \
   CUBE_FACE_BACK, CUBE_FACE_FRONT, CUBE_FACE_LEFT, CUBE_FACE_RIGHT,            \
     CUBE_FACE_TOP, CUBE_FACE_BOTTOM

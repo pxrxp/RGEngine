@@ -103,9 +103,11 @@ private:
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "axes_material",
         .shader_program_desc = { .program_name = "axes_program",
-                                 .shaders = { "axes.vert", "axes.frag", "axes.geo" } },
+                                 .shaders = { "axes.vert",
+                                              "axes.frag",
+                                              "axes.geo" } },
         .texture_desc_list = {},
-        .uniforms = {{"u_line_thickness", 0.05f}} }),
+        .uniforms = { { "u_line_thickness", 0.05f } } }),
       capture_weak(axes,
                    [this]([[maybe_unused]] SceneObjectStrongPtr self,
                           RenderPacketStrongPtr packet) {

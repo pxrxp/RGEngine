@@ -32,33 +32,85 @@ struct MeshDescriptor
     if constexpr (!requires { Vertex::normal; })
       return *this;
 
-    if (!indices.empty()) {
-      if constexpr (std::is_same_v<Indices, TriangleIndices>) {
-        if (draw_primitive != GL_TRIANGLES)
-          return *this;
+    auto recalc = [](Vertex& v1, Vertex& v2, Vertex& v3) {
+      glm::vec3 A = v2.position - v1.position;
+      glm::vec3 B = v3.position - v1.position;
+      glm::vec3 normal = glm::normalize(glm::cross(A, B));
 
-        for (auto const& index : indices) {
-          if (index.vert1 >= vertices.size() ||
-              index.vert2 >= vertices.size() || index.vert3 >= vertices.size())
-            continue;
-          glm::vec3 A =
-            vertices[index.vert2].position - vertices[index.vert1].position;
-          glm::vec3 B =
-            vertices[index.vert3].position - vertices[index.vert1].position;
-          glm::vec3 normal = glm::cross(A, B);
-          vertices[index.vert1].normal = normal;
-          vertices[index.vert2].normal = normal;
-          vertices[index.vert3].normal = normal;
+      v1.normal = glm::normalize(v1.normal + normal);
+      v2.normal = glm::normalize(v2.normal + normal);
+      v3.normal = glm::normalize(v3.normal + normal);
+    };
+
+    if (draw_primitive == GL_TRIANGLES) {
+      if (!indices.empty()) {
+        if constexpr (std::is_same_v<Indices, TriangleIndices>) {
+          for (auto const& index : indices) {
+            if (index.vert1 >= vertices.size() ||
+                index.vert2 >= vertices.size() ||
+                index.vert3 >= vertices.size())
+              continue;
+
+            recalc(vertices[index.vert1],
+                   vertices[index.vert2],
+                   vertices[index.vert2]);
+          }
+        }
+      } else {
+        for (size_t i = 0; i <= vertices.size() - 3; i += 3) {
+          recalc(vertices[i], vertices[i + 1], vertices[i + 2]);
+        }
+      }
+    } else if (draw_primitive == GL_TRIANGLE_STRIP) {
+      if (!indices.empty()) {
+        if constexpr (std::is_same_v<Indices, PointIndex>) {
+          for (size_t i = 0; i <= indices.size() - 3; i++) {
+            auto& idx1 = indices[i];
+            auto& idx2 = indices[i + 1];
+            auto& idx3 = indices[i + 2];
+
+            if (idx1 >= vertices.size() || idx2 >= vertices.size() ||
+                idx3 >= vertices.size())
+              continue;
+
+            recalc(vertices[idx1], vertices[idx2], vertices[idx3]);
+          }
+        }
+      } else {
+        for (size_t i = 0; i <= vertices.size() - 3; i++) {
+          recalc(vertices[i], vertices[i + 1], vertices[i + 2]);
+        }
+      }
+    } else if (draw_primitive == GL_TRIANGLE_FAN) {
+      if (!indices.empty()) {
+        if constexpr (std::is_same_v<Indices, PointIndex>) {
+          auto& idx1 = indices[0];
+          if (idx1 < vertices.size()) {
+            for (size_t i = 1; i <= indices.size() - 2; i++) {
+              auto& idx2 = indices[i];
+              auto& idx3 = indices[i + 1];
+
+              if (idx2 >= vertices.size() || idx3 >= vertices.size())
+                continue;
+
+              recalc(vertices[idx1], vertices[idx2], vertices[idx3]);
+            }
+          }
+        }
+      } else {
+        for (size_t i = 1; i <= vertices.size() - 2; i += 2) {
+          recalc(vertices[0], vertices[i], vertices[i + 1]);
         }
       }
     }
 
+    if (!ccw) {
+      for (auto& vert : vertices) {
+        vert.normal = -vert.normal;
+      }
+    }
+
     return *this;
-
-    // auto first_elements = vertices | std::views::take(vertices.size() - 1);
-    // auto second_elements = vertices | std::views::drop(1);
-
-    // for (auto const& [first, second] : )
   }
 };
 
