@@ -19,14 +19,35 @@ if "%1"=="-c" set CLEAN=true
 REM Require TRIPLET
 if "%TRIPLET%"=="" (
     echo Error: TRIPLET environment variable not set.
-    echo Example: set TRIPLET=x64-mingw-dynamic ^| x64-linux
+    echo Example: "export TRIPLET=x64-mingw-dynamic" (x64-mingw-dynamic^|x64-linux^|...)
+    echo                        ^^^ (compulsorily no spaces)
     exit /b 1
 )
 
 REM Require BUILD_TYPE
 if "%BUILD_TYPE%"=="" (
     echo Error: BUILD_TYPE environment variable not set.
-    echo Example: set BUILD_TYPE=Release ^| Debug
+    echo Example: export BUILD_TYPE=Debug (Debug^|Release^|...)
+    echo                          ^^^ (compulsorily no spaces)
+    exit /b 1
+)
+
+REM Require ENABLE_ASAN_UBSAN
+if "%ENABLE_ASAN_UBSAN%"=="" (
+    echo "Error: ENABLE_ASAN_UBSAN environment variable not set."
+    echo "Example: "export ENABLE_ASAN_UBSAN=OFF" (OFF^|ON)"
+    echo "                                 ^^^ (compulsorily no spaces)"
+    echo "(Enables Address Sanitizer, Undefined Behavior Sanitizer.)"
+    echo "(May have issues with debugger if left ON.)"
+    exit /b 1
+)
+
+REM Require ENABLE_WERROR
+if "%ENABLE_WERROR%"=="" (
+    echo "Error: ENABLE_WERROR environment variable not set."
+    echo "Example: "export ENABLE_WERROR=OFF" (OFF^|ON)"
+    echo "                             ^^^ (compulsorily no spaces)"
+    echo "(Treats warnings as errors.)"
     exit /b 1
 )
 
@@ -47,9 +68,6 @@ IF "%CLEAN%"=="true" (
     if exist "%BUILD_DIR%\CMakeCache.txt" del "%BUILD_DIR%\CMakeCache.txt"
     if exist "%BUILD_DIR%\CMakeFiles" rmdir /s /q "%BUILD_DIR%\CMakeFiles"
 )
-
-IF "ENABLE_ASAN_UBSAN"=="" SET ENABLE_ASAN_UBSAN="ON"
-IF "ENABLE_WERROR"=="" SET ENABLE_WERROR="OFF"
 
 REM Configure if missing
 IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (

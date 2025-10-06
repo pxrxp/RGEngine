@@ -13,21 +13,44 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 CLEAN=false
 while getopts "c" opt; do
     case $opt in
-        c) CLEAN=true ;;
+        c ) CLEAN=true ;;
+        \?) echo "Invalid option: -$OPTARG" >&2
+            exit 1 ;;
     esac
 done
 
 # Require TRIPLET
 if [ -z "$TRIPLET" ]; then
     echo "Error: TRIPLET environment variable not set."
-    echo "Example: export TRIPLET=x64-mingw-dynamic | x64-linux | ..."
+    echo "Example: \"export TRIPLET=x64-mingw-dynamic\" (x64-mingw-dynamic|x64-linux|...)"
+    echo "                       ^^^ (compulsorily no spaces)"
     exit 1
 fi
 
 # Require BUILD_TYPE
 if [ -z "$BUILD_TYPE" ]; then
     echo "Error: BUILD_TYPE environment variable not set."
-    echo "Example: export BUILD_TYPE=Debug | Release | ..."
+    echo "Example: \"export BUILD_TYPE=Debug\" (Debug|Release|...)"
+    echo "                          ^^^ (compulsorily no spaces)"
+    exit 1
+fi
+
+# Require ENABLE_ASAN_UBSAN
+if [ -z "$ENABLE_ASAN_UBSAN" ]; then
+    echo "Error: ENABLE_ASAN_UBSAN environment variable not set."
+    echo "Example: \"export ENABLE_ASAN_UBSAN=OFF\" (OFF|ON)"
+    echo "                                 ^^^ (compulsorily no spaces)"
+    echo "(Enables Address Sanitizer, Undefined Behavior Sanitizer.)"
+    echo "(May have issues with debugger if left ON.)"
+    exit 1
+fi
+
+# Require ENABLE_WERROR
+if [ -z "$ENABLE_WERROR" ]; then
+    echo "Error: ENABLE_WERROR environment variable not set."
+    echo "Example: \"export ENABLE_WERROR=OFF\" (OFF|ON)"
+    echo "                             ^^^ (compulsorily no spaces)"
+    echo "(Treats warnings as errors.)"
     exit 1
 fi
 
@@ -49,9 +72,6 @@ if [ "$CLEAN" = true ]; then
     [ -f "$BUILD_DIR/CMakeCache.txt" ] && rm "$BUILD_DIR/CMakeCache.txt"
     [ -d "$BUILD_DIR/CMakeFiles" ] && rm -rf "$BUILD_DIR/CMakeFiles"
 fi
-
-ENABLE_ASAN_UBSAN="${ENABLE_ASAN_USBAN:-ON}"
-ENABLE_WERROR="${ENABLE_WERROR:-OFF}"
 
 # Configure if missing
 if [ ! -f "$BUILD_DIR/CMakeCache.txt" ]; then

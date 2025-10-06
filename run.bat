@@ -7,6 +7,7 @@ IF %errorlevel% NEQ 0 (
 
 IF "%1"=="-d" set RENDERDOC=true
 IF "%1"=="-g" set GDB=true
+IF "%1"=="-l" set GDB=true
 
 REM Require BUILD_TYPE
 if "%BUILD_TYPE%"=="" (
@@ -30,6 +31,9 @@ IF EXIST "%BINARY%" (
     ) ELSE IF "%GDB%"=="true" (
         echo Debugging %BINARY% using GDB...
         start "" /MAX "gdb" "%BINARY%"
+    ) ELSE IF "%LLDB%"=="true" (
+        echo Debugging %BINARY% using LLDB...
+        start "" /MAX "lldb" "%BINARY%"
     ) ELSE (
         echo Running %BINARY%...
         "%BINARY%"

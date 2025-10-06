@@ -16,7 +16,6 @@ main()
     while (app->is_running()) {
       app->update();
       app->init_debug_gui();
-
       app->get_window().clear(COLOR_BLACK,
                               GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
