@@ -128,14 +128,14 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
     auto axes = std::make_shared<SceneObject>();
 
     aabb_visualizer->set_render_packet(
-      m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
-        .mesh_name = "AABB_visualizer_mesh",
-        .vertices = { CUBE_VERTICES },
-        .indices = { CUBE_EDGES },
-        .draw_primitive = GL_LINES }),
+      m_app_cache.mesh_repo.load_mesh(
+        MeshDescriptor<Vertex_Pos, LineIndices>{ .mesh_name = "simple_cube",
+                                                 .vertices = { CUBE_VERTICES },
+                                                 .indices = { CUBE_EDGES },
+                                                 .draw_primitive = GL_LINES }),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
-        .material_name = "AABB_visualizer_material",
+        .material_name = "simple_lines",
         .shader_program_desc = { .program_name = "AABB_program",
                                  .shaders = { "AABB.vert",
                                               "AABB.frag",
@@ -245,49 +245,56 @@ Scene::setup_skybox(const SceneObjectStrongPtr& skybox,
                  }));
 }
 
-void Scene::debug_camera(const char* header)
+void
+Scene::debug_camera()
 {
-  auto frustum = std::make_shared<SceneObject>();
-  frustum->physics.set_gravity(false);
-  frustum->set_render_packet(
-    m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
-      .mesh_name = "frustum_lines_mesh",
-      .vertices = m_app_cache.get_camera().get_frustum_viewspace(),
-      .indices = { CUBE_EDGES },
-      .draw_primitive = GL_LINES }),
+  auto frustum_visualizer = std::make_shared<SceneObject>();
+  frustum_visualizer->physics.set_gravity(false);
+  frustum_visualizer->visible = false;
+
+  frustum_visualizer->set_render_packet(
+    m_app_cache.mesh_repo.load_mesh(
+      MeshDescriptor<Vertex_Pos, LineIndices>{ .mesh_name = "simple_cube",
+                                               .vertices = { CUBE_VERTICES },
+                                               .indices = { CUBE_EDGES },
+                                               .draw_primitive = GL_LINES }),
 
     m_app_cache.material_repo.load_material(MaterialDescriptor{
-      .material_name = "debug_line_material",
+      .material_name = "simple_lines",
       .shader_program_desc = { .program_name = "AABB_program",
-                               .shaders = { "AABB.vert", "AABB.frag" } },
+                               .shaders = { "AABB.vert",
+                                            "AABB.frag",
+                                            "AABB.geo" } },
       .texture_desc_list = {},
-      .uniforms = {} }),
+      .uniforms = { { "u_line_thickness", 0.05f } } }),
 
     capture_weak(
-      frustum,
-      [this, header](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
-        // if (ImGui::CollapsingHeader(header)) {
-        //   bool dirty = self->local_transform.is_dirty();
-        //   if (dirty)
-        //     self->local_transform.set_dirty();
+      frustum_visualizer,
+      [this, dirty = true, cached_model = glm::mat4(1.0f)](
+        SceneObjectStrongPtr self, RenderPacketStrongPtr packet) mutable {
+        if (ImGui::CollapsingHeader("Camera")) {
+          if (ImGui::Button("Update frustum"))
+            dirty = true;
 
-        //   ImGui::Checkbox("Update frustum", &self->visible);
-        // }
+          ImGui::Checkbox("Show frustum", &self->visible);
+        }
         if (self->visible) {
-          if (self->local_transform.is_dirty()) {
-            auto frustum_model = glm::inverse(m_app_cache.get_camera().get_view_matrix());
-            self->local_transform.set_position(glm::vec3(frustum_model[3]));
+          if (dirty) {
+            cached_model =
+              glm::inverse(m_app_cache.get_camera().get_projection_matrix() *
+                           m_app_cache.get_camera().get_view_matrix());
+            dirty = false;
           }
 
-          // set_model_matrix(packet, self->get_world_transformation_mat())
-          
+          set_model_matrix(packet,
+                           self->get_world_transformation_mat() * cached_model);
           set_view_matrix(packet);
           set_projection_matrix(packet);
           packet->mesh->draw();
         }
       }));
+  m_scene_ptr->add_child(frustum_visualizer);
 }
-
 
 void
 Scene::collect_physics_objects_recursive(

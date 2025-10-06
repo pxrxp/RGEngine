@@ -22,7 +22,7 @@ MaterialRepo::load_material(const MaterialDescriptor& desc)
 {
   if (auto material = RepoBase::get(desc.material_name); material.has_value()) {
     if (!desc.is_getter_desc())
-      std::cerr << "Material " << desc.material_name << " already exists!"
+      std::cout << "Material " << desc.material_name << " already exists!"
                 << std::endl;
     return material.value();
   }

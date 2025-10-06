@@ -9,7 +9,7 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
 {
   if (auto program = RepoBase::get(desc.program_name); program) {
     if (!desc.is_getter_desc())
-      std::cerr << "Shader program " << desc.program_name << " already exists!"
+      std::cout << "Shader program " << desc.program_name << " already exists!"
                 << std::endl;
     return program.value();
   }

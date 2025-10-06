@@ -57,7 +57,7 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
 
   if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
     if (!desc.is_getter_desc())
-      std::cerr << "Texture " << desc.texture_name << " already exists!" << std::endl;
+      std::cout << "Texture " << desc.texture_name << " already exists!" << std::endl;
     return tex.value();
   }
 

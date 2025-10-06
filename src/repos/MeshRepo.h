@@ -144,7 +144,7 @@ public:
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
       if (!desc.is_getter_desc())
-        std::cerr << "Mesh " << desc.mesh_name << " already exists!"
+        std::cout << "Mesh " << desc.mesh_name << " already exists!"
                   << std::endl;
       return mesh.value();
     }

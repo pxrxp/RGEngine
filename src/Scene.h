@@ -6,10 +6,11 @@
 #include <optional>
 
 template<typename F>
-auto capture_weak(SceneObjectStrongPtr object_strong, F&& f)
+auto
+capture_weak(SceneObjectStrongPtr object_strong, F&& f)
 {
   SceneObjectWeakPtr obj_weak = object_strong;
-  return [obj_weak, f = std::forward<F>(f)] {
+  return [obj_weak, f = std::forward<F>(f)]() mutable {
     SceneObjectStrongPtr self = obj_weak.lock();
 
     if (self) {
@@ -20,12 +21,12 @@ auto capture_weak(SceneObjectStrongPtr object_strong, F&& f)
   };
 }
 
-
 class Scene
 {
 private:
-  void collect_physics_objects_recursive(SceneObjectStrongPtr object,
-                                         std::vector<SceneObjectStrongPtr>& objects);
+  void collect_physics_objects_recursive(
+    SceneObjectStrongPtr object,
+    std::vector<SceneObjectStrongPtr>& objects);
 
 protected:
   App& m_app_cache;
@@ -44,9 +45,9 @@ protected:
                         const char* uniform_name = "u_model");
 
   void debug_object(std::weak_ptr<SceneObject> weak_object, const char* header);
-  void debug_camera(const char* header = "Camera");
-
-  void setup_skybox(const SceneObjectStrongPtr& skybox, const std::string& texture_name);
+  void debug_camera();
+  void setup_skybox(const SceneObjectStrongPtr& skybox,
+                    const std::string& texture_name);
 
 public:
   Scene(App& app)

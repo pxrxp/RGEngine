@@ -41,9 +41,7 @@ public:
 
     debug_object(cube, "cube");
 
-    // auto frustum = std::make_shared<SceneObject>();
-    // setup_frustum(frustum);
-    // m_scene_ptr->add_child(frustum);
+    debug_camera();
 
     // auto objmodel = std::make_shared<SceneObject>();
     // setup_obj_model(objmodel);
