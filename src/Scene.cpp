@@ -125,6 +125,8 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
     auto aabb_visualizer = std::make_shared<SceneObject>();
     aabb_visualizer->physics.set_gravity(false);
 
+    auto axes = std::make_shared<SceneObject>();
+
     aabb_visualizer->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
         .mesh_name = "AABB_visualizer_mesh",
@@ -135,31 +137,62 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "AABB_visualizer_material",
         .shader_program_desc = { .program_name = "AABB_program",
-                                 .shaders = { "AABB.vert", "AABB.frag", "AABB.geo" } },
+                                 .shaders = { "AABB.vert",
+                                              "AABB.frag",
+                                              "AABB.geo" } },
         .texture_desc_list = {},
-        .uniforms = {{"u_line_thickness", 0.05f}} }),
+        .uniforms = { { "u_line_thickness", 0.05f } } }),
 
-      capture_weak(aabb_visualizer,
-                   [this, weak_object, header](SceneObjectStrongPtr self,
-                                               RenderPacketStrongPtr packet) {
+      capture_weak(
+        aabb_visualizer,
+        [this, weak_object, header](SceneObjectStrongPtr self,
+                                    RenderPacketStrongPtr packet) {
+          if (auto object_to_visualize = weak_object.lock()) {
+
+            if (ImGui::CollapsingHeader(header)) {
+              Util::draw_transform_component_editor(
+                object_to_visualize->local_transform);
+
+              ImGui::Checkbox("Show AABB", &self->display_AABB);
+              ImGui::Checkbox("Show axes", &object_to_visualize->display_axes);
+            }
+
+            if (self->display_AABB) {
+              const BoundingBox& aabb = object_to_visualize->get_world_AABB();
+              const glm::vec3 dimensions = aabb.max - aabb.min;
+              const glm::vec3 center = aabb.min + 0.5f * dimensions;
+
+              self->local_transform.set_position(center);
+              self->local_transform.set_scale(0.5f * dimensions);
+
+              set_view_matrix(packet);
+              set_projection_matrix(packet);
+              set_model_matrix(packet, self->get_world_transformation_mat());
+              packet->mesh->draw();
+            }
+          }
+        }));
+
+    axes->physics.set_gravity(false);
+    axes->set_render_packet(
+      m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
+        .mesh_name = "axes_mesh",
+        .vertices = { ORIGIN, AXIS_X, AXIS_Y, AXIS_Z },
+        .indices = { { 0, 1 }, { 0, 2 }, { 0, 3 } },
+        .draw_primitive = GL_LINES }),
+      m_app_cache.material_repo.load_material(MaterialDescriptor{
+        .material_name = "axes_material",
+        .shader_program_desc = { .program_name = "axes_program",
+                                 .shaders = { "axes.vert",
+                                              "axes.frag",
+                                              "axes.geo" } },
+        .texture_desc_list = {},
+        .uniforms = { { "u_line_thickness", 0.05f } } }),
+      capture_weak(axes,
+                   [this, weak_object](SceneObjectStrongPtr self,
+                                       RenderPacketStrongPtr packet) {
                      if (auto object_to_visualize = weak_object.lock()) {
-
-                       if (ImGui::CollapsingHeader(header)) {
-                         Util::draw_transform_component_editor(
-                           object_to_visualize->local_transform);
-
-                         ImGui::Checkbox("Show AABB", &self->display_AABB);
-                       }
-
-                       if (self->display_AABB) {
-                         const BoundingBox& aabb =
-                           object_to_visualize->get_world_AABB();
-                         const glm::vec3 dimensions = aabb.max - aabb.min;
-                         const glm::vec3 center = aabb.min + 0.5f * dimensions;
-
-                         self->local_transform.set_position(center);
-                         self->local_transform.set_scale(0.5f * dimensions);
-
+                       if (object_to_visualize->display_axes) {
                          set_view_matrix(packet);
                          set_projection_matrix(packet);
                          set_model_matrix(packet,
@@ -169,9 +202,93 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
                      }
                    }));
 
+    axes->physics.set_gravity(false);
+    object_s->add_child(axes);
     m_scene_ptr->add_child(aabb_visualizer);
   }
 }
+
+void
+Scene::setup_skybox(const SceneObjectStrongPtr& skybox,
+                    const std::string& texture_name)
+{
+  skybox->physics.set_gravity(false);
+  skybox->set_render_packet(
+    m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, TriangleIndices>{
+      .mesh_name = "skybox_mesh",
+      .vertices = { CUBE_VERTICES },
+      .indices = { CUBE_FACES },
+      .draw_primitive = GL_TRIANGLES }),
+
+    m_app_cache.material_repo.load_material(MaterialDescriptor{
+      .material_name = "skybox_material",
+      .shader_program_desc = { .program_name = "skybox_program",
+                               .shaders = { "skybox.vert", "skybox.frag" } },
+      .texture_desc_list = { { .texture_name = texture_name,
+                               .target = GL_TEXTURE_CUBE_MAP,
+                               .wrap_s = GL_CLAMP_TO_EDGE,
+                               .wrap_t = GL_CLAMP_TO_EDGE,
+                               .wrap_r = GL_CLAMP_TO_EDGE } },
+      .uniforms = { { "u_skybox", texture_name } } }),
+
+    capture_weak(skybox,
+                 [this]([[maybe_unused]] SceneObjectStrongPtr self,
+                        RenderPacketStrongPtr packet) {
+                   auto view = glm::mat4(
+                     glm::mat3(m_app_cache.get_camera().get_view_matrix()));
+                   packet->material->get_shader_program()->set_uniform("u_view",
+                                                                       view);
+                   set_projection_matrix(packet);
+                   glDepthFunc(GL_LEQUAL);
+                   packet->mesh->draw();
+                   glDepthFunc(GL_LESS);
+                 }));
+}
+
+void Scene::debug_camera(const char* header)
+{
+  auto frustum = std::make_shared<SceneObject>();
+  frustum->physics.set_gravity(false);
+  frustum->set_render_packet(
+    m_app_cache.mesh_repo.load_mesh(MeshDescriptor<Vertex_Pos, LineIndices>{
+      .mesh_name = "frustum_lines_mesh",
+      .vertices = m_app_cache.get_camera().get_frustum_viewspace(),
+      .indices = { CUBE_EDGES },
+      .draw_primitive = GL_LINES }),
+
+    m_app_cache.material_repo.load_material(MaterialDescriptor{
+      .material_name = "debug_line_material",
+      .shader_program_desc = { .program_name = "AABB_program",
+                               .shaders = { "AABB.vert", "AABB.frag" } },
+      .texture_desc_list = {},
+      .uniforms = {} }),
+
+    capture_weak(
+      frustum,
+      [this, header](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
+        // if (ImGui::CollapsingHeader(header)) {
+        //   bool dirty = self->local_transform.is_dirty();
+        //   if (dirty)
+        //     self->local_transform.set_dirty();
+
+        //   ImGui::Checkbox("Update frustum", &self->visible);
+        // }
+        if (self->visible) {
+          if (self->local_transform.is_dirty()) {
+            auto frustum_model = glm::inverse(m_app_cache.get_camera().get_view_matrix());
+            self->local_transform.set_position(glm::vec3(frustum_model[3]));
+          }
+
+          // set_model_matrix(packet, self->get_world_transformation_mat())
+          
+          set_view_matrix(packet);
+          set_projection_matrix(packet);
+          packet->mesh->draw();
+        }
+      }));
+}
+
+
 void
 Scene::collect_physics_objects_recursive(
   SceneObjectStrongPtr object,

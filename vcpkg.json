@@ -2,11 +2,11 @@
   "name": "rival-grounds",
   "version": "0.1.0",
   "dependencies": [
-    "glfw3",
     {
       "name": "glad",
       "features": ["extensions"]
     },
+    "glfw3",
     "opengl",
     "glm",
     "zlib",
@@ -15,5 +15,34 @@
       "name": "imgui",
       "features": ["glfw-binding", "opengl3-binding"]
     }
-  ]
+  ],
+  "features": {
+    "x11": {
+      "description": "Enable X11 support for GLFW",
+      "dependencies": [
+        {
+          "name": "glfw3",
+          "features": ["x11"]
+        }
+      ]
+    },
+    "wayland": {
+      "description": "Enable Wayland support for GLFW",
+      "dependencies": [
+        {
+          "name": "glfw3",
+          "features": ["wayland"]
+        }
+      ]
+    },
+    "windows": {
+      "description": "Enable Windows (Win32) support for GLFW",
+      "dependencies": [
+        {
+          "name": "glfw3",
+          "platform": "windows"
+        }
+      ]
+    }
+  }
 }

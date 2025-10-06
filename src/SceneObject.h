@@ -38,7 +38,10 @@ public:
 
   #ifndef NDEBUG
   bool display_AABB = false;
+  bool display_axes = false;
   #endif
+
+  bool visible = true;
 
   template<typename... Args>
   void set_render_packet(Args&&... args)

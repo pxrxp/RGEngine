@@ -14,6 +14,19 @@ set(PROJECT_WARNING_FLAGS
     -pedantic
 )
 
+if (WIN32)
+    set(VCPKG_APPLOCAL_DEPS "windows")
+elseif (UNIX)
+    option(USE_WAYLAND "Use Wayland backend for GLFW" ON)
+    option(USE_X11 "Use X11 backend for GLFW" OFF)
+
+    if (USE_WAYLAND)
+        list(APPEND VCPKG_APPLOCAL_DEPS "wayland")
+    elseif (USE_X11)
+        list(APPEND VCPKG_APPLOCAL_DEPS "x11")
+    endif()
+endif()
+
 if(ENABLE_ASAN_UBSAN)
     message(STATUS "AddressSanitizer and UndefinedBehaviorSanitizer enabled.")
     set(SANITIZER_FLAGS "-fsanitize=address,undefined")

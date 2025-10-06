@@ -54,7 +54,14 @@ if [ -z "$ENABLE_WERROR" ]; then
     exit 1
 fi
 
-echo "Building for $BUILD_TYPE..."
+# Require GLFW_BACKEND for GLFW feature selection
+if [ -z "$GLFW_BACKEND" ]; then
+    echo "Error: GLFW_BACKEND environment variable not set."
+    echo "Example: \"export GLFW_BACKEND=wayland\" (wayland|x11|windows)"
+    exit 1
+fi
+
+echo "Building for $BUILD_TYPE with GLFW backend: $GLFW_BACKEND..."
 
 # Bootstrap vcpkg if missing
 if [ ! -d "./vcpkg" ]; then
@@ -83,6 +90,7 @@ if [ ! -f "$BUILD_DIR/CMakeCache.txt" ]; then
         -DENABLE_WERROR="$ENABLE_WERROR" \
         -DVCPKG_TARGET_TRIPLET="$TRIPLET" \
         -DVCPKG_HOST_TRIPLET="$TRIPLET" \
+        -DVCPKG_MANIFEST_FEATURES="$GLFW_BACKEND" \
         -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 fi
 

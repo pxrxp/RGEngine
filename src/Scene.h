@@ -44,6 +44,9 @@ protected:
                         const char* uniform_name = "u_model");
 
   void debug_object(std::weak_ptr<SceneObject> weak_object, const char* header);
+  void debug_camera(const char* header = "Camera");
+
+  void setup_skybox(const SceneObjectStrongPtr& skybox, const std::string& texture_name);
 
 public:
   Scene(App& app)

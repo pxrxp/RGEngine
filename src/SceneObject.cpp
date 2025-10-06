@@ -25,12 +25,18 @@ SceneObject::get_local_transformation_mat()
 glm::mat4
 SceneObject::get_world_transformation_mat()
 {
-  m_world_AABB_dirty = local_transform.is_dirty();
+  if (local_transform.is_dirty())
+    m_world_AABB_dirty = local_transform.is_dirty();
 
   glm::mat4 world_model_mat = get_local_transformation_mat();
 
-  if (auto parent = get_parent())
-    world_model_mat = parent->get_world_transformation_mat() * world_model_mat;
+  if (auto parent = get_parent()) {
+    auto parent_mat = parent->get_world_transformation_mat();
+    parent_mat[0] = glm::normalize(parent_mat[0]);
+    parent_mat[1] = glm::normalize(parent_mat[1]);
+    parent_mat[2] = glm::normalize(parent_mat[2]);
+    world_model_mat = parent_mat * world_model_mat;
+  }
 
   return world_model_mat;
 }

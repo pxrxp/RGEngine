@@ -20,6 +20,7 @@ App::init()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+  glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -56,6 +57,10 @@ App::init()
   }
 
   Util::init_gl_debug();
+  
+  int width, height;
+  glfwGetFramebufferSize(m_window.m_raw_window, &width, &height);
+  glViewport(0, 0, width, height);
 
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);
