@@ -273,10 +273,58 @@ Scene::debug_camera()
       [this, dirty = true, cached_model = glm::mat4(1.0f)](
         SceneObjectStrongPtr self, RenderPacketStrongPtr packet) mutable {
         if (ImGui::CollapsingHeader("Camera")) {
+          auto& camera = m_app_cache.get_camera();
+
           if (ImGui::Button("Update frustum"))
             dirty = true;
 
           ImGui::Checkbox("Show frustum", &self->visible);
+          ImGui::Separator();
+
+          float fovy_deg = camera.get_fovy();
+          if (ImGui::SliderFloat("FOV", &fovy_deg, 30.0f, 120.0f, "%.1f deg"))
+          {
+              camera.set_fovy(fovy_deg);
+          }
+
+          ImGui::Separator();
+          float near_plane = camera.get_near_plane();
+          float far_plane = camera.get_far_plane();
+
+          if (ImGui::DragFloat(
+                "Near Plane", &near_plane, 0.01f, 0.01f, far_plane - 0.01f)) {
+            camera.set_near_plane(near_plane);
+          }
+
+          if (ImGui::DragFloat(
+                "Far Plane", &far_plane, 0.1f, near_plane + 0.01f, 1000.0f)) {
+            camera.set_far_plane(far_plane);
+          }
+
+          ImGui::Separator();
+
+          float speed = camera.get_speed();
+          float sensitivity = camera.get_sensitivity();
+
+          if (ImGui::SliderFloat("Speed", &speed, 0.1f, 50.0f)) {
+            camera.set_speed(speed);
+          }
+
+          if (ImGui::SliderFloat(
+                "Sensitivity", &sensitivity, 0.01f, 1.0f, "%.3f")) {
+            camera.set_sensitivity(sensitivity);
+          }
+
+          ImGui::Separator();
+
+          glm::vec3 forward = camera.get_forward();
+          glm::vec3 right = camera.get_right();
+          glm::vec3 up = camera.get_up();
+
+          ImGui::Text(
+            "Forward: (%.3f, %.3f, %.3f)", forward.x, forward.y, forward.z);
+          ImGui::Text("Right:   (%.3f, %.3f, %.3f)", right.x, right.y, right.z);
+          ImGui::Text("Up:      (%.3f, %.3f, %.3f)", up.x, up.y, up.z);
         }
         if (self->visible) {
           if (dirty) {

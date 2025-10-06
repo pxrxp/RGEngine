@@ -230,10 +230,22 @@ Camera::get_fovy_rad() const
 {
   return m_fovy_rad;
 }
+float
+Camera::get_fovy() const
+{
+  return glm::degrees(m_fovy_rad);
+}
 Camera&
 Camera::set_fovy(float fovy_deg)
 {
   m_fovy_rad = glm::radians(fovy_deg);
+  m_proj_dirty = true;
+  return *this;
+}
+Camera&
+Camera::set_fovy_rad(float fovy_rad)
+{
+  m_fovy_rad = fovy_rad;
   m_proj_dirty = true;
   return *this;
 }
@@ -271,6 +283,7 @@ Camera&
 Camera::set_far_plane(float z_far)
 {
   m_z_far = glm::max(0.f, z_far);
+  m_proj_dirty = true;
   return *this;
 }
 
@@ -283,6 +296,7 @@ Camera&
 Camera::set_near_plane(float z_near)
 {
   m_z_near = glm::max(0.f, z_near);
+  m_proj_dirty = true;
   return *this;
 }
 

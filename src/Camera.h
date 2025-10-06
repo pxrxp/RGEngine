@@ -28,7 +28,9 @@ public:
   glm::vec3 get_forward();
 
   float get_fovy_rad() const;
+  float get_fovy() const;
   Camera& set_fovy(float fovy_deg);
+  Camera& set_fovy_rad(float fovy_rad);
 
   float get_sensitivity() const;
   Camera& set_sensitivity(float sensitivity);
