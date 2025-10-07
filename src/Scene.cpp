@@ -279,8 +279,10 @@ Scene::debug_camera()
 
           if (auto player = camera.get_target_player().lock()) {
             Util::draw_transform_component_editor(player->local_transform);
-            if (player->local_transform.is_dirty())
+            if (player->local_transform.is_dirty()) {
+              camera.reset_mouse_cache();
               camera.set_view_matrix_dirty();
+            }
             ImGui::Separator();
           }
 
@@ -290,9 +292,8 @@ Scene::debug_camera()
           ImGui::Separator();
 
           float fovy_deg = camera.get_fovy();
-          if (ImGui::SliderFloat("FOV", &fovy_deg, 30.0f, 120.0f, "%.1f deg"))
-          {
-              camera.set_fovy(fovy_deg);
+          if (ImGui::SliderFloat("FOV", &fovy_deg, 30.0f, 120.0f, "%.1f deg")) {
+            camera.set_fovy(fovy_deg);
           }
 
           ImGui::Separator();

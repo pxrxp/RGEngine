@@ -25,6 +25,8 @@ public:
   void set_view_matrix_dirty() { m_view_dirty = true; }
   void set_projection_matrix_dirty() { m_proj_dirty = true; }
 
+  void reset_mouse_cache();
+
   SceneObjectWeakPtr get_target_player() { return m_target_player; }
   Camera& look_at(const glm::vec3& target);
 
