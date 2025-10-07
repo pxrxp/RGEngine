@@ -15,14 +15,22 @@ using GLclampd = double; // typically 0.0 to 1.0
 using GLenum = unsigned int;
 using GLbitfield = unsigned int;
 
-#define COLOR_RED     1.0f, 0.0f, 0.0f, 1.0f
-#define COLOR_GREEN   0.0f, 1.0f, 0.0f, 1.0f
-#define COLOR_BLUE    0.0f, 0.0f, 1.0f, 1.0f
-#define COLOR_YELLOW  1.0f, 1.0f, 0.0f, 1.0f
-#define COLOR_MAGENTA 1.0f, 0.0f, 1.0f, 1.0f
-#define COLOR_CYAN    0.0f, 1.0f, 1.0f, 1.0f
-#define COLOR_WHITE   1.0f, 1.0f, 1.0f, 1.0f
-#define COLOR_BLACK   0.0f, 0.0f, 0.0f, 1.0f
+#define RGBA_RED     1.0f, 0.0f, 0.0f, 1.0f
+#define RGB_RED      1.0f, 0.0f, 0.0f
+#define RGBA_GREEN   0.0f, 1.0f, 0.0f, 1.0f
+#define RGB_GREEN    0.0f, 1.0f, 0.0f
+#define RGBA_BLUE    0.0f, 0.0f, 1.0f, 1.0f
+#define RGB_BLUE     0.0f, 0.0f, 1.0f
+#define RGBA_YELLOW  1.0f, 1.0f, 0.0f, 1.0f
+#define RGB_YELLOW   1.0f, 1.0f, 0.0f
+#define RGBA_MAGENTA 1.0f, 0.0f, 1.0f, 1.0f
+#define RGB_MAGENTA  1.0f, 0.0f, 1.0f
+#define RGBA_CYAN    0.0f, 1.0f, 1.0f, 1.0f
+#define RGB_CYAN     0.0f, 1.0f, 1.0f
+#define RGBA_WHITE   1.0f, 1.0f, 1.0f, 1.0f
+#define RGB_WHITE    1.0f, 1.0f, 1.0f
+#define RGBA_BLACK   0.0f, 0.0f, 0.0f, 1.0f
+#define RGB_BLACK    0.0f, 0.0f, 0.0f
 
 #define PALETTE_RED       0.7f, 0.25f, 0.25f, 1.0f
 #define PALETTE_GREEN     0.25f, 0.6f, 0.35f, 1.0f
