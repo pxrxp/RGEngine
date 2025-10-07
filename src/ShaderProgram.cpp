@@ -14,10 +14,21 @@ ShaderProgram::~ShaderProgram() {
   }
 }
 
-GLuint
-ShaderProgram::get_id() const
+ShaderProgram&
+ShaderProgram::operator=(ShaderProgram&& other) noexcept
 {
-  return m_id;
+  if (this != &other) {
+    if (m_id != 0) {
+#ifndef NDEBUG
+      std::cout << "Deleting shader program " << m_id << std::endl;
+#endif
+      glDeleteProgram(m_id);
+    }
+    m_id = other.m_id;
+    m_name = std::move(other.m_name);
+    other.m_id = 0;
+  }
+  return *this;
 }
 
 void

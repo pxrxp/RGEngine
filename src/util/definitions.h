@@ -32,26 +32,46 @@ using GLbitfield = unsigned int;
 #define RGBA_BLACK   0.0f, 0.0f, 0.0f, 1.0f
 #define RGB_BLACK    0.0f, 0.0f, 0.0f
 
-#define PALETTE_RED       0.7f, 0.25f, 0.25f, 1.0f
-#define PALETTE_GREEN     0.25f, 0.6f, 0.35f, 1.0f
-#define PALETTE_BLUE      0.25f, 0.45f, 0.7f, 1.0f
-#define PALETTE_ORANGE    0.8f, 0.5f, 0.25f, 1.0f
-#define PALETTE_TEAL      0.25f, 0.6f, 0.6f, 1.0f
-#define PALETTE_PURPLE    0.55f, 0.35f, 0.6f, 1.0f
-#define PALETTE_PINK      0.85f, 0.5f, 0.65f, 1.0f
-#define PALETTE_YELLOW    0.8f, 0.75f, 0.25f, 1.0f
-#define PALETTE_BROWN     0.55f, 0.4f, 0.25f, 1.0f
-#define PALETTE_DARKGRAY  0.15f, 0.15f, 0.15f, 1.0f
-#define PALETTE_MIDGRAY   0.4f, 0.4f, 0.4f, 1.0f
-#define PALETTE_LIGHTGRAY 0.6f, 0.6f, 0.6f, 1.0f
-#define PALETTE_NAVY      0.2f, 0.25f, 0.5f, 1.0f
-#define PALETTE_OLIVE     0.4f, 0.45f, 0.2f, 1.0f
-#define PALETTE_MAROON    0.5f, 0.2f, 0.2f, 1.0f
-#define PALETTE_CYAN      0.2f, 0.55f, 0.55f, 1.0f
-#define PALETTE_LIME      0.4f, 0.7f, 0.2f, 1.0f
-#define PALETTE_INDIGO    0.35f, 0.3f, 0.6f, 1.0f
-#define PALETTE_CORAL     0.85f, 0.45f, 0.4f, 1.0f
-#define PALETTE_SALMON    0.9f, 0.55f, 0.5f, 1.0f
+#define RGBA_PALETTE_RED       0.7f, 0.25f, 0.25f, 1.0f
+#define RGB_PALETTE_RED        0.7f, 0.25f, 0.25f
+#define RGBA_PALETTE_GREEN     0.25f, 0.6f, 0.35f, 1.0f
+#define RGB_PALETTE_GREEN      0.25f, 0.6f, 0.35f
+#define RGBA_PALETTE_BLUE      0.25f, 0.45f, 0.7f, 1.0f
+#define RGB_PALETTE_BLUE       0.25f, 0.45f, 0.7f
+#define RGBA_PALETTE_ORANGE    0.8f, 0.5f, 0.25f, 1.0f
+#define RGB_PALETTE_ORANGE     0.8f, 0.5f, 0.25f
+#define RGBA_PALETTE_TEAL      0.25f, 0.6f, 0.6f, 1.0f
+#define RGB_PALETTE_TEAL       0.25f, 0.6f, 0.6f
+#define RGBA_PALETTE_PURPLE    0.55f, 0.35f, 0.6f, 1.0f
+#define RGB_PALETTE_PURPLE     0.55f, 0.35f, 0.6f
+#define RGBA_PALETTE_PINK      0.85f, 0.5f, 0.65f, 1.0f
+#define RGB_PALETTE_PINK       0.85f, 0.5f, 0.65f
+#define RGBA_PALETTE_YELLOW    0.8f, 0.75f, 0.25f, 1.0f
+#define RGB_PALETTE_YELLOW     0.8f, 0.75f, 0.25f
+#define RGBA_PALETTE_BROWN     0.55f, 0.4f, 0.25f, 1.0f
+#define RGB_PALETTE_BROWN      0.55f, 0.4f, 0.25f
+#define RGBA_PALETTE_DARKGRAY  0.15f, 0.15f, 0.15f, 1.0f
+#define RGB_PALETTE_DARKGRAY   0.15f, 0.15f, 0.15f
+#define RGBA_PALETTE_MIDGRAY   0.4f, 0.4f, 0.4f, 1.0f
+#define RGB_PALETTE_MIDGRAY    0.4f, 0.4f, 0.4f
+#define RGBA_PALETTE_LIGHTGRAY 0.6f, 0.6f, 0.6f, 1.0f
+#define RGB_PALETTE_LIGHTGRAY  0.6f, 0.6f, 0.6f
+#define RGBA_PALETTE_NAVY      0.2f, 0.25f, 0.5f, 1.0f
+#define RGB_PALETTE_NAVY       0.2f, 0.25f, 0.5f
+#define RGBA_PALETTE_OLIVE     0.4f, 0.45f, 0.2f, 1.0f
+#define RGB_PALETTE_OLIVE      0.4f, 0.45f, 0.2f
+#define RGBA_PALETTE_MAROON    0.5f, 0.2f, 0.2f, 1.0f
+#define RGB_PALETTE_MAROON     0.5f, 0.2f, 0.2f
+#define RGBA_PALETTE_CYAN      0.2f, 0.55f, 0.55f, 1.0f
+#define RGB_PALETTE_CYAN       0.2f, 0.55f, 0.55f
+#define RGBA_PALETTE_LIME      0.4f, 0.7f, 0.2f, 1.0f
+#define RGB_PALETTE_LIME       0.4f, 0.7f, 0.2f
+#define RGBA_PALETTE_INDIGO    0.35f, 0.3f, 0.6f, 1.0f
+#define RGB_PALETTE_INDIGO     0.35f, 0.3f, 0.6f
+#define RGBA_PALETTE_CORAL     0.85f, 0.45f, 0.4f, 1.0f
+#define RGB_PALETTE_CORAL      0.85f, 0.45f, 0.4f
+#define RGBA_PALETTE_SALMON    0.9f, 0.55f, 0.5f, 1.0f
+#define RGB_PALETTE_SALMON     0.9f, 0.55f, 0.5f
 
 #define ORIGIN     { 0.0f, 0.0f, 0.0f }
 #define AXIS_X     { 1.0f, 0.0f, 0.0f }

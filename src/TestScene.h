@@ -63,14 +63,14 @@ private:
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
           .mesh_name = "colored_cube_mesh",
           .vertices = { {
-            { CUBE_VERT0, { RGB_WHITE }, {} },
-            { CUBE_VERT1, { RGB_WHITE }, {} },
-            { CUBE_VERT2, { RGB_WHITE }, {} },
-            { CUBE_VERT3, { RGB_WHITE }, {} },
-            { CUBE_VERT4, { RGB_WHITE }, {} },
-            { CUBE_VERT5, { RGB_WHITE }, {} },
-            { CUBE_VERT6, { RGB_WHITE }, {} },
-            { CUBE_VERT7, { RGB_WHITE }, {} },
+            { CUBE_VERT0, { RGB_BLACK }, {} },
+            { CUBE_VERT1, { RGB_BLACK }, {} },
+            { CUBE_VERT2, { RGB_BLACK }, {} },
+            { CUBE_VERT3, { RGB_BLACK }, {} },
+            { CUBE_VERT4, { RGB_BLACK }, {} },
+            { CUBE_VERT5, { RGB_BLACK }, {} },
+            { CUBE_VERT6, { RGB_BLACK }, {} },
+            { CUBE_VERT7, { RGB_BLACK }, {} },
           } },
           .indices = { CUBE_FACES },
           .draw_primitive = GL_TRIANGLES }
@@ -102,10 +102,10 @@ private:
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
           .mesh_name = "colored_plane_mesh",
           .vertices = { {
-            { QUAD_VERT0, { RGB_WHITE }, {} },
-            { QUAD_VERT1, { RGB_WHITE }, {} },
-            { QUAD_VERT2, { RGB_WHITE }, {} },
-            { QUAD_VERT3, { RGB_WHITE }, {} },
+            { QUAD_VERT0, { RGB_PALETTE_RED }, {} },
+            { QUAD_VERT1, { RGB_PALETTE_RED }, {} },
+            { QUAD_VERT2, { RGB_PALETTE_RED }, {} },
+            { QUAD_VERT3, { RGB_PALETTE_RED }, {} },
           } },
           .indices = { QUAD_FACES },
           .draw_primitive = GL_TRIANGLES }

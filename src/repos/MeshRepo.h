@@ -209,6 +209,7 @@ public:
     }
 
     return RepoBase::create(desc.mesh_name,
+                            desc.mesh_name,
                             vao,
                             vbo,
                             ebo,

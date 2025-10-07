@@ -2,10 +2,6 @@
 #include "util/opengl.h"
 #include <iostream>
 
-Shader::Shader(GLuint id)
-  : m_id(id)
-{
-}
 Shader::~Shader()
 {
   if (m_id) {
@@ -15,12 +11,6 @@ Shader::~Shader()
 
     glDeleteShader(m_id);
   }
-}
-
-Shader::Shader(Shader&& other) noexcept
-  : m_id(other.m_id)
-{
-  other.m_id = 0;
 }
 
 Shader&
@@ -34,11 +24,8 @@ Shader::operator=(Shader&& other) noexcept
       glDeleteShader(m_id);
     }
     m_id = other.m_id;
+    m_name = std::move(other.m_name);
     other.m_id = 0;
   }
   return *this;
-}
-
-GLuint Shader::get_id() const {
-  return m_id;
 }

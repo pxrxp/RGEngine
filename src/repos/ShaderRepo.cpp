@@ -35,5 +35,5 @@ ShaderRepo::load_shader(const std::string& path)
     std::cerr << "Error while compiling " << path << ":\n" << info << "\n";
   }
 
-  return RepoBase::create(path, shader);
+  return RepoBase::create(path, path, shader);
 }

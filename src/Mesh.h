@@ -5,6 +5,7 @@
 class Mesh
 {
 private:
+  std::string m_name;
   GLuint m_vao = 0;
   GLuint m_vbo = 0;
   GLuint m_ebo = 0;
@@ -23,14 +24,16 @@ public:
   void bind();
   void unbind();
 
-  Mesh(GLuint vao,
+  Mesh(const std::string& mesh_name,
+       GLuint vao,
        GLuint vbo,
        GLuint ebo,
        std::vector<glm::vec3>& vertices_pos,
        size_t index_count,
        GLenum draw_primitive,
        BoundingBox local_AABB)
-    : m_vao(vao)
+    : m_name(std::move(mesh_name))
+    , m_vao(vao)
     , m_vbo(vbo)
     , m_ebo(ebo)
     , m_vertices_pos(std::move(vertices_pos))

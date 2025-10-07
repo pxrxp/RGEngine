@@ -30,5 +30,5 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
     std::cerr << "Program link error:\n" << info << std::endl;
   }
 
-  return RepoBase::create(desc.program_name, id);
+  return RepoBase::create(desc.program_name, desc.program_name, id);
 }
