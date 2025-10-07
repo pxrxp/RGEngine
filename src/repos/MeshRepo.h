@@ -27,6 +27,18 @@ struct MeshDescriptor
            draw_primitive == GL_TRIANGLES && usage == GL_STATIC_DRAW;
   }
 
+  #ifndef NDEBUG
+  MeshDescriptor& print() {
+   std::cout << "MeshDescriptor {\n"
+   << "  mesh_name: \"" << mesh_name << "\",\n"
+   << "  draw_primitive: " << draw_primitive << ",\n"
+   << "  usage: " << usage << ",\n"
+   << "  vertices: " << vertices << ",\n"
+   << "  indices: " << indices << ",\n}\n\n";
+  return *this;
+  }
+  #endif
+
   MeshDescriptor& recalculate_normals(bool ccw = true)
   {
     if constexpr (!requires { Vertex::normal; })
@@ -53,7 +65,7 @@ struct MeshDescriptor
 
             recalc(vertices[index.vert1],
                    vertices[index.vert2],
-                   vertices[index.vert2]);
+                   vertices[index.vert3]);
           }
         }
       } else {

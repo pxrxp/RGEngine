@@ -12,6 +12,8 @@
 #include "util/obj_model.h"
 #include "util/opengl.h"
 
+#include "debug.h"
+
 class TestScene : public Scene
 {
 public:
@@ -45,6 +47,7 @@ public:
     plane->physics.set_gravity(false);
     setup_plane(plane);
     m_scene_ptr->add_child(plane);
+    debug_object(plane, "plane");
 
     // auto objmodel = std::make_shared<SceneObject>();
     // setup_obj_model(objmodel);
@@ -71,7 +74,7 @@ private:
           } },
           .indices = { CUBE_FACES },
           .draw_primitive = GL_TRIANGLES }
-          .recalculate_normals()),
+          .recalculate_normals().print()),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "colored_cube_material",
@@ -89,25 +92,21 @@ private:
         }));
   }
 
-  void setup_plane(const SceneObjectStrongPtr& cube)
+  void setup_plane(const SceneObjectStrongPtr& plane)
   {
-    cube->set_render_packet(
+    plane->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
-          .mesh_name = "colored_cube_mesh",
+          .mesh_name = "colored_plane_mesh",
           .vertices = { {
-            { CUBE_VERT0, { RGB_WHITE }, {} },
-            { CUBE_VERT1, { RGB_WHITE }, {} },
-            { CUBE_VERT2, { RGB_WHITE }, {} },
-            { CUBE_VERT3, { RGB_WHITE }, {} },
-            { CUBE_VERT4, { RGB_WHITE }, {} },
-            { CUBE_VERT5, { RGB_WHITE }, {} },
-            { CUBE_VERT6, { RGB_WHITE }, {} },
-            { CUBE_VERT7, { RGB_WHITE }, {} },
+            { QUAD_VERT0, { RGB_WHITE }, {} },
+            { QUAD_VERT1, { RGB_WHITE }, {} },
+            { QUAD_VERT2, { RGB_WHITE }, {} },
+            { QUAD_VERT3, { RGB_WHITE }, {} },
           } },
-          .indices = { CUBE_FACES },
+          .indices = { QUAD_FACES },
           .draw_primitive = GL_TRIANGLES }
-          .recalculate_normals()),
+          .recalculate_normals().print()),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "colored_cube_material",
@@ -117,7 +116,7 @@ private:
         .uniforms = {} }),
 
       capture_weak(
-        cube, [this](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
+        plane, [this](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
           set_view_matrix(packet);
           set_projection_matrix(packet);
           set_model_matrix(packet, self->get_world_transformation_mat());
