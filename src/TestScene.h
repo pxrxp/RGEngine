@@ -94,6 +94,9 @@ private:
 
   void setup_plane(const SceneObjectStrongPtr& plane)
   {
+    plane->local_transform.rotate_deg(AXIS_X, -90);
+    plane->local_transform.scale(m_app_cache.get_camera().get_far_plane() * glm::vec3(1.f));
+    plane->local_transform.translate({0.f, -1.f, 0.f});
     plane->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{

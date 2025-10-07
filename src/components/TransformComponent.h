@@ -14,6 +14,7 @@ public:
 
   TransformComponent& translate(const glm::vec3& offset);
   TransformComponent& rotate(const glm::vec3& axis, float angle_rad);
+  TransformComponent& rotate_deg(const glm::vec3& axis, float angle_deg);
   TransformComponent& scale(const glm::vec3& factors);
 
   const glm::vec3& get_position() const;

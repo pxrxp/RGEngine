@@ -55,6 +55,12 @@ TransformComponent::rotate(const glm::vec3& axis, float angle_rad)
 }
 
 TransformComponent&
+TransformComponent::rotate_deg(const glm::vec3& axis, float angle_deg)
+{
+  return rotate(axis, glm::radians(angle_deg));
+}
+
+TransformComponent&
 TransformComponent::scale(const glm::vec3& factors)
 {
   m_scale *= factors;

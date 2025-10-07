@@ -15,18 +15,18 @@
 
 #define VERTEX_PCN_FIELDS(X)                                                   \
   X(glm::vec3, position)                                                       \
-  X(glm::vec3, normal)                                                         \
-  X(glm::vec3, color)
+  X(glm::vec3, color)                                                          \
+  X(glm::vec3, normal)
 
 #define VERTEX_PTN_FIELDS(X)                                                   \
   X(glm::vec3, position)                                                       \
-  X(glm::vec3, normal)                                                         \
-  X(glm::vec2, texture)
+  X(glm::vec2, texture)                                                        \
+  X(glm::vec3, normal)
 
 #define VERTEX_PTNTB_FIELDS(X)                                                 \
   X(glm::vec3, position)                                                       \
-  X(glm::vec3, normal)                                                         \
   X(glm::vec2, texture)                                                        \
+  X(glm::vec3, normal)                                                         \
   X(glm::vec3, tangent)                                                        \
   X(glm::vec3, bitangent)
 
