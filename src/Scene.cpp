@@ -150,11 +150,13 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
           if (auto object_to_visualize = weak_object.lock()) {
 
             if (ImGui::CollapsingHeader(header)) {
+              ImGui::PushID(header);
               Util::draw_transform_component_editor(
                 object_to_visualize->local_transform);
 
               ImGui::Checkbox("Show AABB", &self->display_AABB);
               ImGui::Checkbox("Show axes", &object_to_visualize->display_axes);
+              ImGui::PopID();
             }
 
             if (self->display_AABB) {
