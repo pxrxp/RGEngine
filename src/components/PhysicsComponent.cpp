@@ -71,29 +71,3 @@ PhysicsComponent::integrate(float fixed_step)
   m_angular_velocity = m_inverse_inertia_tensor * m_angular_momentum;
   return *this;
 }
-
-const glm::vec3&
-PhysicsComponent::get_velocity() const
-{
-  return m_velocity;
-}
-const glm::vec3&
-PhysicsComponent::get_angular_velocity() const
-{
-  return m_angular_velocity;
-}
-float
-PhysicsComponent::get_mass() const
-{
-  return m_mass;
-}
-bool
-PhysicsComponent::has_gravity() const
-{
-  return m_has_gravity;
-}
-float
-PhysicsComponent::get_restitution() const
-{
-  return m_restitution;
-}

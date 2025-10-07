@@ -27,7 +27,7 @@ public:
 
   void reset_mouse_cache();
 
-  SceneObjectWeakPtr get_target_player() { return m_target_player; }
+  SceneObjectStrongPtr get_target_player() { return m_target_player; }
   Camera& look_at(const glm::vec3& target);
 
   glm::vec3 get_right() { return glm::vec3(get_view_matrix()[0]); }

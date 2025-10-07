@@ -38,7 +38,8 @@ public:
     m_scene_ptr->add_child(skybox);
 
     auto cube = std::make_shared<SceneObject>();
-    cube->physics.set_gravity(false);
+    cube->local_transform.translate({0.f, 10.f, 0.f});
+    cube->physics.set_gravity(true);
     setup_cube(cube);
     m_scene_ptr->add_child(cube);
     debug_object(cube, "cube");

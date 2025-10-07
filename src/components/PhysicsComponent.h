@@ -12,11 +12,15 @@ public:
   PhysicsComponent& apply_linear_impulse(const glm::vec3& impulse);
   PhysicsComponent& integrate(float fixed_step);
 
-  const glm::vec3& get_velocity() const;
-  const glm::vec3& get_angular_velocity() const;
-  float get_restitution() const;
-  float get_mass() const;
-  bool has_gravity() const;
+  const glm::vec3& get_velocity() const { return m_velocity; }
+  const glm::vec3& get_angular_velocity() const { return m_angular_velocity; }
+  float get_mass() const { return m_mass; }
+  bool has_gravity() const { return m_has_gravity; }
+  float get_restitution() const { return m_restitution; }
+
+  void enable() { m_enabled = true; }
+  void disable() { m_enabled = false; }
+  bool is_enabled() { return m_enabled; }
 
   PhysicsComponent& set_mass(float mass);
   PhysicsComponent& set_restitution(float restitution);
@@ -35,4 +39,5 @@ private:
   glm::mat3 m_inverse_inertia_tensor = glm::mat3(1.f);
   bool m_has_gravity = true;
   float m_restitution;
+  bool m_enabled = false;
 };

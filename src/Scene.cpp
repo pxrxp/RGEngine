@@ -10,43 +10,38 @@
 void
 resolve_penetration(SceneObject& a, SceneObject& b)
 {
-  // BoundingBox& aabb_a = a.get_world_AABB();
-  // BoundingBox& aabb_b = b.get_world_AABB();
+  BoundingBox& aabb_a = a.get_world_AABB();
+  BoundingBox& aabb_b = b.get_world_AABB();
 
-  // float overlap_x =
-  //   std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x,
-  //   aabb_b.min.x);
-  // float overlap_y =
-  //   std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y,
-  //   aabb_b.min.y);
-  // float overlap_z =
-  //   std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z,
-  //   aabb_b.min.z);
+  float overlap_x =
+    std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x, aabb_b.min.x);
+  float overlap_y =
+    std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y, aabb_b.min.y);
+  float overlap_z =
+    std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z, aabb_b.min.z);
 
-  // glm::vec3 mtv;
+  glm::vec3 mtv;
 
-  // if (overlap_x < overlap_y && overlap_x < overlap_z) {
-  //   mtv = glm::vec3(overlap_x, 0, 0);
-  // } else if (overlap_y < overlap_z) {
-  //   mtv = glm::vec3(0, overlap_y, 0);
-  // } else {
-  //   mtv = glm::vec3(0, 0, overlap_z);
-  // }
+  if (overlap_x < overlap_y && overlap_x < overlap_z) {
+    mtv = glm::vec3(overlap_x, 0, 0);
+  } else if (overlap_y < overlap_z) {
+    mtv = glm::vec3(0, overlap_y, 0);
+  } else {
+    mtv = glm::vec3(0, 0, overlap_z);
+  }
 
-  // glm::vec3 direction =
-  //   b.local_transform.get_position() - a.local_transform.get_position();
-  // if (glm::dot(direction, mtv) < 0.0f) {
-  //   mtv = -mtv;
-  // }
+  glm::vec3 direction =
+    b.local_transform.get_position() - a.local_transform.get_position();
+  if (glm::dot(direction, mtv) < 0.0f) {
+    mtv = -mtv;
+  }
 
-  // if (a.physics.get_mass() > 0.0001 && b.physics.get_mass() > 0.0001) {
-  //   a.local_transform.translate(-mtv * a.physics.get_mass() /
-  //                               (a.physics.get_mass() +
-  //                               b.physics.get_mass()));
-  //   b.local_transform.translate(mtv * b.physics.get_mass() /
-  //                               (a.physics.get_mass() +
-  //                               b.physics.get_mass()));
-  // }
+  if (a.physics.get_mass() > 0.0001 || b.physics.get_mass() > 0.0001) {
+    a.local_transform.translate(-mtv * a.physics.get_mass() /
+                                (a.physics.get_mass() + b.physics.get_mass()));
+    b.local_transform.translate(mtv * b.physics.get_mass() /
+                                (a.physics.get_mass() + b.physics.get_mass()));
+  }
 }
 
 void
@@ -151,11 +146,23 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
 
             if (ImGui::CollapsingHeader(header)) {
               ImGui::PushID(header);
-              Util::draw_transform_component_editor(
-                object_to_visualize->local_transform);
+
+              if (ImGui::TreeNode("Transform Component")) {
+                Util::draw_transform_component_editor(
+                  object_to_visualize->local_transform, header);
+                ImGui::TreePop();
+              }
 
               ImGui::Checkbox("Show AABB", &self->display_AABB);
               ImGui::Checkbox("Show axes", &object_to_visualize->display_axes);
+              ImGui::Separator();
+
+              if (ImGui::TreeNode("Physics Component")) {
+                Util::draw_physics_component_editor(
+                  object_to_visualize->physics, header);
+                ImGui::TreePop();
+              }
+
               ImGui::PopID();
             }
 
@@ -277,13 +284,16 @@ Scene::debug_camera()
         if (ImGui::CollapsingHeader("Camera")) {
           auto& camera = m_app_cache.get_camera();
 
-          if (auto player = camera.get_target_player().lock()) {
-            Util::draw_transform_component_editor(player->local_transform);
+          auto player = camera.get_target_player();
+          if (ImGui::TreeNode("Transport Component")) {
+            Util::draw_transform_component_editor(player->local_transform,
+                                                  "Camera");
             if (player->local_transform.is_dirty()) {
               camera.reset_mouse_cache();
               camera.set_view_matrix_dirty();
             }
             ImGui::Separator();
+            ImGui::TreePop();
           }
 
           ImGui::Checkbox("Show frustum", &self->visible);
@@ -358,7 +368,8 @@ Scene::collect_physics_objects_recursive(
   SceneObjectStrongPtr object,
   std::vector<SceneObjectStrongPtr>& objects)
 {
-  objects.push_back(object);
+  if (object->physics.is_enabled())
+    objects.push_back(object);
   for (auto& child : *object) {
     collect_physics_objects_recursive(child, objects);
   }
