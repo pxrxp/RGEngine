@@ -27,17 +27,18 @@ struct MeshDescriptor
            draw_primitive == GL_TRIANGLES && usage == GL_STATIC_DRAW;
   }
 
-  #ifndef NDEBUG
-  MeshDescriptor& print() {
-   std::cout << "MeshDescriptor {\n"
-   << "  mesh_name: \"" << mesh_name << "\",\n"
-   << "  draw_primitive: " << draw_primitive << ",\n"
-   << "  usage: " << usage << ",\n"
-   << "  vertices: " << vertices << ",\n"
-   << "  indices: " << indices << ",\n}\n\n";
-  return *this;
+#ifndef NDEBUG
+  MeshDescriptor& print()
+  {
+    std::cout << "MeshDescriptor {\n"
+              << "  mesh_name: \"" << mesh_name << "\",\n"
+              << "  draw_primitive: " << draw_primitive << ",\n"
+              << "  usage: " << usage << ",\n"
+              << "  vertices: " << vertices << ",\n"
+              << "  indices: " << indices << ",\n}\n\n";
+    return *this;
   }
-  #endif
+#endif
 
   MeshDescriptor& recalculate_normals(bool ccw = true)
   {
@@ -140,7 +141,8 @@ class MeshRepo : public RepoBase<std::string, Mesh>
 {
 public:
   template<typename Vertex, typename Indices>
-  MeshStrongPtr load_mesh(const MeshDescriptor<Vertex, Indices>& desc)
+  MeshStrongPtr load_mesh(const MeshDescriptor<Vertex, Indices>& desc,
+                          bool reload = false)
   {
 
     static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
@@ -155,10 +157,14 @@ public:
                   std::is_same<Indices, TriangleIndices>::value);
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
-      if (!desc.is_getter_desc())
-        std::cout << "Mesh " << desc.mesh_name << " already exists!"
-                  << std::endl;
-      return mesh.value();
+      if (!reload) {
+        if (!desc.is_getter_desc())
+          std::cout << "Mesh " << desc.mesh_name << " already exists!"
+                    << std::endl;
+        return mesh.value();
+      } else {
+        remove(desc.mesh_name);
+      }
     }
 
     GLuint vao = 0, vbo = 0, ebo = 0;
