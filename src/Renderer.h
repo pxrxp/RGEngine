@@ -46,6 +46,7 @@ using RenderPacketWeakPtr = std::weak_ptr<RenderPacket>;
 
 class SceneObject;
 using SceneObjectStrongPtr = std::shared_ptr<SceneObject>;
+using SceneObjectWeakPtr = std::weak_ptr<SceneObject>;
 
 class Renderer
 {

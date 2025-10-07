@@ -195,16 +195,18 @@ public:
       VERTEX_PTNTB_FIELDS(SETUP_ATTRIB)
     }
 
+    std::vector<glm::vec3> vertices_pos;
     BoundingBox local_AABB;
     for (const auto& vertex : desc.vertices) {
       local_AABB.add_point(vertex.position);
+      vertices_pos.push_back(std::move(vertex.position));
     }
 
     return RepoBase::create(desc.mesh_name,
                             vao,
                             vbo,
                             ebo,
-                            vertex_count,
+                            vertices_pos,
                             index_count,
                             desc.draw_primitive,
                             local_AABB);

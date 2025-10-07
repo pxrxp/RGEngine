@@ -74,7 +74,7 @@ private:
           } },
           .indices = { CUBE_FACES },
           .draw_primitive = GL_TRIANGLES }
-          .recalculate_normals().print()),
+          .recalculate_normals()),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "colored_cube_material",
@@ -106,7 +106,7 @@ private:
           } },
           .indices = { QUAD_FACES },
           .draw_primitive = GL_TRIANGLES }
-          .recalculate_normals().print()),
+          .recalculate_normals()),
 
       m_app_cache.material_repo.load_material(MaterialDescriptor{
         .material_name = "colored_cube_material",

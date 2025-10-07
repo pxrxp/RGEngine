@@ -72,10 +72,10 @@ Mesh::draw(unsigned int instance_count)
     }
   } else {
     if (instance_count == 1) {
-      glDrawArrays(m_draw_primitive, 0, static_cast<int>(m_vertex_count));
+      glDrawArrays(m_draw_primitive, 0, static_cast<int>(m_vertices_pos.size()));
     } else {
       glDrawArraysInstanced(
-        m_draw_primitive, 0, static_cast<int>(m_vertex_count), instance_count);
+        m_draw_primitive, 0, static_cast<int>(m_vertices_pos.size()), instance_count);
     }
   }
   this->unbind();
@@ -92,7 +92,7 @@ std::ostream&
 operator<<(std::ostream& os, const Mesh& mesh)
 {
   os << "Mesh(vao=" << mesh.m_vao << ", vbo=" << mesh.m_vbo
-     << ", ebo=" << mesh.m_ebo << ", vertex_count=" << mesh.m_vertex_count
+     << ", ebo=" << mesh.m_ebo << ", vertex_count=" << mesh.m_vertices_pos.size()
      << ", index_count=" << mesh.m_index_count
      << ", draw_primitive=" << mesh.m_draw_primitive
      << ", local_AABB=" << mesh.m_local_AABB << ")";

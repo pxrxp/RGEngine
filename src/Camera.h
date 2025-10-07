@@ -22,26 +22,31 @@ public:
   glm::mat4 get_view_matrix();
   glm::mat4 get_projection_matrix();
 
-  Camera& look_at(const glm::vec3& target);
-  glm::vec3 get_right();
-  glm::vec3 get_up();
-  glm::vec3 get_forward();
+  void set_view_matrix_dirty() { m_view_dirty = true; }
+  void set_projection_matrix_dirty() { m_proj_dirty = true; }
 
-  float get_fovy_rad() const;
-  float get_fovy() const;
+  SceneObjectWeakPtr get_target_player() { return m_target_player; }
+  Camera& look_at(const glm::vec3& target);
+
+  glm::vec3 get_right() { return glm::vec3(get_view_matrix()[0]); }
+  glm::vec3 get_up() { return glm::vec3(get_view_matrix()[1]); }
+  glm::vec3 get_forward() { return -glm::vec3(get_view_matrix()[2]); }
+
+  float get_fovy_rad() const { return m_fovy_rad; }
+  float get_fovy() const { return glm::degrees(m_fovy_rad); }
   Camera& set_fovy(float fovy_deg);
   Camera& set_fovy_rad(float fovy_rad);
 
-  float get_sensitivity() const;
+  float get_sensitivity() const { return m_sensitivity; }
   Camera& set_sensitivity(float sensitivity);
 
-  float get_speed() const;
+  float get_speed() const { return m_speed; }
   Camera& set_speed(float speed);
 
-  float get_far_plane() const;
+  float get_far_plane() const { return m_z_far; }
   Camera& set_far_plane(float z_far);
 
-  float get_near_plane() const;
+  float get_near_plane() const { return m_z_near; }
   Camera& set_near_plane(float z_near);
 
   const std::vector<Vertex_Pos>& get_frustum_worldspace();

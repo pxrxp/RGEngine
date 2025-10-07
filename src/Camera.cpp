@@ -127,9 +127,13 @@ Camera::update_lazy(App& app)
     glm::vec3 right = player_orientation * glm::vec3(AXIS_X);
     glm::vec3 up = glm::vec3(AXIS_Y);
 
-    glm::vec3 move_force =
+    forward =
+      forward - glm::dot(forward, glm::vec3(AXIS_Y)) * glm::vec3(AXIS_Y);
+    right = right - glm::dot(right, glm::vec3(AXIS_Y)) * glm::vec3(AXIS_Y);
+
+    glm::vec3 move_offset =
       (right * move_dir.x + up * move_dir.y + forward * move_dir.z) * m_speed;
-    m_target_player->local_transform.translate(move_force *
+    m_target_player->local_transform.translate(move_offset *
                                                app.get_delta_time());
     m_view_dirty = true;
   }
@@ -195,27 +199,6 @@ Camera::get_view_matrix()
   return m_view;
 }
 
-glm::vec3
-Camera::get_right()
-{
-  glm::mat4 V = get_view_matrix();
-  return glm::vec3(V[0]);
-}
-
-glm::vec3
-Camera::get_up()
-{
-  glm::mat4 V = get_view_matrix();
-  return glm::vec3(V[1]);
-}
-
-glm::vec3
-Camera::get_forward()
-{
-  glm::mat4 V = get_view_matrix();
-  return -glm::vec3(V[2]);
-}
-
 glm::mat4
 Camera::get_projection_matrix()
 {
@@ -225,16 +208,6 @@ Camera::get_projection_matrix()
   return m_proj;
 }
 
-float
-Camera::get_fovy_rad() const
-{
-  return m_fovy_rad;
-}
-float
-Camera::get_fovy() const
-{
-  return glm::degrees(m_fovy_rad);
-}
 Camera&
 Camera::set_fovy(float fovy_deg)
 {
@@ -250,11 +223,6 @@ Camera::set_fovy_rad(float fovy_rad)
   return *this;
 }
 
-float
-Camera::get_sensitivity() const
-{
-  return m_sensitivity;
-}
 Camera&
 Camera::set_sensitivity(float sensitivity)
 {
@@ -262,11 +230,6 @@ Camera::set_sensitivity(float sensitivity)
   return *this;
 }
 
-float
-Camera::get_speed() const
-{
-  return m_speed;
-}
 Camera&
 Camera::set_speed(float speed)
 {
@@ -274,11 +237,6 @@ Camera::set_speed(float speed)
   return *this;
 }
 
-float
-Camera::get_far_plane() const
-{
-  return m_z_far;
-}
 Camera&
 Camera::set_far_plane(float z_far)
 {
@@ -287,11 +245,6 @@ Camera::set_far_plane(float z_far)
   return *this;
 }
 
-float
-Camera::get_near_plane() const
-{
-  return m_z_near;
-}
 Camera&
 Camera::set_near_plane(float z_near)
 {

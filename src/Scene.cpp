@@ -277,10 +277,16 @@ Scene::debug_camera()
         if (ImGui::CollapsingHeader("Camera")) {
           auto& camera = m_app_cache.get_camera();
 
-          if (ImGui::Button("Update frustum"))
-            dirty = true;
+          if (auto player = camera.get_target_player().lock()) {
+            Util::draw_transform_component_editor(player->local_transform);
+            if (player->local_transform.is_dirty())
+              camera.set_view_matrix_dirty();
+            ImGui::Separator();
+          }
 
           ImGui::Checkbox("Show frustum", &self->visible);
+          if (ImGui::Button("Update frustum"))
+            dirty = true;
           ImGui::Separator();
 
           float fovy_deg = camera.get_fovy();
