@@ -48,9 +48,11 @@ TransformComponent::translate(const glm::vec3& offset)
 TransformComponent&
 TransformComponent::rotate(const glm::vec3& axis, float angle_rad)
 {
-  m_orientation =
-    glm::normalize(glm::angleAxis(angle_rad, axis) * m_orientation);
-  m_dirty = true;
+  if (angle_rad < 0.0001f) {
+    m_orientation =
+      glm::normalize(glm::angleAxis(angle_rad, axis) * m_orientation);
+    m_dirty = true;
+  }
   return *this;
 }
 

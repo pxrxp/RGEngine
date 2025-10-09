@@ -1,6 +1,7 @@
 #include "SceneObject.h"
 #include "App.h"
 #include "Mesh.h"
+#include "Scene.h"
 #include "components/BoundingBox.h"
 #include <cmath>
 #include <glm/glm.hpp>
@@ -8,6 +9,13 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <optional>
+
+SceneObject::SceneObject()
+  : m_local_transform(std::make_unique<TransformComponent>())
+  , m_physics(
+      std::make_unique<PhysicsComponent>(*m_local_transform, Scene::FIXED_STEP))
+{
+}
 
 std::optional<RenderPacketStrongPtr>
 SceneObject::get_render_packet()
@@ -18,15 +26,15 @@ SceneObject::get_render_packet()
 glm::mat4
 SceneObject::get_local_transformation_mat()
 {
-  m_model_matrix = local_transform.get_model_matrix();
+  m_model_matrix = m_local_transform->get_model_matrix();
   return m_model_matrix;
 }
 
 glm::mat4
 SceneObject::get_world_transformation_mat()
 {
-  if (local_transform.is_dirty())
-    m_world_AABB_dirty = local_transform.is_dirty();
+  if (m_local_transform->is_dirty())
+    m_world_AABB_dirty = m_local_transform->is_dirty();
 
   glm::mat4 world_model_mat = get_local_transformation_mat();
 

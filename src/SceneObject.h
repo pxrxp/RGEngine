@@ -27,26 +27,37 @@ private:
 
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 
+  std::unique_ptr<TransformComponent> m_local_transform = nullptr;
+  std::unique_ptr<PhysicsComponent> m_physics = nullptr;
+
 public:
-  TransformComponent local_transform;
-  PhysicsComponent physics;
+  TransformComponent& get_local_transform() { return *m_local_transform; }
+  const TransformComponent& get_local_transform() const
+  {
+    return *m_local_transform;
+  }
+  PhysicsComponent& get_physics_component() { return *m_physics; }
+  const PhysicsComponent& get_physics_component() const { return *m_physics; }
 
   glm::mat4 get_local_transformation_mat();
   glm::mat4 get_world_transformation_mat();
   BoundingBox& get_world_AABB();
   void update_world_AABB();
 
-  #ifndef NDEBUG
+#ifndef NDEBUG
   bool display_AABB = false;
   bool display_axes = false;
-  #endif
+#endif
 
   bool visible = true;
+
+  SceneObject();
 
   template<typename... Args>
   void set_render_packet(Args&&... args)
   {
-    m_render_packet = std::make_shared<RenderPacket>(std::forward<Args>(args)...);
+    m_render_packet =
+      std::make_shared<RenderPacket>(std::forward<Args>(args)...);
   }
 
   std::optional<RenderPacketStrongPtr> get_render_packet();

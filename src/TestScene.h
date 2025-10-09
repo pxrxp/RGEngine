@@ -12,8 +12,6 @@
 #include "util/obj_model.h"
 #include "util/opengl.h"
 
-#include "debug.h"
-
 class TestScene : public Scene
 {
 public:
@@ -38,14 +36,14 @@ public:
     m_scene_ptr->add_child(skybox);
 
     auto cube = std::make_shared<SceneObject>();
-    cube->local_transform.translate({0.f, 10.f, 0.f});
-    cube->physics.set_gravity(true);
+    cube->get_local_transform().translate({ 0.f, 10.f, 0.f });
+    cube->get_physics_component().set_gravity(true);
     setup_cube(cube);
     m_scene_ptr->add_child(cube);
     debug_object(cube, "cube");
 
     auto plane = std::make_shared<SceneObject>();
-    plane->physics.set_gravity(false);
+    plane->get_physics_component().set_gravity(false).set_mass(INFINITY);
     setup_plane(plane);
     m_scene_ptr->add_child(plane);
     debug_object(plane, "plane");
@@ -58,7 +56,7 @@ public:
 private:
   void setup_cube(const SceneObjectStrongPtr& cube)
   {
-    cube->local_transform.scale(glm::vec3(0.5f));
+    cube->get_local_transform().scale(glm::vec3(0.5f));
     cube->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
@@ -95,20 +93,24 @@ private:
 
   void setup_plane(const SceneObjectStrongPtr& plane)
   {
-    plane->local_transform.rotate_deg(AXIS_X, -90);
-    plane->local_transform.scale(m_app_cache.get_camera().get_far_plane() * glm::vec3(1.f));
-    plane->local_transform.translate({0.f, -1.f, 0.f});
+    auto f = m_app_cache.get_camera().get_far_plane();
+    plane->get_local_transform().scale({ f, f, f });
+    plane->get_local_transform().translate({ 0.f, -f-1.f, 0.f });
     plane->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
           .mesh_name = "colored_plane_mesh",
           .vertices = { {
-            { QUAD_VERT0, { RGB_PALETTE_RED }, {} },
-            { QUAD_VERT1, { RGB_PALETTE_RED }, {} },
-            { QUAD_VERT2, { RGB_PALETTE_RED }, {} },
-            { QUAD_VERT3, { RGB_PALETTE_RED }, {} },
+            { CUBE_VERT0, { RGB_RED }, {} },
+            { CUBE_VERT1, { RGB_RED }, {} },
+            { CUBE_VERT2, { RGB_RED }, {} },
+            { CUBE_VERT3, { RGB_RED }, {} },
+            { CUBE_VERT4, { RGB_RED }, {} },
+            { CUBE_VERT5, { RGB_RED }, {} },
+            { CUBE_VERT6, { RGB_RED }, {} },
+            { CUBE_VERT7, { RGB_RED }, {} },
           } },
-          .indices = { QUAD_FACES },
+          .indices = { CUBE_FACES },
           .draw_primitive = GL_TRIANGLES }
           .recalculate_normals()),
 
@@ -130,7 +132,7 @@ private:
 
   void setup_obj_model(const SceneObjectStrongPtr& objmodel)
   {
-    objmodel->physics.set_gravity(false);
+    objmodel->get_physics_component().set_gravity(false);
     objmodel->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         from_OBJ<Vertex_Pos, TriangleIndices>("Box.obj", GL_TRIANGLES)),

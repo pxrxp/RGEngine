@@ -37,7 +37,7 @@ Camera::get_camera_move_dir(App& app) const
   if (go_down)
     direction.y -= 1.0f;
 
-  if (glm::length(direction) > 0.0f) {
+  if (glm::length2(direction) > 0.0f) {
     direction = glm::normalize(direction);
   }
 
@@ -124,10 +124,10 @@ Camera::update_lazy(App& app)
 
   glm::quat player_orientation =
     glm::quat({ m_euler_angles.x, m_euler_angles.y, 0.0f });
-  m_target_player->local_transform.set_rotation(player_orientation);
+  m_target_player->get_local_transform().set_rotation(player_orientation);
 
   auto move_dir = get_camera_move_dir(app);
-  if (glm::length(move_dir) > 0.0f) {
+  if (glm::length2(move_dir) > 0.0f) {
     glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
     glm::vec3 right = player_orientation * glm::vec3(AXIS_X);
     glm::vec3 world_up = glm::vec3(AXIS_Y);
@@ -138,7 +138,7 @@ Camera::update_lazy(App& app)
     glm::vec3 move_offset =
       (right * move_dir.x + world_up * move_dir.y + forward * move_dir.z) *
       m_speed;
-    m_target_player->local_transform.translate(move_offset *
+    m_target_player->get_local_transform().translate(move_offset *
                                                app.get_delta_time());
     m_view_dirty = true;
   }
@@ -172,8 +172,8 @@ Camera::update_projection_matrix(float aspect_ratio)
 Camera&
 Camera::look_at(const glm::vec3& target)
 {
-  m_target_player->local_transform.set_rotation(glm::quatLookAt(
-    glm::normalize(target - m_target_player->local_transform.get_position()),
+  m_target_player->get_local_transform().set_rotation(glm::quatLookAt(
+    glm::normalize(target - m_target_player->get_local_transform().get_position()),
     AXIS_Y));
   reset_mouse_cache();
   m_view_dirty = true;
@@ -184,7 +184,7 @@ void
 Camera::reset_mouse_cache()
 {
   m_euler_angles =
-    glm::eulerAngles(m_target_player->local_transform.get_rotation());
+    glm::eulerAngles(m_target_player->get_local_transform().get_rotation());
 }
 
 void
@@ -193,9 +193,9 @@ Camera::update_view_matrix()
   if (!m_target_player)
     return;
 
-  glm::vec3 player_pos = m_target_player->local_transform.get_position();
+  glm::vec3 player_pos = m_target_player->get_local_transform().get_position();
   glm::quat player_orientation =
-    m_target_player->local_transform.get_rotation();
+    m_target_player->get_local_transform().get_rotation();
   glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
 
   m_view = glm::lookAt(player_pos, player_pos + forward, glm::vec3(AXIS_Y));
