@@ -6,12 +6,12 @@ resolve_penetration(SceneObject& a, SceneObject& b)
   BoundingBox& aabb_a = a.get_world_AABB();
   BoundingBox& aabb_b = b.get_world_AABB();
 
-  float overlap_x =
-    std::min(aabb_a.max.x, aabb_b.max.x) - std::max(aabb_a.min.x, aabb_b.min.x);
-  float overlap_y =
-    std::min(aabb_a.max.y, aabb_b.max.y) - std::max(aabb_a.min.y, aabb_b.min.y);
-  float overlap_z =
-    std::min(aabb_a.max.z, aabb_b.max.z) - std::max(aabb_a.min.z, aabb_b.min.z);
+  float overlap_x = std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
+                    std::max(aabb_a.get_min().x, aabb_b.get_min().x);
+  float overlap_y = std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
+                    std::max(aabb_a.get_min().y, aabb_b.get_min().y);
+  float overlap_z = std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
+                    std::max(aabb_a.get_min().z, aabb_b.get_min().z);
 
   glm::vec3 mtv;
 
@@ -29,6 +29,13 @@ resolve_penetration(SceneObject& a, SceneObject& b)
     mtv = -mtv;
   }
 
+  if (mtv.x != 0)
+    mtv.x -= 0.001f;
+  if (mtv.y != 0)
+    mtv.y -= 0.001f;
+  if (mtv.y != 0)
+    mtv.y -= 0.001f;
+
   float move_a = 0.f, move_b = 0.f, div = 0.f;
   float mass_a = a.get_physics_component().get_mass();
   float mass_b = b.get_physics_component().get_mass();
@@ -45,6 +52,7 @@ resolve_penetration(SceneObject& a, SceneObject& b)
 
   if (div > 0.0001f) {
     move_a /= div;
+    move_b /= div;
   }
 
   a.get_local_transform().translate(-mtv * move_a);
@@ -127,7 +135,8 @@ Scene::step_simulation()
     auto& physics = object->get_physics_component();
     physics.clear_forces();
 
-    if (physics.has_gravity()) {
+    if (physics.has_gravity() &&
+        object->get_local_transform().get_position().y > 0) {
       glm::vec3 gravity_force =
         glm::vec3(0.0f, -9.8f, 0.0f) * physics.get_mass();
       physics.apply_force(gravity_force);

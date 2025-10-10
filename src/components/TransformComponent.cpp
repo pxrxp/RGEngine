@@ -17,7 +17,7 @@ TransformComponent&
 TransformComponent::set_position(const glm::vec3& position)
 {
   m_position = position;
-  m_dirty = true;
+  set_dirty();
   return *this;
 }
 
@@ -25,7 +25,7 @@ TransformComponent&
 TransformComponent::set_rotation(const glm::quat& orientation)
 {
   m_orientation = glm::normalize(orientation);
-  m_dirty = true;
+  set_dirty();
   return *this;
 }
 
@@ -33,7 +33,7 @@ TransformComponent&
 TransformComponent::set_scale(const glm::vec3& scale)
 {
   m_scale = scale;
-  m_dirty = true;
+  set_dirty();
   return *this;
 }
 
@@ -41,7 +41,7 @@ TransformComponent&
 TransformComponent::translate(const glm::vec3& offset)
 {
   m_position += offset;
-  m_dirty = true;
+  set_dirty();
   return *this;
 }
 
@@ -51,7 +51,7 @@ TransformComponent::rotate(const glm::vec3& axis, float angle_rad)
   if (angle_rad < 0.0001f) {
     m_orientation =
       glm::normalize(glm::angleAxis(angle_rad, axis) * m_orientation);
-    m_dirty = true;
+    set_dirty();
   }
   return *this;
 }
@@ -66,7 +66,7 @@ TransformComponent&
 TransformComponent::scale(const glm::vec3& factors)
 {
   m_scale *= factors;
-  m_dirty = true;
+  set_dirty();
   return *this;
 }
 

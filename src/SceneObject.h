@@ -23,7 +23,6 @@ private:
   std::vector<SceneObjectStrongPtr> m_children;
 
   BoundingBox m_world_AABB;
-  bool m_world_AABB_dirty = true;
 
   glm::mat4 m_model_matrix = glm::mat4(1.0f);
 

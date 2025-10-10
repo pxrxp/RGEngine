@@ -86,7 +86,7 @@ private:
   bool m_has_gravity = true;
   float m_restitution = 0.5f;
   float m_drag = 0.5f;
-  bool m_enabled = false;
+  bool m_enabled = true;
   bool m_initial_conditions_set = false;
   bool m_is_first_step = true;
 };

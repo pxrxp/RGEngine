@@ -61,8 +61,8 @@ Scene::debug_object(std::weak_ptr<SceneObject> weak_object, const char* header)
 
             if (self->display_AABB) {
               const BoundingBox& aabb = object_to_visualize->get_world_AABB();
-              const glm::vec3 dimensions = aabb.max - aabb.min;
-              const glm::vec3 center = aabb.min + 0.5f * dimensions;
+              const glm::vec3 dimensions = aabb.get_max() - aabb.get_min();
+              const glm::vec3 center = aabb.get_min() + 0.5f * dimensions;
 
               self->get_local_transform().set_position(center);
               self->get_local_transform().set_scale(0.5f * dimensions);
@@ -141,7 +141,7 @@ Scene::debug_camera()
           auto& camera = m_app_cache.get_camera();
 
           auto player = camera.get_target_player();
-          if (ImGui::TreeNode("Transport Component")) {
+          if (ImGui::TreeNode("Transform Component")) {
             Util::draw_transform_component_editor(player->get_local_transform(),
                                                   "Camera");
             if (player->get_local_transform().is_dirty()) {

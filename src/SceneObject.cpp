@@ -34,7 +34,7 @@ glm::mat4
 SceneObject::get_world_transformation_mat()
 {
   if (m_local_transform->is_dirty())
-    m_world_AABB_dirty = m_local_transform->is_dirty();
+    m_world_AABB.set_dirty();
 
   glm::mat4 world_model_mat = get_local_transformation_mat();
 
@@ -61,15 +61,21 @@ SceneObject::update_world_AABB()
                  glm::vec4(corner.position, 1.f) };
     }
 
-    m_world_AABB = BoundingBox(AABB_corners);
+    m_world_AABB.resize(AABB_corners);
+
+    m_world_AABB.m_min += m_world_AABB.m_delta_pos;
+    m_world_AABB.m_min -= 0.5f * m_world_AABB.m_delta_size;
+
+    m_world_AABB.m_max += m_world_AABB.m_delta_pos;
+    m_world_AABB.m_max += 0.5f * m_world_AABB.m_delta_size;
   }
-  m_world_AABB_dirty = false;
+  m_world_AABB.m_dirty = false;
 }
 
 BoundingBox&
 SceneObject::get_world_AABB()
 {
-  if (m_world_AABB_dirty)
+  if (m_world_AABB.is_dirty())
     update_world_AABB();
 
   return m_world_AABB;

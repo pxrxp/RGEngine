@@ -43,7 +43,6 @@ public:
     debug_object(cube, "cube");
 
     auto plane = std::make_shared<SceneObject>();
-    plane->get_physics_component().set_gravity(false).set_mass(INFINITY);
     setup_plane(plane);
     m_scene_ptr->add_child(plane);
     debug_object(plane, "plane");
@@ -94,23 +93,21 @@ private:
   void setup_plane(const SceneObjectStrongPtr& plane)
   {
     auto f = m_app_cache.get_camera().get_far_plane();
-    plane->get_local_transform().scale({ f, f, f });
-    plane->get_local_transform().translate({ 0.f, -f-1.f, 0.f });
+    plane->get_local_transform().scale({ f, f, f }).rotate_deg(AXIS_X, -90.f);
+    plane->get_physics_component().set_gravity(false).set_mass(INFINITY);
+    plane->get_world_AABB().expand(AXIS_Y);
+    plane->get_world_AABB().offset(-0.5f * glm::vec3(AXIS_Y));
     plane->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{
           .mesh_name = "colored_plane_mesh",
           .vertices = { {
-            { CUBE_VERT0, { RGB_RED }, {} },
-            { CUBE_VERT1, { RGB_RED }, {} },
-            { CUBE_VERT2, { RGB_RED }, {} },
-            { CUBE_VERT3, { RGB_RED }, {} },
-            { CUBE_VERT4, { RGB_RED }, {} },
-            { CUBE_VERT5, { RGB_RED }, {} },
-            { CUBE_VERT6, { RGB_RED }, {} },
-            { CUBE_VERT7, { RGB_RED }, {} },
+            { QUAD_VERT0, { RGB_RED }, {} },
+            { QUAD_VERT1, { RGB_RED }, {} },
+            { QUAD_VERT2, { RGB_RED }, {} },
+            { QUAD_VERT3, { RGB_RED }, {} },
           } },
-          .indices = { CUBE_FACES },
+          .indices = { QUAD_FACES },
           .draw_primitive = GL_TRIANGLES }
           .recalculate_normals()),
 
