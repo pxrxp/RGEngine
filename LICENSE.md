@@ -1,6 +1,6 @@
-MIT License
+# MIT License
 
-Copyright (c) 2025 pxrxp
+### Copyright (c) 2025 pxrxp
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+
 External dependencies used are:
 
 - glfw
-"""
+
+```
 Copyright (c) 2002-2006 Marcus Geelnard
 
 Copyright (c) 2006-2019 Camilla Löwy
@@ -46,10 +48,11 @@ freely, subject to the following restrictions:
 
 3. This notice may not be removed or altered from any source
    distribution.
-"""
+```
 
 - glm
-"""
+
+```
 ================================================================================
 OpenGL Mathematics (GLM)
 --------------------------------------------------------------------------------
@@ -104,11 +107,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-"""
+```
 
 - libpng
-"""
 
+```
 COPYRIGHT NOTICE, DISCLAIMER, and LICENSE
 =========================================
 
@@ -243,10 +246,11 @@ without fee, and encourage the use of this source code as a component
 to supporting the PNG file format in commercial products.  If you use
 this source code in a product, acknowledgment is not required but would
 be appreciated.
-"""
+```
 
 - imgui
-"""
+
+```
 The MIT License (MIT)
 
 Copyright (c) 2014-2025 Omar Cornut
@@ -268,4 +272,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-"""
+```
