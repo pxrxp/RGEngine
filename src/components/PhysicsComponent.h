@@ -25,6 +25,8 @@ public:
                                          const glm::vec3& center_of_mass,
                                          const glm::vec3& apply_point);
   PhysicsComponent& apply_linear_impulse(const glm::vec3& impulse);
+  PhysicsComponent& apply_impulse_at_point(const glm::vec3& impulse,
+                                         const glm::vec3& apply_point);
   PhysicsComponent& integrate_position();
   PhysicsComponent& integrate_velocity();
 

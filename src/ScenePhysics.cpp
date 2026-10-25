@@ -127,6 +127,48 @@ Scene::get_all_physics_objects()
 }
 
 void
+Scene::handle_shooting()
+{
+  auto& window = m_app_cache.get_window();
+  bool is_pressed = window.is_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT);
+
+  if (is_pressed && !m_mouse_was_pressed) {
+    glm::vec3 ray_origin = m_player->get_local_transform().get_position();
+    glm::vec3 ray_dir = m_app_cache.get_camera().get_forward();
+
+    auto objects = get_all_physics_objects();
+    SceneObjectStrongPtr hit_object = nullptr;
+    float closest_t = 1000.0f;
+    glm::vec3 best_normal(0.0f);
+
+    for (auto& obj : objects) {
+      if (is_static_object(*obj))
+        continue;
+
+      float t = 0.0f;
+      glm::vec3 normal(0.0f);
+      if (obj->get_world_AABB().intersects_ray(
+            ray_origin, ray_dir, t, normal)) {
+        if (t < closest_t) {
+          closest_t = t;
+          hit_object = obj;
+          best_normal = normal;
+        }
+      }
+    }
+
+    if (hit_object) {
+      glm::vec3 hit_point = ray_origin + ray_dir * closest_t;
+      glm::vec3 impulse = ray_dir * 18.0f + glm::vec3(0.0f, 3.0f, 0.0f);
+      hit_object->get_physics_component().apply_impulse_at_point(impulse,
+                                                                 hit_point);
+    }
+  }
+
+  m_mouse_was_pressed = is_pressed;
+}
+
+void
 Scene::update_character_controller(float dt)
 {
   if (!m_player)
@@ -135,6 +177,8 @@ Scene::update_character_controller(float dt)
   // Only walk if cursor is disabled (mouse captured)
   if (m_app_cache.get_window().get_cursor_mode() != GLFW_CURSOR_DISABLED)
     return;
+
+  handle_shooting();
 
   auto& window = m_app_cache.get_window();
 

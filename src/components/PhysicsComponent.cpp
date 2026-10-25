@@ -111,6 +111,17 @@ PhysicsComponent::apply_force_at_point(const glm::vec3& force,
 }
 
 PhysicsComponent&
+PhysicsComponent::apply_impulse_at_point(const glm::vec3& impulse,
+                                         const glm::vec3& apply_point)
+{
+  m_linear_momentum_half_step += impulse;
+  glm::vec3 center_of_mass = m_local_transform.get_position();
+  glm::vec3 r = apply_point - center_of_mass;
+  m_angular_momentum_half_step += glm::cross(r, impulse);
+  return *this;
+}
+
+PhysicsComponent&
 PhysicsComponent::apply_linear_impulse(const glm::vec3& impulse)
 {
   m_linear_momentum_half_step += impulse;

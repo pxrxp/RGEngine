@@ -41,6 +41,10 @@ public:
 
   Where where(const glm::vec3& point) const;
   bool intersects(const BoundingBox& other) const;
+  bool intersects_ray(const glm::vec3& origin,
+                      const glm::vec3& dir,
+                      float& t_out,
+                      glm::vec3& hit_normal) const;
 
   BoundingBox& add_point(const glm::vec3& point);
   BoundingBox& resize(const std::vector<Vertex_Pos>& points);

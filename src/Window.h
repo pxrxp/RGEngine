@@ -22,6 +22,7 @@ public:
   float get_aspect_ratio() const;
 
   bool is_key_pressed(int key) const;
+  bool is_mouse_button_pressed(int button) const;
   glm::dvec2 get_delta_mouse() const;
   glm::dvec2 get_mouse_pos() const;
   void set_cursor_mode(int mode);

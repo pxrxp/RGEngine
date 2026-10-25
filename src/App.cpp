@@ -2,10 +2,8 @@
 #include "util/gl_debug.h"
 #include <iostream>
 
-#ifndef NDEBUG
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#endif
 
 void
 App::init()
@@ -57,7 +55,7 @@ App::init()
   }
 
   Util::init_gl_debug();
-  
+
   int width, height;
   glfwGetFramebufferSize(m_window.m_raw_window, &width, &height);
   glViewport(0, 0, width, height);
@@ -68,7 +66,6 @@ App::init()
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#ifndef NDEBUG
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -77,7 +74,6 @@ App::init()
   ImGui_ImplGlfw_InitForOpenGL(m_window.m_raw_window, true);
   ImGui_ImplOpenGL3_Init("#version 330");
   m_imgui_initialized = true;
-#endif
 
   material_repo.clear_all_slots();
 }
@@ -113,13 +109,11 @@ App::get_delta_time() const
 
 App::~App()
 {
-#ifndef NDEBUG
   if (m_imgui_initialized) {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
   }
-#endif
 }
 
 void
@@ -146,7 +140,8 @@ App::update()
   update_delta_time();
 }
 
-void App::cleanup()
+void
+App::cleanup()
 {
   m_renderer.clear();
   material_repo.shader_program_repo.shader_repo.clear();
@@ -158,20 +153,41 @@ void App::cleanup()
 void
 App::init_debug_gui()
 {
-#ifndef NDEBUG
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
-#endif
 }
 
 void
 App::render_debug_gui()
 {
-#ifndef NDEBUG
+  // Crosshair
+  if (m_window.get_cursor_mode() == GLFW_CURSOR_DISABLED) {
+    ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+    const ImGuiIO& io = ImGui::GetIO();
+    ImVec2 center(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+
+    draw_list->AddCircleFilled(center, 2.0f, IM_COL32(255, 255, 255, 230));
+    draw_list->AddLine(ImVec2(center.x - 9, center.y),
+                       ImVec2(center.x - 4, center.y),
+                       IM_COL32(255, 255, 255, 180),
+                       1.5f);
+    draw_list->AddLine(ImVec2(center.x + 4, center.y),
+                       ImVec2(center.x + 9, center.y),
+                       IM_COL32(255, 255, 255, 180),
+                       1.5f);
+    draw_list->AddLine(ImVec2(center.x, center.y - 9),
+                       ImVec2(center.x, center.y - 4),
+                       IM_COL32(255, 255, 255, 180),
+                       1.5f);
+    draw_list->AddLine(ImVec2(center.x, center.y + 4),
+                       ImVec2(center.x, center.y + 9),
+                       IM_COL32(255, 255, 255, 180),
+                       1.5f);
+  }
+
   glDisable(GL_DEPTH_TEST);
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   glEnable(GL_DEPTH_TEST);
-#endif
 }

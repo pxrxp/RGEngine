@@ -29,15 +29,17 @@ private:
     SceneObjectStrongPtr object,
     std::vector<SceneObjectStrongPtr>& objects);
 
-  void collect_colliders_recursive(
-    SceneObjectStrongPtr object,
-    std::vector<BoundingBox>& colliders);
+  void collect_colliders_recursive(SceneObjectStrongPtr object,
+                                   std::vector<BoundingBox>& colliders);
 
 protected:
   App& m_app_cache;
   SceneObjectStrongPtr m_scene_ptr;
   SceneObjectStrongPtr m_player;
   SceneObjectStrongPtr m_skybox;
+
+  bool m_mouse_was_pressed = false;
+  void handle_shooting();
 
   // Character Controller State
   float m_player_vy = 0.0f;
