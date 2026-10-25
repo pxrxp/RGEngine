@@ -111,10 +111,7 @@ Camera::update_lazy(App& app)
   if (delta_mouse.x != 0 || delta_mouse.y != 0) {
     float px_to_rad = m_fovy_rad / app.get_window().get_height();
 
-    // (Yaw) sign due to right hand rule, move mouse right = CW rotation (CCW =
-    // +ve)
     m_euler_angles.y += -delta_mouse.x * px_to_rad * m_sensitivity;
-    // (Pitch) sign due to screen coords top->bottom
     m_euler_angles.x += -delta_mouse.y * px_to_rad * m_sensitivity;
 
     const float pitch_limit = glm::pi<float>() / 2.0f - 0.01f;
@@ -125,23 +122,6 @@ Camera::update_lazy(App& app)
   glm::quat player_orientation =
     glm::quat({ m_euler_angles.x, m_euler_angles.y, 0.0f });
   m_target_player->get_local_transform().set_rotation(player_orientation);
-
-  auto move_dir = get_camera_move_dir(app);
-  if (glm::length2(move_dir) > 0.0f) {
-    glm::vec3 forward = player_orientation * glm::vec3(AXIS_NEG_Z);
-    glm::vec3 right = player_orientation * glm::vec3(AXIS_X);
-    glm::vec3 world_up = glm::vec3(AXIS_Y);
-
-    forward = { forward.x, 0.f, forward.z };
-    right = { right.x, 0.f, right.z };
-
-    glm::vec3 move_offset =
-      (right * move_dir.x + world_up * move_dir.y + forward * move_dir.z) *
-      m_speed;
-    m_target_player->get_local_transform().translate(move_offset *
-                                               app.get_delta_time());
-    m_view_dirty = true;
-  }
 }
 
 void
@@ -173,7 +153,8 @@ Camera&
 Camera::look_at(const glm::vec3& target)
 {
   m_target_player->get_local_transform().set_rotation(glm::quatLookAt(
-    glm::normalize(target - m_target_player->get_local_transform().get_position()),
+    glm::normalize(target -
+                   m_target_player->get_local_transform().get_position()),
     AXIS_Y));
   reset_mouse_cache();
   m_view_dirty = true;

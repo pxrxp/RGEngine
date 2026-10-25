@@ -4,6 +4,7 @@
 #include "SceneObject.h"
 #include <cassert>
 #include <optional>
+#include <vector>
 
 template<typename F>
 auto
@@ -28,9 +29,24 @@ private:
     SceneObjectStrongPtr object,
     std::vector<SceneObjectStrongPtr>& objects);
 
+  void collect_colliders_recursive(
+    SceneObjectStrongPtr object,
+    std::vector<BoundingBox>& colliders);
+
 protected:
   App& m_app_cache;
   SceneObjectStrongPtr m_scene_ptr;
+  SceneObjectStrongPtr m_player;
+  SceneObjectStrongPtr m_skybox;
+
+  // Character Controller State
+  float m_player_vy = 0.0f;
+  bool m_player_grounded = true;
+  static constexpr float PLAYER_EYE_HEIGHT = 1.7f;
+  static constexpr float PLAYER_RADIUS = 0.35f;
+  static constexpr float MAX_STEP_HEIGHT = 0.55f;
+
+  void update_character_controller(float dt);
 
   void set_view_matrix(RenderPacketStrongPtr render_packet,
                        const char* view_uniform_name = "u_view",
@@ -67,11 +83,12 @@ public:
 
   std::vector<SceneObjectStrongPtr> get_all_physics_objects();
 
-  static constexpr float FIXED_STEP = 1.f/60.f;
+  static constexpr float FIXED_STEP = 1.f / 60.f;
   void step_simulation();
   void update_physics();
 
   void submit_to_renderer();
 
   SceneObjectStrongPtr get_scene_ptr() const;
+  SceneObjectStrongPtr get_player() const { return m_player; }
 };
