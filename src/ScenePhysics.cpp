@@ -1,58 +1,98 @@
 #include "Scene.h"
 
+namespace {
+bool
+is_static_object(const SceneObject& object)
+{
+  const auto& physics = object.get_physics_component();
+  return std::isinf(physics.get_mass()) || !physics.is_enabled();
+}
+
+void
+resolve_floor_plane(SceneObject& object)
+{
+  if (is_static_object(object))
+    return;
+
+  auto& physics = object.get_physics_component();
+  if (!physics.has_gravity())
+    return;
+
+  const auto& aabb = object.get_world_AABB();
+
+  const float half_height = 0.5f * (aabb.get_max().y - aabb.get_min().y);
+  const float bottom =
+    object.get_local_transform().get_position().y - half_height;
+
+  if (bottom < 0.0f) {
+    const float correction = -bottom;
+    object.get_local_transform().translate(glm::vec3(0.0f, correction, 0.0f));
+
+    glm::vec3 momentum = physics.get_linear_momentum();
+    momentum.y = std::max(0.0f, momentum.y);
+    physics.set_linear_momentum(momentum);
+  }
+}
+
 void
 resolve_penetration(SceneObject& a, SceneObject& b)
 {
-  BoundingBox& aabb_a = a.get_world_AABB();
-  BoundingBox& aabb_b = b.get_world_AABB();
+  const BoundingBox& aabb_a = a.get_world_AABB();
+  const BoundingBox& aabb_b = b.get_world_AABB();
 
-  float overlap_x = std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
-                    std::max(aabb_a.get_min().x, aabb_b.get_min().x);
-  float overlap_y = std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
-                    std::max(aabb_a.get_min().y, aabb_b.get_min().y);
-  float overlap_z = std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
-                    std::max(aabb_a.get_min().z, aabb_b.get_min().z);
+  glm::vec3 overlap(std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
+                      std::max(aabb_a.get_min().x, aabb_b.get_min().x),
+                    std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
+                      std::max(aabb_a.get_min().y, aabb_b.get_min().y),
+                    std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
+                      std::max(aabb_a.get_min().z, aabb_b.get_min().z));
 
-  glm::vec3 mtv;
+  if (overlap.x <= 0.0f && overlap.y <= 0.0f && overlap.z <= 0.0f)
+    return;
 
-  if (overlap_x < overlap_y && overlap_x < overlap_z) {
-    mtv = glm::vec3(overlap_x, 0, 0);
-  } else if (overlap_y < overlap_z) {
-    mtv = glm::vec3(0, overlap_y, 0);
-  } else {
-    mtv = glm::vec3(0, 0, overlap_z);
+  glm::vec3 center_a = 0.5f * (aabb_a.get_min() + aabb_a.get_max());
+  glm::vec3 center_b = 0.5f * (aabb_b.get_min() + aabb_b.get_max());
+  glm::vec3 delta = center_b - center_a;
+
+  glm::vec3 mtv(0.0f);
+
+  if (overlap.x > 0.0f && overlap.x <= overlap.y && overlap.x <= overlap.z) {
+    mtv.x = overlap.x;
+    if (delta.x < 0.0f)
+      mtv.x = -mtv.x;
+  } else if (overlap.y > 0.0f && overlap.y <= overlap.z) {
+    mtv.y = overlap.y;
+    if (delta.y < 0.0f)
+      mtv.y = -mtv.y;
+  } else if (overlap.z > 0.0f) {
+    mtv.z = overlap.z;
+    if (delta.z < 0.0f)
+      mtv.z = -mtv.z;
   }
 
-  glm::vec3 direction = b.get_local_transform().get_position() -
-                        a.get_local_transform().get_position();
-  if (glm::dot(direction, mtv) < 0.0f) {
-    mtv = -mtv;
-  }
+  if (glm::length(mtv) <= 0.0f)
+    return;
 
-  if (mtv.x != 0)
-    mtv.x -= 0.001f;
-  if (mtv.y != 0)
-    mtv.y -= 0.001f;
-  if (mtv.y != 0)
-    mtv.y -= 0.001f;
-
-  float move_a = 0.f, move_b = 0.f, div = 0.f;
   float mass_a = a.get_physics_component().get_mass();
   float mass_b = b.get_physics_component().get_mass();
 
+  float move_a = 0.0f;
+  float move_b = 0.0f;
+  float total = 0.0f;
+
   if (std::isfinite(mass_a) && mass_a > 0.0001f) {
     move_a = mass_a;
-    div += mass_a;
+    total += mass_a;
   }
 
   if (std::isfinite(mass_b) && mass_b > 0.0001f) {
     move_b = mass_b;
-    div += mass_b;
+    total += mass_b;
   }
 
-  if (div > 0.0001f) {
-    move_a /= div;
-    move_b /= div;
+  if (total > 0.0001f) {
+    move_a /= total;
+    move_b /= total;
   }
 
   a.get_local_transform().translate(-mtv * move_a);
@@ -62,28 +102,9 @@ resolve_penetration(SceneObject& a, SceneObject& b)
 void
 resolve_velocity(SceneObject& a, SceneObject& b)
 {
-  // glm::vec3 center_A = a.get_local_transform().get_position();
-  // glm::vec3 center_B = b.get_local_transform().get_position();
-
-  // glm::vec3 direction_vector = center_B - center_A;
-  // glm::vec3 collision_normal = glm::normalize(direction_vector);
-
-  // glm::vec3 v_rel = b.get_physics_component().get_velocity() -
-  // a.get_physics_component().get_velocity(); float vel_along_normal =
-  // glm::dot(v_rel, collision_normal);
-
-  // if (vel_along_normal > 0)
-  //   return;
-
-  // float e = std::min(a.get_physics_component().get_restitution(),
-  // b.get_physics_component().get_restitution()); float j = -(1 + e) *
-  // vel_along_normal; j /= (1 / a.get_physics_component().get_mass()) + (1 /
-  // b.get_physics_component().get_mass());
-
-  // glm::vec3 impulse_vec = j * collision_normal;
-  // a.get_physics_component().apply_linear_impulse(-impulse_vec);
-  // b.get_physics_component().apply_linear_impulse(impulse_vec);
+  // TODO
 }
+} // namespace
 
 void
 Scene::collect_physics_objects_recursive(
@@ -92,6 +113,7 @@ Scene::collect_physics_objects_recursive(
 {
   if (object->get_physics_component().is_enabled())
     objects.push_back(object);
+
   for (auto& child : *object) {
     collect_physics_objects_recursive(child, objects);
   }
@@ -113,7 +135,30 @@ Scene::step_simulation()
   std::vector<SceneObjectStrongPtr> objects = get_all_physics_objects();
 
   for (auto& object : objects) {
+    auto& physics = object->get_physics_component();
+
+    physics.clear_forces();
+
+    if (physics.has_gravity()) {
+      const glm::vec3 gravity_force =
+        glm::vec3(0.0f, -9.8f, 0.0f) * physics.get_mass();
+      physics.apply_force(gravity_force);
+    }
+
+    const glm::vec3 velocity = physics.get_velocity();
+    if (std::isfinite(velocity.x) && std::isfinite(velocity.y) &&
+        std::isfinite(velocity.z))
+      physics.apply_force(-physics.get_drag() * physics.get_velocity());
+
+    physics.integrate_velocity();
+  }
+
+  for (auto& object : objects) {
     object->get_physics_component().integrate_position();
+  }
+
+  for (auto& object : objects) {
+    resolve_floor_plane(*object);
   }
 
   for (size_t i = 0; i < objects.size(); ++i) {
@@ -121,35 +166,16 @@ Scene::step_simulation()
       SceneObjectStrongPtr& a = objects[i];
       SceneObjectStrongPtr& b = objects[j];
 
+      if (is_static_object(*a) || is_static_object(*b))
+        continue;
+
       const BoundingBox& aabb_a = a->get_world_AABB();
       const BoundingBox& aabb_b = b->get_world_AABB();
 
       if (aabb_a && aabb_b && aabb_a.intersects(aabb_b)) {
         resolve_penetration(*a, *b);
-        resolve_velocity(*a, *b);
       }
     }
-  }
-
-  for (auto& object : objects) {
-    auto& physics = object->get_physics_component();
-    physics.clear_forces();
-
-    if (physics.has_gravity() &&
-        object->get_local_transform().get_position().y > 0) {
-      glm::vec3 gravity_force =
-        glm::vec3(0.0f, -9.8f, 0.0f) * physics.get_mass();
-      physics.apply_force(gravity_force);
-    }
-
-    auto velocity = physics.get_velocity();
-    if (std::isfinite(velocity.x) && std::isfinite(velocity.y) &&
-        std::isfinite(velocity.z))
-      physics.apply_force(-physics.get_drag() * physics.get_velocity());
-  }
-
-  for (auto& object : objects) {
-    object->get_physics_component().integrate_velocity();
   }
 }
 

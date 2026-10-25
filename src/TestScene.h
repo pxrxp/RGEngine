@@ -92,11 +92,12 @@ private:
 
   void setup_plane(const SceneObjectStrongPtr& plane)
   {
-    auto f = m_app_cache.get_camera().get_far_plane();
-    plane->get_local_transform().scale({ f, f, f }).rotate_deg(AXIS_X, -90.f);
+    const auto far = m_app_cache.get_camera().get_far_plane();
+    plane->get_local_transform()
+      .set_position({ 0.0f, 0.0f, 0.0f })
+      .scale({ far, far, far })
+      .rotate_deg(AXIS_X, -90.f);
     plane->get_physics_component().set_gravity(false).set_mass(INFINITY);
-    plane->get_world_AABB().expand(AXIS_Y);
-    plane->get_world_AABB().offset(-0.5f * glm::vec3(AXIS_Y));
     plane->set_render_packet(
       m_app_cache.mesh_repo.load_mesh(
         MeshDescriptor<Vertex_PosColNorm, TriangleIndices>{

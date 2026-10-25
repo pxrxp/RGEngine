@@ -128,7 +128,7 @@ PhysicsComponent::integrate_position()
 
   auto delta_rotation_vector = get_angular_velocity() * m_fixed_step;
 
-  float angle = glm::length2(delta_rotation_vector);
+  float angle = glm::length(delta_rotation_vector);
   if (angle > 0.0001f) {
     glm::vec3 axis = delta_rotation_vector / angle;
     m_local_transform.rotate(axis, angle);
@@ -142,7 +142,6 @@ PhysicsComponent::integrate_velocity()
 {
   m_linear_momentum_half_step += m_total_force * m_fixed_step;
   m_angular_momentum_half_step += m_total_torque * m_fixed_step;
-
   return *this;
 }
 

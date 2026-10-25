@@ -46,6 +46,17 @@ public:
   {
     return m_angular_momentum_half_step;
   }
+  PhysicsComponent& set_linear_momentum(const glm::vec3& momentum)
+  {
+    m_linear_momentum_half_step = momentum;
+    return *this;
+  }
+  PhysicsComponent& set_angular_momentum(const glm::vec3& momentum)
+  {
+    m_angular_momentum_half_step = momentum;
+    return *this;
+  }
+
   bool has_gravity() const { return m_has_gravity; }
 
   const glm::vec3 get_velocity() const;
@@ -53,7 +64,7 @@ public:
 
   void enable() { m_enabled = true; }
   void disable() { m_enabled = false; }
-  bool is_enabled() { return m_enabled; }
+  bool is_enabled() const { return m_enabled; }
 
   PhysicsComponent& set_mass(float mass);
   PhysicsComponent& set_drag(float drag);
