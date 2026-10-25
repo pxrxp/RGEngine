@@ -20,16 +20,16 @@ resolve_floor_plane(SceneObject& object)
 
   const auto& aabb = object.get_world_AABB();
 
-  const float half_height = 0.5f * (aabb.get_max().y - aabb.get_min().y);
-  const float bottom =
-    object.get_local_transform().get_position().y - half_height;
+  const float bottom = aabb.get_min().y;
 
   if (bottom < 0.0f) {
     const float correction = -bottom;
     object.get_local_transform().translate(glm::vec3(0.0f, correction, 0.0f));
 
     glm::vec3 momentum = physics.get_linear_momentum();
-    momentum.y = std::max(0.0f, momentum.y);
+    if (momentum.y < 0.0f) {
+      momentum.y = 0.0f;
+    }
     physics.set_linear_momentum(momentum);
   }
 }
@@ -40,14 +40,14 @@ resolve_penetration(SceneObject& a, SceneObject& b)
   const BoundingBox& aabb_a = a.get_world_AABB();
   const BoundingBox& aabb_b = b.get_world_AABB();
 
-  glm::vec3 overlap(std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
-                      std::max(aabb_a.get_min().x, aabb_b.get_min().x),
-                    std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
-                      std::max(aabb_a.get_min().y, aabb_b.get_min().y),
-                    std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
-                      std::max(aabb_a.get_min().z, aabb_b.get_min().z));
+  float overlap_x = std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
+                    std::max(aabb_a.get_min().x, aabb_b.get_min().x);
+  float overlap_y = std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
+                    std::max(aabb_a.get_min().y, aabb_b.get_min().y);
+  float overlap_z = std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
+                    std::max(aabb_a.get_min().z, aabb_b.get_min().z);
 
-  if (overlap.x <= 0.0f && overlap.y <= 0.0f && overlap.z <= 0.0f)
+  if (overlap_x <= 0.0f || overlap_y <= 0.0f || overlap_z <= 0.0f)
     return;
 
   glm::vec3 center_a = 0.5f * (aabb_a.get_min() + aabb_a.get_max());
@@ -55,54 +55,26 @@ resolve_penetration(SceneObject& a, SceneObject& b)
   glm::vec3 delta = center_b - center_a;
 
   glm::vec3 mtv(0.0f);
-
-  if (overlap.x > 0.0f && overlap.x <= overlap.y && overlap.x <= overlap.z) {
-    mtv.x = overlap.x;
-    if (delta.x < 0.0f)
-      mtv.x = -mtv.x;
-  } else if (overlap.y > 0.0f && overlap.y <= overlap.z) {
-    mtv.y = overlap.y;
-    if (delta.y < 0.0f)
-      mtv.y = -mtv.y;
-  } else if (overlap.z > 0.0f) {
-    mtv.z = overlap.z;
-    if (delta.z < 0.0f)
-      mtv.z = -mtv.z;
+  if (overlap_x <= overlap_y && overlap_x <= overlap_z) {
+    mtv.x = (delta.x < 0.0f) ? -overlap_x : overlap_x;
+  } else if (overlap_y <= overlap_z) {
+    mtv.y = (delta.y < 0.0f) ? -overlap_y : overlap_y;
+  } else {
+    mtv.z = (delta.z < 0.0f) ? -overlap_z : overlap_z;
   }
 
-  if (glm::length(mtv) <= 0.0f)
+  float inv_mass_a = a.get_physics_component().get_inverse_mass();
+  float inv_mass_b = b.get_physics_component().get_inverse_mass();
+  float total_inv_mass = inv_mass_a + inv_mass_b;
+
+  if (total_inv_mass <= 0.0001f)
     return;
 
-  float mass_a = a.get_physics_component().get_mass();
-  float mass_b = b.get_physics_component().get_mass();
-
-  float move_a = 0.0f;
-  float move_b = 0.0f;
-  float total = 0.0f;
-
-  if (std::isfinite(mass_a) && mass_a > 0.0001f) {
-    move_a = mass_a;
-    total += mass_a;
-  }
-
-  if (std::isfinite(mass_b) && mass_b > 0.0001f) {
-    move_b = mass_b;
-    total += mass_b;
-  }
-
-  if (total > 0.0001f) {
-    move_a /= total;
-    move_b /= total;
-  }
+  float move_a = inv_mass_a / total_inv_mass;
+  float move_b = inv_mass_b / total_inv_mass;
 
   a.get_local_transform().translate(-mtv * move_a);
   b.get_local_transform().translate(mtv * move_b);
-}
-
-void
-resolve_velocity(SceneObject& a, SceneObject& b)
-{
-  // TODO
 }
 } // namespace
 
@@ -139,22 +111,25 @@ Scene::step_simulation()
 
     physics.clear_forces();
 
-    if (physics.has_gravity()) {
+    if (physics.has_gravity() && !is_static_object(*object)) {
       const glm::vec3 gravity_force =
-        glm::vec3(0.0f, -9.8f, 0.0f) * physics.get_mass();
+        glm::vec3(0.0f, -9.81f, 0.0f) * physics.get_mass();
       physics.apply_force(gravity_force);
     }
 
     const glm::vec3 velocity = physics.get_velocity();
     if (std::isfinite(velocity.x) && std::isfinite(velocity.y) &&
-        std::isfinite(velocity.z))
-      physics.apply_force(-physics.get_drag() * physics.get_velocity());
+        std::isfinite(velocity.z)) {
+      physics.apply_force(-physics.get_drag() * velocity);
+    }
 
     physics.integrate_velocity();
   }
 
   for (auto& object : objects) {
-    object->get_physics_component().integrate_position();
+    if (!is_static_object(*object)) {
+      object->get_physics_component().integrate_position();
+    }
   }
 
   for (auto& object : objects) {
@@ -166,7 +141,7 @@ Scene::step_simulation()
       SceneObjectStrongPtr& a = objects[i];
       SceneObjectStrongPtr& b = objects[j];
 
-      if (is_static_object(*a) || is_static_object(*b))
+      if (is_static_object(*a) && is_static_object(*b))
         continue;
 
       const BoundingBox& aabb_a = a->get_world_AABB();
@@ -183,8 +158,11 @@ void
 Scene::update_physics()
 {
   static double accumulator = 0.0;
-
   accumulator += m_app_cache.get_delta_time();
+
+  if (accumulator > 0.2) {
+    accumulator = 0.2;
+  }
 
   while (accumulator >= Scene::FIXED_STEP) {
     step_simulation();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../repos/MeshRepo.h"
 #include "../components/vertex_formats.h"
+#include "../repos/MeshRepo.h"
 #include "filesystem.h"
 
 #include <charconv>
@@ -162,7 +162,7 @@ from_OBJ(const std::string& path,
 
         VertexKey key;
         key.pos_idx = *opt_pos_idx;
-        if constexpr (requires { Vertex::tex_coords; }) {
+        if constexpr (requires { Vertex::texture; }) {
           if (opt_tex_idx)
             key.tex_idx = *opt_tex_idx;
         }
@@ -178,9 +178,9 @@ from_OBJ(const std::string& path,
           if constexpr (requires { new_vertex.position; }) {
             new_vertex.position = positions_storage[key.pos_idx];
           }
-          if constexpr (requires { new_vertex.tex_coords; }) {
+          if constexpr (requires { new_vertex.texture; }) {
             if (key.tex_idx != -1)
-              new_vertex.tex_coords = tex_coords_storage[key.tex_idx];
+              new_vertex.texture = tex_coords_storage[key.tex_idx];
           }
           if constexpr (requires { new_vertex.normal; }) {
             if (key.norm_idx != -1)
