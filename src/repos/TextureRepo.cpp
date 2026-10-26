@@ -63,31 +63,25 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
     case GL_TEXTURE_2D:
       tex = load_tex_2d(desc);
       break;
-
     case GL_TEXTURE_CUBE_MAP:
       tex = load_cubemap(desc);
       break;
-
     case GL_TEXTURE_2D_ARRAY:
       tex = load_tex_2d_array(desc);
       break;
-
     default:
       std::cerr << "Invalid target! Expected GL_TEXTURE_2D | "
                    "GL_TEXTURE_CUBE_MAP | GL_TEXTURE_2D_ARRAY\n";
       break;
   }
-
   if (tex)
     m_resources[desc.texture_name] = tex;
-
   return tex;
 }
 
 TextureStrongPtr
 TextureRepo::load_tex_2d(const TextureDescriptor& desc)
 {
-
   PNGImage image(desc.texture_name + ".png");
   if (!image.is_valid()) {
     std::cerr << "ERROR: Invalid file" << desc.texture_name + ".png\n";
