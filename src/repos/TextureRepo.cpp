@@ -87,8 +87,7 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
     std::cerr << "ERROR: Invalid file " << desc.texture_name + ".png\n";
     return nullptr;
   }
-
-  GLuint texture;
+  GLuint texture = 0;
   glCreateTextures(desc.target, 1, &texture);
 
   GLenum source_format = (image.channels == 4) ? GL_RGBA : GL_RGB;
