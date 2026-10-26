@@ -23,31 +23,25 @@ fix_filter(bool generate_mipmaps, GLenum min_filter, GLenum mag_filter)
   if (generate_mipmaps) {
     if (min_filter == GL_LINEAR)
       _min_filter = GL_LINEAR_MIPMAP_LINEAR;
-
     if (min_filter == GL_NEAREST)
       _min_filter = GL_NEAREST_MIPMAP_NEAREST;
-
   } else {
-
     if (min_filter == GL_NEAREST_MIPMAP_NEAREST ||
         min_filter == GL_NEAREST_MIPMAP_LINEAR)
       _min_filter = GL_NEAREST;
-
     if (min_filter == GL_LINEAR_MIPMAP_LINEAR ||
         min_filter == GL_LINEAR_MIPMAP_NEAREST)
       _min_filter = GL_LINEAR;
   }
-
   if (mag_filter == GL_NEAREST_MIPMAP_NEAREST ||
       mag_filter == GL_NEAREST_MIPMAP_LINEAR)
     _mag_filter = GL_NEAREST;
-
   if (mag_filter == GL_LINEAR_MIPMAP_LINEAR ||
       mag_filter == GL_LINEAR_MIPMAP_NEAREST)
     _mag_filter = GL_LINEAR;
-
   return { _min_filter, _mag_filter };
 }
+
 }
 
 TextureStrongPtr
@@ -57,7 +51,6 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
     std::cerr << "Provide at least one texture!" << std::endl;
     return nullptr;
   }
-
   if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
     if (!desc.is_getter_desc())
       std::cout << "Texture " << desc.texture_name << " already exists!" << std::endl;
