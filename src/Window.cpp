@@ -47,6 +47,15 @@ Window::is_mouse_button_pressed(int button) const
   return glfwGetMouseButton(m_raw_window, button) == GLFW_PRESS;
 }
 
+bool
+Window::is_mouse_button_released(int button) const
+{
+  if (!m_raw_window)
+    return false;
+
+  return glfwGetMouseButton(m_raw_window, button) == GLFW_RELEASE;
+}
+
 glm::dvec2
 Window::get_delta_mouse() const
 {
