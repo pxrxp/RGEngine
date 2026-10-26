@@ -53,12 +53,12 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
   }
   if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
     if (!desc.is_getter_desc())
-      std::cout << "Texture " << desc.texture_name << " already exists!" << std::endl;
+      std::cout << "Texture " << desc.texture_name << " already exists!"
+                << std::endl;
     return tex.value();
   }
 
-  std::shared_ptr<Texture> tex = nullptr;
-
+  TextureStrongPtr tex = nullptr;
   switch (desc.target) {
     case GL_TEXTURE_2D:
       tex = load_tex_2d(desc);
@@ -73,9 +73,8 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
       break;
 
     default:
-      std::cerr
-        << "Invalid target! Expected GL_TEXTURE_2D | GL_TEXTURE_CUBE_MAP "
-           "| GL_TEXTURE_2D_ARRAY\n";
+      std::cerr << "Invalid target! Expected GL_TEXTURE_2D | "
+                   "GL_TEXTURE_CUBE_MAP | GL_TEXTURE_2D_ARRAY\n";
       break;
   }
 
