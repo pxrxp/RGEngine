@@ -31,7 +31,16 @@ public:
   Texture& operator=(Texture&& other) noexcept;
 
   GLuint get_id() const { return m_id; }
-  std::string get_name() const { return m_name; }
+  const std::string& get_name() const { return m_name; }
+  std::uint32_t get_width() const { return m_width; }
+  std::uint32_t get_height() const { return m_height; }
+
+  float get_aspect_ratio() const
+  {
+    return (m_width > 0)
+             ? (static_cast<float>(m_height) / static_cast<float>(m_width))
+             : 1.0f;
+  }
 };
 
 using TextureStrongPtr = std::shared_ptr<Texture>;
