@@ -84,7 +84,8 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
 {
   PNGImage image(desc.texture_name + ".png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << desc.texture_name + ".png\n";
+    std::cerr << "ERROR: Invalid file " << desc.texture_name + ".png\n";
+    return nullptr;
   }
 
   GLuint texture;
