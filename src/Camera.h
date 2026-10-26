@@ -68,7 +68,7 @@ private:
 
   float m_fovy_rad = glm::radians(60.0f);
   float m_z_near = 0.1f;
-  float m_z_far = 100.f;
+  float m_z_far = 800.f;
   float m_aspect_ratio_cache = 16.f / 9.f;
 
   bool m_frustum_viewspace_updated = true;
