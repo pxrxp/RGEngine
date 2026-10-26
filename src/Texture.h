@@ -13,9 +13,14 @@ private:
   std::uint32_t m_height = 0;
 
 public:
-  Texture(GLuint id, const std::string& name)
+  Texture(GLuint id,
+          const std::string& name,
+          uint32_t width = 0,
+          uint32_t height = 0)
     : m_id(id)
     , m_name(name)
+    , m_width(width)
+    , m_height(height)
   {
   }
   ~Texture();
