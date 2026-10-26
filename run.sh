@@ -35,7 +35,6 @@ while getopts "glh" opt; do
     esac
 done
 
-
 BINARY="./build/RivalGrounds"
 
 if [ ! -f "$BINARY" ]; then

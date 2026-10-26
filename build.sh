@@ -44,7 +44,6 @@ if [ -z "$ENABLE_WERROR" ]; then
     exit 1
 fi
 
-# Require GLFW_BACKEND for GLFW feature selection
 if [ -z "$GLFW_BACKEND" ]; then
     echo "Error: GLFW_BACKEND environment variable not set."
     echo "Example: \"export GLFW_BACKEND=wayland\" (wayland|x11|windows)"
@@ -53,7 +52,6 @@ fi
 
 echo "Building for $BUILD_TYPE with GLFW backend: $GLFW_BACKEND..."
 
-# Bootstrap vcpkg if missing
 if [ ! -d "./vcpkg" ]; then
     git clone https://github.com/microsoft/vcpkg.git vcpkg
     ./vcpkg/bootstrap-vcpkg.sh
@@ -63,14 +61,12 @@ BUILD_DIR="build"
 SRC_DIR="src"
 RESOURCES_DIR="resources"
 
-# Clean only CMake cache/files if requested
 if [ "$CLEAN" = true ]; then
     echo "Cleaning CMake cache..."
     [ -f "$BUILD_DIR/CMakeCache.txt" ] && rm "$BUILD_DIR/CMakeCache.txt"
     [ -d "$BUILD_DIR/CMakeFiles" ] && rm -rf "$BUILD_DIR/CMakeFiles"
 fi
 
-# Configure if missing
 if [ ! -f "$BUILD_DIR/CMakeCache.txt" ]; then
     echo "Configuring CMake..."
     cmake -B "$BUILD_DIR" -S . \
