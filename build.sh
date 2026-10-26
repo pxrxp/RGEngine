@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# ----------------------------
-# Usage:
-#   TRIPLET=x64-mingw-dynamic ./build.sh [-c]
-# ----------------------------
-
-# Save current dir, move to script dir
 ORIGINAL_DIR="$(pwd)"
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
