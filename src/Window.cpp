@@ -33,6 +33,15 @@ Window::is_key_pressed(int key) const
 }
 
 bool
+Window::is_key_released(int key) const
+{
+  if (!m_raw_window)
+    return false;
+
+  return glfwGetKey(m_raw_window, key) == GLFW_RELEASE;
+}
+
+bool
 Window::is_mouse_button_pressed(int button) const
 {
   return glfwGetMouseButton(m_raw_window, button) == GLFW_PRESS;
