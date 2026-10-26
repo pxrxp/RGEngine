@@ -44,6 +44,9 @@ Window::is_key_released(int key) const
 bool
 Window::is_mouse_button_pressed(int button) const
 {
+  if (!m_raw_window)
+    return false;
+
   return glfwGetMouseButton(m_raw_window, button) == GLFW_PRESS;
 }
 
@@ -71,6 +74,9 @@ Window::get_mouse_pos() const
 void
 Window::set_cursor_mode(int mode)
 {
+  if (!m_raw_window)
+    return;
+
   glfwSetInputMode(m_raw_window, GLFW_CURSOR, mode);
 }
 
@@ -83,6 +89,9 @@ Window::get_cursor_mode()
 void
 Window::swap_buffers()
 {
+  if (!m_raw_window)
+    return;
+
   glfwSwapBuffers(m_raw_window);
 }
 
