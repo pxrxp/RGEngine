@@ -13,7 +13,6 @@ while getopts "c" opt; do
     esac
 done
 
-# Require TRIPLET
 if [ -z "$TRIPLET" ]; then
     echo "Error: TRIPLET environment variable not set."
     echo "Example: \"export TRIPLET=x64-mingw-dynamic\" (x64-mingw-dynamic|x64-linux|...)"
@@ -21,7 +20,6 @@ if [ -z "$TRIPLET" ]; then
     exit 1
 fi
 
-# Require BUILD_TYPE
 if [ -z "$BUILD_TYPE" ]; then
     echo "Error: BUILD_TYPE environment variable not set."
     echo "Example: \"export BUILD_TYPE=Debug\" (Debug|Release|...)"
@@ -29,7 +27,6 @@ if [ -z "$BUILD_TYPE" ]; then
     exit 1
 fi
 
-# Require ENABLE_ASAN_UBSAN
 if [ -z "$ENABLE_ASAN_UBSAN" ]; then
     echo "Error: ENABLE_ASAN_UBSAN environment variable not set."
     echo "Example: \"export ENABLE_ASAN_UBSAN=OFF\" (OFF|ON)"
@@ -39,7 +36,6 @@ if [ -z "$ENABLE_ASAN_UBSAN" ]; then
     exit 1
 fi
 
-# Require ENABLE_WERROR
 if [ -z "$ENABLE_WERROR" ]; then
     echo "Error: ENABLE_WERROR environment variable not set."
     echo "Example: \"export ENABLE_WERROR=OFF\" (OFF|ON)"
