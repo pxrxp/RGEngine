@@ -32,7 +32,7 @@ public:
 
   glm::vec3 get_right() { return glm::vec3(get_view_matrix()[0]); }
   glm::vec3 get_up() { return glm::vec3(get_view_matrix()[1]); }
-  glm::vec3 get_forward() { return -glm::vec3(get_view_matrix()[2]); }
+  glm::vec3 get_forward();
 
   float get_fovy_rad() const { return m_fovy_rad; }
   float get_fovy() const { return glm::degrees(m_fovy_rad); }

@@ -67,6 +67,15 @@ Camera::get_AABB()
   return m_AABB;
 }
 
+glm::vec3
+Camera::get_forward()
+{
+  if (!m_target_player)
+    return glm::vec3(0.0f, 0.0f, -1.0f);
+  return m_target_player->get_local_transform().get_rotation() *
+         glm::vec3(0.0f, 0.0f, -1.0f);
+}
+
 const std::vector<Vertex_Pos>&
 Camera::get_frustum_worldspace()
 {
