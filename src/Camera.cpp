@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "App.h"
 #include "SceneObject.h"
+#include <cmath>
 
 #include "debug.h"
 
@@ -161,10 +162,27 @@ Camera::update_projection_matrix(float aspect_ratio)
 Camera&
 Camera::look_at(const glm::vec3& target)
 {
-  m_target_player->get_local_transform().set_rotation(glm::quatLookAt(
-    glm::normalize(target -
-                   m_target_player->get_local_transform().get_position()),
-    AXIS_Y));
+  if (!m_target_player)
+    return *this;
+
+  const glm::vec3 position = m_target_player->get_local_transform().get_position();
+  glm::vec3 direction = target - position;
+  const float direction_length_sq = glm::dot(direction, direction);
+
+  // glm::normalize(vec3(0)) is undefined and produces NaNs. Keep the current
+  // orientation if asked to look at the camera's own position.
+  if (!std::isfinite(direction_length_sq) || direction_length_sq < 1e-8f) {
+    reset_mouse_cache();
+    m_view_dirty = true;
+    return *this;
+  }
+
+  direction /= std::sqrt(direction_length_sq);
+  // Avoid a degenerate up/direction pair when looking almost vertically.
+  const glm::vec3 up = std::abs(glm::dot(direction, glm::vec3(AXIS_Y))) > 0.999f
+                         ? glm::vec3(0.0f, 0.0f, 1.0f)
+                         : glm::vec3(AXIS_Y);
+  m_target_player->get_local_transform().set_rotation(glm::quatLookAt(direction, up));
   reset_mouse_cache();
   m_view_dirty = true;
   return *this;
