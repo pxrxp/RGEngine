@@ -99,13 +99,12 @@ void
 Scene::collect_colliders_recursive(SceneObjectStrongPtr object,
                                    std::vector<BoundingBox>& colliders)
 {
-  if (object == m_player || object == m_skybox)
+  // Ignore player, skybox, and the enemy's own body parts!
+  if (object == m_player || object == m_skybox || object == m_enemy_root)
     return;
 
   if (object->get_render_packet().has_value()) {
     const auto& aabb = object->get_world_AABB();
-    // Exclude the giant infinite ground plane from the obstacle list (handled
-    // at y=0)
     if (aabb.get_max().x - aabb.get_min().x < 80.0f) {
       colliders.push_back(aabb);
     }
@@ -182,7 +181,7 @@ Scene::update_character_controller(float dt)
 
   auto& window = m_app_cache.get_window();
 
-  // 1. Read movement input
+  // Read movement input
   glm::vec3 wish_dir(0.0f);
   if (window.is_key_pressed(GLFW_KEY_W) || window.is_key_pressed(GLFW_KEY_UP))
     wish_dir.z += 1.0f;
@@ -208,90 +207,116 @@ Scene::update_character_controller(float dt)
   if (glm::length2(move_heading) > 0.0f)
     move_heading = glm::normalize(move_heading);
 
-  // 2. Gather scene colliders dynamically from the scene tree
+  // Gather scene colliders dynamically from the scene tree
   std::vector<BoundingBox> colliders;
   collect_colliders_recursive(m_scene_ptr, colliders);
 
   glm::vec3 player_pos = m_player->get_local_transform().get_position();
   float feet_y = player_pos.y - PLAYER_EYE_HEIGHT;
 
-  // 3. Move horizontally with collision & auto-step
+  // Tick jump cooldown
+  if (m_jump_cooldown > 0.0f)
+    m_jump_cooldown -= dt;
+
+  // Move horizontally with axis-separated wall sliding & auto-step
   if (glm::length2(move_heading) > 0.0f) {
     glm::vec3 delta = move_heading * walk_speed * dt;
-    glm::vec3 test_pos = player_pos + delta;
+    const float player_radius = 0.26f;
+    const float head_y = feet_y + PLAYER_EYE_HEIGHT + 0.2f;
 
-    bool blocked = false;
-    float highest_step = -100.0f;
+    auto test_axis = [&](float new_x, float new_z, float& out_step_y) -> bool {
+      for (const auto& aabb : colliders) {
+        const glm::vec3& b_min = aabb.get_min();
+        const glm::vec3& b_max = aabb.get_max();
 
-    for (const auto& aabb : colliders) {
-      const glm::vec3& b_min = aabb.get_min();
-      const glm::vec3& b_max = aabb.get_max();
+        bool overlap_x = (new_x + player_radius > b_min.x) &&
+                         (new_x - player_radius < b_max.x);
+        bool overlap_z = (new_z + player_radius > b_min.z) &&
+                         (new_z - player_radius < b_max.z);
 
-      bool overlap_x = (test_pos.x + PLAYER_RADIUS > b_min.x) &&
-                       (test_pos.x - PLAYER_RADIUS < b_max.x);
-      bool overlap_z = (test_pos.z + PLAYER_RADIUS > b_min.z) &&
-                       (test_pos.z - PLAYER_RADIUS < b_max.z);
+        if (overlap_x && overlap_z) {
+          // Ignore ceiling / door lintels above head
+          if (b_min.y >= head_y - 0.1f)
+            continue;
+          // Ignore ground below feet
+          if (b_max.y <= feet_y + 0.05f)
+            continue;
 
-      if (overlap_x && overlap_z) {
-        float step_diff = b_max.y - feet_y;
-        if (step_diff > 0.05f && step_diff <= MAX_STEP_HEIGHT) {
-          // Walkable step (stairs)!
-          if (b_max.y > highest_step)
-            highest_step = b_max.y;
-        } else if (step_diff > MAX_STEP_HEIGHT && feet_y < b_max.y) {
-          // Wall / pillar
-          blocked = true;
-          break;
+          // Never auto-step while in jump cooldown or moving upward!
+          float step_diff = b_max.y - feet_y;
+          if (m_player_grounded && m_jump_cooldown <= 0.0f &&
+              step_diff > 0.05f && step_diff <= MAX_STEP_HEIGHT) {
+            if (b_max.y > out_step_y)
+              out_step_y = b_max.y;
+          } else {
+            return false;
+          }
         }
       }
+      return true;
+    };
+
+    float step_x = feet_y;
+    if (test_axis(player_pos.x + delta.x, player_pos.z, step_x)) {
+      player_pos.x += delta.x;
+      if (step_x > feet_y)
+        feet_y = step_x;
     }
 
-    if (!blocked) {
-      player_pos.x = test_pos.x;
-      player_pos.z = test_pos.z;
-      if (highest_step > feet_y) {
-        feet_y = highest_step;
-        player_pos.y = feet_y + PLAYER_EYE_HEIGHT;
-        m_player_vy = 0.0f;
-        m_player_grounded = true;
-      }
+    float step_z = feet_y;
+    if (test_axis(player_pos.x, player_pos.z + delta.z, step_z)) {
+      player_pos.z += delta.z;
+      if (step_z > feet_y)
+        feet_y = step_z;
+    }
+
+    // Only apply step elevation if grounded and not jumping
+    if (m_player_grounded && m_jump_cooldown <= 0.0f &&
+        feet_y > player_pos.y - PLAYER_EYE_HEIGHT) {
+      player_pos.y = feet_y + PLAYER_EYE_HEIGHT;
     }
   }
 
-  // 4. Jump
-  if (window.is_key_pressed(GLFW_KEY_SPACE) && m_player_grounded) {
-    m_player_vy = 6.5f;
+  // Jump: Only triggers once on initial key-press (no continuous boost)
+  bool space_is_pressed = window.is_key_pressed(GLFW_KEY_SPACE);
+  if (space_is_pressed && !m_space_was_pressed && m_player_grounded &&
+      m_jump_cooldown <= 0.0f) {
+    m_player_vy = 6.4f;
     m_player_grounded = false;
+    m_jump_cooldown = 0.25f;
   }
+  m_space_was_pressed = space_is_pressed;
 
-  // 5. Gravity & Floor/Platform Landing
+  // Gravity & Landing (only land while falling down)
   m_player_vy -= 18.0f * dt;
   player_pos.y += m_player_vy * dt;
   feet_y = player_pos.y - PLAYER_EYE_HEIGHT;
 
-  float ground_y = 0.0f; // Infinite ground plane
-  for (const auto& aabb : colliders) {
-    const glm::vec3& b_min = aabb.get_min();
-    const glm::vec3& b_max = aabb.get_max();
+  if (m_player_vy <= 0.0f && m_jump_cooldown <= 0.0f) {
+    float ground_y = 0.0f;
+    for (const auto& aabb : colliders) {
+      const glm::vec3& b_min = aabb.get_min();
+      const glm::vec3& b_max = aabb.get_max();
 
-    bool inside_x =
-      (player_pos.x >= b_min.x - 0.1f) && (player_pos.x <= b_max.x + 0.1f);
-    bool inside_z =
-      (player_pos.z >= b_min.z - 0.1f) && (player_pos.z <= b_max.z + 0.1f);
+      bool inside_x =
+        (player_pos.x >= b_min.x - 0.15f) && (player_pos.x <= b_max.x + 0.15f);
+      bool inside_z =
+        (player_pos.z >= b_min.z - 0.15f) && (player_pos.z <= b_max.z + 0.15f);
 
-    if (inside_x && inside_z) {
-      if (b_max.y <= feet_y + 0.4f && b_max.y > ground_y) {
-        ground_y = b_max.y;
+      if (inside_x && inside_z) {
+        if (b_max.y <= feet_y + 0.35f && b_max.y > ground_y) {
+          ground_y = b_max.y;
+        }
       }
     }
-  }
 
-  if (feet_y <= ground_y) {
-    player_pos.y = ground_y + PLAYER_EYE_HEIGHT;
-    m_player_vy = 0.0f;
-    m_player_grounded = true;
-  } else {
-    m_player_grounded = false;
+    if (feet_y <= ground_y) {
+      player_pos.y = ground_y + PLAYER_EYE_HEIGHT;
+      m_player_vy = 0.0f;
+      m_player_grounded = true;
+    } else {
+      m_player_grounded = false;
+    }
   }
 
   m_player->get_local_transform().set_position(player_pos);
@@ -301,10 +326,10 @@ Scene::update_character_controller(float dt)
 void
 Scene::step_simulation()
 {
-  // 1. Character controller (player walking, stepping, jumping)
+  // Character controller (player walking, stepping, jumping)
   update_character_controller(FIXED_STEP);
 
-  // 2. Rigidbodies
+  // Rigidbodies
   std::vector<SceneObjectStrongPtr> objects = get_all_physics_objects();
 
   for (auto& object : objects) {
