@@ -36,7 +36,13 @@ Texture::operator=(Texture&& other) noexcept
       glDeleteTextures(1, &m_id);
     }
     m_id = other.m_id;
+    m_name = std::move(other.m_name);
+    m_width = other.m_width;
+    m_height = other.m_height;
+
     other.m_id = 0;
+    other.m_width = 0;
+    other.m_height = 0;
   }
   return *this;
 }
