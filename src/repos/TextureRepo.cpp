@@ -1,8 +1,11 @@
 #include "TextureRepo.h"
 #include "../Texture.h"
 #include "../util/png_image.h"
+
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 
 namespace {
