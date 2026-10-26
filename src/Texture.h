@@ -9,6 +9,8 @@ class Texture
 private:
   GLuint m_id = 0;
   std::string m_name;
+  std::uint32_t m_width = 0;
+  std::uint32_t m_height = 0;
 
 public:
   Texture(GLuint id, const std::string& name)
