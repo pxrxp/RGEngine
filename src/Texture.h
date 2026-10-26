@@ -1,6 +1,8 @@
 #pragma once
 #include "util/definitions.h"
+#include <cstdint>
 #include <memory>
+#include <string>
 
 class Texture
 {
