@@ -29,12 +29,14 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
 
   glLinkProgram(id);
 
-  GLint success;
+  GLint success = GL_FALSE;
   glGetProgramiv(id, GL_LINK_STATUS, &success);
-  if (!success) {
-    char info[512];
-    glGetProgramInfoLog(id, 512, nullptr, info);
+  if (success != GL_TRUE) {
+    char info[512] = {};
+    glGetProgramInfoLog(id, sizeof(info), nullptr, info);
     std::cerr << "Program link error:\n" << info << std::endl;
+    glDeleteProgram(id);
+    return {};
   }
 
   return RepoBase::create(desc.program_name, desc.program_name, id);
