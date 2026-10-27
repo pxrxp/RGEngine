@@ -113,8 +113,10 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
   glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, filters.second);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
-
-  return RepoBase::create(desc.texture_name, texture, desc.texture_name);
+  if (desc.max_mip_level >= 0)
+    glTextureParameteri(texture, GL_TEXTURE_MAX_LEVEL, desc.max_mip_level);
+  return RepoBase::create(
+    desc.texture_name, texture, desc.texture_name, image.width, image.height);
 }
 
 std::shared_ptr<Texture>
