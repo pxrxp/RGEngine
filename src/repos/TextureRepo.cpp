@@ -159,12 +159,11 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
       continue;
     }
     if (image.width != width || image.height != width) {
-      std::cerr << "ERROR: Cubemap layer " << i << " has mismatched dimensions."
-                << std::endl;
+      std::cerr << "ERROR: Texture array layer " << i
+                << " has mismatched dimensions.\n";
       continue;
     }
-
-    GLenum sourceFormat = (image.channels == 4) ? GL_RGBA : GL_RGB;
+    const GLenum format = (image.channels == 4) ? GL_RGBA : GL_RGB;
     glTextureSubImage3D(texture,
                         0,
                         0,
@@ -173,7 +172,7 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
                         width,
                         width,
                         1,
-                        sourceFormat,
+                        format,
                         GL_UNSIGNED_BYTE,
                         image.pixels.data());
     have_image = true;
