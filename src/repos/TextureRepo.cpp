@@ -128,8 +128,8 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
     return nullptr;
   }
   if (image.width != image.height) {
-    std::cerr << "ERROR: Cubemap faces must be square!" << std::endl;
-    return 0;
+    std::cerr << "ERROR: Texture array source images must be square!\n";
+    return nullptr;
   }
 
   if (desc.layers == -1) {
