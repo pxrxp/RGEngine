@@ -30,7 +30,7 @@ class Material
 private:
   static int m_id_counter;
   int m_id;
-  MaterialRepo&  m_repo_cache;
+  MaterialRepo& m_repo_cache;
   std::string m_name;
   ShaderProgramStrongPtr m_shader_program;
   std::vector<TextureStrongPtr> m_textures;
