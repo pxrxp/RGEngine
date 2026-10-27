@@ -61,7 +61,10 @@ Material::bind()
 void
 Material::unbind()
 {
-  for (auto& texture_ptr : m_textures) {
-    m_repo_cache.deactivate_slot(texture_ptr->get_name());
+  // Never call deactivate_slot() for null, missing, or unassigned textures.
+  // MaterialRepo::deactivate_slot() expects a slot to exist for the name.
+  for (const auto& texture_name : m_active_texture_names) {
+    m_repo_cache.deactivate_slot(texture_name);
   }
+  m_active_texture_names.clear();
 }
