@@ -19,9 +19,14 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
     return {};
 
   for (const auto& path : desc.shaders) {
-    if (auto shader = shader_repo.load_shader(path); shader)
-      glAttachShader(id, shader->get_id());
+    const auto shader = shader_repo.load_shader(path);
+    if (!shader) {
+      glDeleteProgram(id);
+      return {};
+    }
+    glAttachShader(id, shader->get_id());
   }
+
   glLinkProgram(id);
 
   GLint success;
