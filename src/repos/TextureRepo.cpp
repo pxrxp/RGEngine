@@ -89,11 +89,11 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
   }
   GLuint texture = 0;
   glCreateTextures(desc.target, 1, &texture);
-
-  GLenum source_format = (image.channels == 4) ? GL_RGBA : GL_RGB;
-  int levels =
-    desc.generate_mipmaps ? calculate_mip_levels(image.width, image.height) : 1;
-
+  const GLenum source_format = (image.channels == 4) ? GL_RGBA : GL_RGB;
+  const int levels = desc.generate_mipmaps
+                       ? calculate_mip_levels(static_cast<int>(image.width),
+                                              static_cast<int>(image.height))
+                       : 1;
   glTextureStorage2D(
     texture, levels, desc.internal_format, image.width, image.height);
   glTextureSubImage2D(texture,
