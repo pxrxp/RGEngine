@@ -20,9 +20,18 @@ ShaderRepo::load_shader(const std::string& path)
     return shader.value();
   }
 
-  std::string shader_src = Util::read_file("shaders/" + path + ".glsl");
+  if (path.empty())
+    return {};
+
+  const auto shader_type = shader_map.find(path.back());
+  if (shader_type == shader_map.end()) {
+    std::cerr << "Unknown shader type for " << path << '\n';
+    return {};
+  }
+
+  const std::string shader_src = Util::read_file("shaders/" + path + ".glsl");
   const char* shader_src_cstr = shader_src.c_str();
-  GLuint shader = glCreateShader(shader_map[path.back()]);
+  const GLuint shader = glCreateShader(shader_type->second);
 
   GLint success;
   glShaderSource(shader, 1, &shader_src_cstr, nullptr);
