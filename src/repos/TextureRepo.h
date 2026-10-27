@@ -22,6 +22,7 @@ struct TextureDescriptor
   GLenum mag_filter = GL_LINEAR;
   bool generate_mipmaps = true;
   int layers = -1;
+  int max_mip_level = -1;
 
   auto operator<=>(const TextureDescriptor&) const = default;
   bool is_getter_desc() const {
