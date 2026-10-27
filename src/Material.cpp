@@ -10,6 +10,12 @@ int Material::m_id_counter = -1;
 void
 Material::bind()
 {
+  if (!m_shader_program) {
+    std::cerr << "Material::bind(): material '" << m_name
+              << "' has no shader program; skipping bind\n";
+    return;
+  }
+
   for (const auto& [uniform_name, uniform_value] : m_uniforms) {
     std::visit(
       [&](auto&& arg) {
