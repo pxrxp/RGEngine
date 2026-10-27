@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <utility>
 
 void
 MaterialRepo::clear_all_slots()
@@ -32,13 +33,16 @@ MaterialRepo::load_material(const MaterialDescriptor& desc)
     textures.push_back(tex_repo.load_texture(desc));
   }
 
-  return RepoBase::create(
-    desc.material_name,
-    *this,
-    desc.material_name,
-    shader_program_repo.load_program(desc.shader_program_desc),
-    textures,
-    desc.uniforms);
+  auto shader_program = shader_program_repo.load_program(desc.shader_program_desc);
+  if (!shader_program)
+    return {};
+
+  return RepoBase::create(desc.material_name,
+                          *this,
+                          desc.material_name,
+                          std::move(shader_program),
+                          textures,
+                          desc.uniforms);
 }
 
 std::optional<unsigned int>
