@@ -119,15 +119,14 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
     desc.texture_name, texture, desc.texture_name, image.width, image.height);
 }
 
-std::shared_ptr<Texture>
+TextureStrongPtr
 TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
 {
-  PNGImage image = PNGImage(desc.texture_name + "_0.png");
+  PNGImage image(desc.texture_name + "_0.png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << desc.texture_name + "_0.png\n";
-    return 0;
+    std::cerr << "ERROR: Invalid file " << desc.texture_name + "_0.png\n";
+    return nullptr;
   }
-
   if (image.width != image.height) {
     std::cerr << "ERROR: Cubemap faces must be square!" << std::endl;
     return 0;
