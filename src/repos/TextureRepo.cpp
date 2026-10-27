@@ -131,9 +131,9 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
     std::cerr << "ERROR: Texture array source images must be square!\n";
     return nullptr;
   }
-
-  if (desc.layers == -1) {
-    std::cerr << "ERROR: Invalid no. of layers!" << std::endl;
+  if (desc.layers <= 0) {
+    std::cerr << "ERROR: Invalid number of texture array layers!\n";
+    return nullptr;
   }
 
   const auto width = image.width;
