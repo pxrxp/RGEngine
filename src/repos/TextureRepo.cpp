@@ -217,37 +217,29 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
       : 1;
   glTextureStorage2D(texture, levels, desc.internal_format, width, height);
   for (int i = 0; i < 6; ++i) {
-    std::string file_name = desc.texture_name + names[i];
-    if (flag)
-      image = PNGImage(file_name);
-
-    if (!image.is_valid()) {
-      std::cerr << "ERROR: Invalid file" << file_name << "\n";
-      continue;
+    if (i > 0)
+      image = PNGImage(desc.texture_name + suffixes[i]);
+    if (!image.is_valid() || image.width != width || image.height != height) {
+      std::cerr << "ERROR: Invalid/mismatched cubemap face "
+                << desc.texture_name + suffixes[i] << '\n';
+      glDeleteTextures(1, &texture);
+      return nullptr;
     }
-
-    if (image.width != width || image.height != height) {
-      std::cerr << "ERROR: Texture2DArray layer " << i
-                << " has mismatched dimensions." << std::endl;
-      continue;
-    }
-
-    GLenum sourceFormat = (image.channels == 4) ? GL_RGBA : GL_RGB;
-    glTextureSubImage3D(texture,
-                        0,
-                        0,
-                        0,
-                        i,
-                        width,
-                        height,
-                        1,
-                        sourceFormat,
-                        GL_UNSIGNED_BYTE,
-                        image.pixels.data());
-
-    flag = true;
+    const GLenum format = (image.channels == 4) ? GL_RGBA : GL_RGB;
+    // A cubemap is six 2D faces, not one GL_TEXTURE_CUBE_MAP 2D image.
+    // Upload each image to its corresponding face target.
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+    glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                    0,
+                    0,
+                    0,
+                    width,
+                    height,
+                    format,
+                    GL_UNSIGNED_BYTE,
+                    image.pixels.data());
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
   }
-
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
 
