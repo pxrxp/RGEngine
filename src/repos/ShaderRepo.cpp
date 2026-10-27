@@ -33,15 +33,16 @@ ShaderRepo::load_shader(const std::string& path)
   const char* shader_src_cstr = shader_src.c_str();
   const GLuint shader = glCreateShader(shader_type->second);
 
-  GLint success;
+  GLint success = GL_FALSE;
   glShaderSource(shader, 1, &shader_src_cstr, nullptr);
   glCompileShader(shader);
-
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    char info[512];
-    glGetShaderInfoLog(shader, 512, nullptr, info);
-    std::cerr << "Error while compiling " << path << ":\n" << info << "\n";
+  if (success != GL_TRUE) {
+    char info[512] = {};
+    glGetShaderInfoLog(shader, sizeof(info), nullptr, info);
+    std::cerr << "Error while compiling " << path << ":\n" << info << '\n';
+    glDeleteShader(shader);
+    return {};
   }
 
   return RepoBase::create(path, path, shader);
