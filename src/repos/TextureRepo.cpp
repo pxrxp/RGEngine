@@ -204,21 +204,18 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
               << '\n';
     return nullptr;
   }
-
-  const auto width = image.width;
-  const auto height = image.height;
-
-  GLuint texture;
+  const std::uint32_t width = image.width, height = image.height;
+  if (width != height) {
+    std::cerr << "ERROR: Cubemap faces must be square!\n";
+    return nullptr;
+  }
+  GLuint texture = 0;
   glCreateTextures(desc.target, 1, &texture);
-
-  int levels =
-    desc.generate_mipmaps ? calculate_mip_levels(image.width, image.height) : 1;
-
-  glTextureStorage2D(
-    texture, levels, desc.internal_format, image.width, image.height);
-
-  bool flag = false;
-
+  const int levels =
+    desc.generate_mipmaps
+      ? calculate_mip_levels(static_cast<int>(width), static_cast<int>(height))
+      : 1;
+  glTextureStorage2D(texture, levels, desc.internal_format, width, height);
   for (int i = 0; i < 6; ++i) {
     std::string file_name = desc.texture_name + names[i];
     if (flag)
