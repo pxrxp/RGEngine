@@ -183,18 +183,16 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
   }
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
-
-  auto fixed_filter =
+  const auto filters =
     fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
-  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, fixed_filter.first);
-  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, fixed_filter.second);
+  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, filters.first);
+  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, filters.second);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
   glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
-
   return RepoBase::create(desc.texture_name, texture, desc.texture_name);
 }
 
-std::shared_ptr<Texture>
+TextureStrongPtr
 TextureRepo::load_cubemap(const TextureDescriptor& desc)
 {
   std::unordered_map<int, std::string> names = {
