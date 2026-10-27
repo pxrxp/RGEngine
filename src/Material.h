@@ -3,7 +3,9 @@
 #include "repos/MaterialRepo.h"
 #include <glm/glm.hpp>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -33,6 +35,11 @@ private:
   ShaderProgramStrongPtr m_shader_program;
   std::vector<TextureStrongPtr> m_textures;
   std::unordered_map<std::string, UniformValue> m_uniforms;
+
+  // Only deactivate slots this material successfully acquired during bind().
+  // Calling deactivate_slot() for a texture that never got a slot can crash
+  // MaterialRepo implementations that assume the slot exists.
+  std::unordered_set<TextureName> m_active_texture_names;
 
 public:
   Material(MaterialRepo& repo, const std::string& material_name, ShaderProgramStrongPtr shader_program,
