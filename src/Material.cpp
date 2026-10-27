@@ -1,8 +1,9 @@
 #include "Material.h"
-#include "util/opengl.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
+#include "util/opengl.h"
 #include <iostream>
+#include <type_traits>
 
 int Material::m_id_counter = -1;
 
