@@ -195,19 +195,14 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
 TextureStrongPtr
 TextureRepo::load_cubemap(const TextureDescriptor& desc)
 {
-  std::unordered_map<int, std::string> names = {
-    {0, "_right.png"},
-    {1, "_left.png"},
-    {2, "_top.png"},
-    {3, "_bottom.png"},
-    {4, "_front.png"},
-    {5, "_back.png"},
-  };
-
-  PNGImage image = PNGImage(desc.texture_name + names[0]);
+  const std::array<std::string, 6> suffixes = { "_right.png", "_left.png",
+                                                "_top.png",   "_bottom.png",
+                                                "_front.png", "_back.png" };
+  PNGImage image(desc.texture_name + suffixes[0]);
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file" << desc.texture_name + names[0] << std::endl;
-    return 0;
+    std::cerr << "ERROR: Invalid file " << desc.texture_name + suffixes[0]
+              << '\n';
+    return nullptr;
   }
 
   const auto width = image.width;
