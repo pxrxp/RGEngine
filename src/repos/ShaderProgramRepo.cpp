@@ -14,7 +14,9 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
     return program.value();
   }
 
-  GLuint id = glCreateProgram();
+  const GLuint id = glCreateProgram();
+  if (id == 0)
+    return {};
 
   for (const auto& path : desc.shaders) {
     if (auto shader = shader_repo.load_shader(path); shader)
