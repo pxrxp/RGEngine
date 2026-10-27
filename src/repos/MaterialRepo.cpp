@@ -88,11 +88,14 @@ MaterialRepo::deactivate_slot(unsigned int slot)
 void
 MaterialRepo::activate_slot(const std::string& texture_name)
 {
-  auto it = texture_slots_map.find(texture_name);
-  if (it == texture_slots_map.end())
-    std::cout << "Slot not assigned for " << texture_name << std::endl;
+  const auto it = texture_slots_map.find(texture_name);
+  if (it == texture_slots_map.end()) {
+    std::cerr << "MaterialRepo::activate_slot(): no slot assigned for '"
+              << texture_name << "'\n";
+    return;
+  }
 
-  unsigned int slot = it->second;
+  const unsigned int slot = it->second;
   empty_texture_slots.erase(slot);
   full_texture_slots.insert(slot);
 }
