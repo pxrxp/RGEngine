@@ -135,15 +135,13 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
     std::cerr << "ERROR: Invalid number of texture array layers!\n";
     return nullptr;
   }
-
-  const auto width = image.width;
-
-  GLuint texture;
+  const std::uint32_t width = image.width;
+  GLuint texture = 0;
   glCreateTextures(desc.target, 1, &texture);
-
-  int levels =
-    desc.generate_mipmaps ? calculate_mip_levels(image.width, image.height) : 1;
-
+  const int levels = desc.generate_mipmaps
+                       ? calculate_mip_levels(static_cast<int>(image.width),
+                                              static_cast<int>(image.height))
+                       : 1;
   glTextureStorage3D(texture,
                      levels,
                      desc.internal_format,
