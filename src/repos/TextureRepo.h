@@ -33,12 +33,9 @@ struct TextureDescriptor
 class TextureRepo : public RepoBase<std::string, Texture>
 {
 private:
-  TextureStrongPtr load_tex_2d(
-                               const TextureDescriptor& desc);
-  TextureStrongPtr load_tex_2d_array(
-                                     const TextureDescriptor& desc);
-  TextureStrongPtr load_cubemap(
-                                const TextureDescriptor& desc);
+  TextureStrongPtr load_tex_2d(const TextureDescriptor& desc);
+  TextureStrongPtr load_tex_2d_array(const TextureDescriptor& desc);
+  TextureStrongPtr load_cubemap(const TextureDescriptor& desc);
 
 public:
   TextureStrongPtr load_texture(const TextureDescriptor& desc);
