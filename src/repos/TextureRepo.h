@@ -1,6 +1,9 @@
 #pragma once
 #include "RepoBase.h"
 #include "../util/opengl.h"
+#include <compare>
+#include <memory>
+#include <string>
 
 class Texture;
 using TextureStrongPtr = std::shared_ptr<Texture>;
@@ -8,6 +11,7 @@ using TextureWeakPtr = std::weak_ptr<Texture>;
 
 struct TextureDescriptor
 {
+  // Repository/cache key. Existing callers can keep using a base name such as "ground".
   std::string texture_name;
   GLenum target = GL_TEXTURE_2D;
   GLenum internal_format = GL_RGBA8;
