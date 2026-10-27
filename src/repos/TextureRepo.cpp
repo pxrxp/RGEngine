@@ -148,19 +148,16 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
                      image.width,
                      image.height,
                      desc.layers);
-
-  bool flag = false;
-
+  bool have_image = false;
   for (int i = 0; i < desc.layers; ++i) {
-    std::string file_name = desc.texture_name + "_" + std::to_string(i) + ".png";
-    if (flag)
+    const std::string file_name =
+      desc.texture_name + "_" + std::to_string(i) + ".png";
+    if (i > 0)
       image = PNGImage(file_name);
-
     if (!image.is_valid()) {
-      std::cerr << "ERROR: Invalid file" << file_name << "\n";
+      std::cerr << "ERROR: Invalid file " << file_name << '\n';
       continue;
     }
-
     if (image.width != width || image.height != width) {
       std::cerr << "ERROR: Cubemap layer " << i << " has mismatched dimensions."
                 << std::endl;
@@ -179,10 +176,12 @@ TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
                         sourceFormat,
                         GL_UNSIGNED_BYTE,
                         image.pixels.data());
-
-    flag = true;
+    have_image = true;
   }
-
+  if (!have_image) {
+    glDeleteTextures(1, &texture);
+    return nullptr;
+  }
   if (desc.generate_mipmaps)
     glGenerateTextureMipmap(texture);
 
