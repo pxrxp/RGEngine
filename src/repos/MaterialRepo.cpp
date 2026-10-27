@@ -103,12 +103,14 @@ MaterialRepo::activate_slot(const std::string& texture_name)
 void
 MaterialRepo::deactivate_slot(const std::string& texture_name)
 {
-  auto it = texture_slots_map.find(texture_name);
-  if (it == texture_slots_map.end())
-    std::cout << "Slot not assigned for " << texture_name << std::endl;
+  const auto it = texture_slots_map.find(texture_name);
+  if (it == texture_slots_map.end()) {
+    // A material may have failed to acquire a slot during bind(). Nothing to
+    // release; importantly, do not dereference end() or alter another slot.
+    return;
+  }
 
-  unsigned int slot = it->second;
-
-  empty_texture_slots.erase(slot);
-  full_texture_slots.insert(slot);
+  const unsigned int slot = it->second;
+  full_texture_slots.erase(slot);
+  empty_texture_slots.insert(slot);
 }
