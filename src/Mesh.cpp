@@ -87,6 +87,12 @@ Mesh::get_local_AABB() const
   return m_local_AABB;
 }
 
+const std::vector<CollisionTriangle>&
+Mesh::get_collision_triangles() const
+{
+  return m_collision_triangles;
+}
+
 #ifndef NDEBUG
 std::ostream&
 operator<<(std::ostream& os, const Mesh& mesh)

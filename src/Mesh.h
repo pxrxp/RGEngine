@@ -18,7 +18,7 @@ private:
   std::vector<glm::vec3> m_vertices_pos;
   size_t m_index_count = 0;
   GLenum m_draw_primitive;
-
+  std::vector<CollisionTriangle> m_collision_triangles;
   BoundingBox m_local_AABB;
 
 public:
@@ -35,6 +35,7 @@ public:
        GLuint vbo,
        GLuint ebo,
        std::vector<glm::vec3>& vertices_pos,
+       std::vector<CollisionTriangle> collision_triangles,
        size_t index_count,
        GLenum draw_primitive,
        BoundingBox local_AABB)
@@ -45,6 +46,7 @@ public:
     , m_vertices_pos(std::move(vertices_pos))
     , m_index_count(index_count)
     , m_draw_primitive(draw_primitive)
+    , m_collision_triangles(std::move(collision_triangles))
     , m_local_AABB(local_AABB)
   {
   }
