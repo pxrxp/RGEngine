@@ -189,7 +189,8 @@ from_OBJ(const std::string& path,
           }
           if constexpr (requires { new_vertex.texture; }) {
             if (key.tex_idx != -1)
-              new_vertex.texture = tex_coords_storage[key.tex_idx];
+              new_vertex.texture = glm::vec2(tex_coords_storage[key.tex_idx].x,
+                                             1.0f - tex_coords_storage[key.tex_idx].y);
           }
           if constexpr (requires { new_vertex.normal; }) {
             if (key.norm_idx != -1)
