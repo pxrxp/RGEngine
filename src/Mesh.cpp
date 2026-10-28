@@ -14,7 +14,7 @@ Mesh::~Mesh()
     std::cout << "Deleted element buffer object " << m_ebo << std::endl;
 #endif
   }
-  if (m_ebo) {
+  if (m_vbo) {
     glDeleteBuffers(1, &m_vbo);
 
 #ifndef NDEBUG
