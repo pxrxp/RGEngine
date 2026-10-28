@@ -262,6 +262,7 @@ public:
                             vbo,
                             ebo,
                             vertices_pos,
+                            collision_triangles,
                             index_count,
                             desc.draw_primitive,
                             local_AABB);
