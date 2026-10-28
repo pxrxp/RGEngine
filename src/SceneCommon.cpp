@@ -115,7 +115,7 @@ Scene::debug_camera()
 {
   auto frustum_visualizer = std::make_shared<SceneObject>();
   frustum_visualizer->get_physics_component().set_gravity(false);
-  frustum_visualizer->visible = false;
+  bool show_frustum = false;
 
   frustum_visualizer->set_render_packet(
     m_app_cache.mesh_repo.load_mesh(
@@ -135,7 +135,7 @@ Scene::debug_camera()
 
     capture_weak(
       frustum_visualizer,
-      [this, dirty = true, cached_model = glm::mat4(1.0f)](
+      [this, dirty = true, cached_model = glm::mat4(1.0f), show_frustum](
         SceneObjectStrongPtr self, RenderPacketStrongPtr packet) mutable {
         if (ImGui::CollapsingHeader("Camera")) {
           auto& camera = m_app_cache.get_camera();
