@@ -14,7 +14,7 @@ capture_weak(SceneObjectStrongPtr object_strong, F&& f)
   return [obj_weak, f = std::forward<F>(f)]() mutable {
     SceneObjectStrongPtr self = obj_weak.lock();
 
-    if (self) {
+    if (self && self->visible) {
       auto packet_strong_opt = self->get_render_packet();
       if (packet_strong_opt)
         f(self, packet_strong_opt.value());
