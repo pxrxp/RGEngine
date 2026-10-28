@@ -33,9 +33,6 @@ SceneObject::get_local_transformation_mat()
 glm::mat4
 SceneObject::get_world_transformation_mat()
 {
-  if (m_local_transform->is_dirty())
-    m_world_AABB.set_dirty();
-
   glm::mat4 world_model_mat = get_local_transformation_mat();
 
   if (auto parent = get_parent()) {
