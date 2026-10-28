@@ -152,7 +152,7 @@ Scene::debug_camera()
             ImGui::TreePop();
           }
 
-          ImGui::Checkbox("Show frustum", &self->visible);
+          ImGui::Checkbox("Show frustum", &show_frustum);
           if (ImGui::Button("Update frustum"))
             dirty = true;
           ImGui::Separator();
@@ -201,7 +201,7 @@ Scene::debug_camera()
           ImGui::Text("Right:   (%.3f, %.3f, %.3f)", right.x, right.y, right.z);
           ImGui::Text("Up:      (%.3f, %.3f, %.3f)", up.x, up.y, up.z);
         }
-        if (self->visible) {
+        if (show_frustum) {
           if (dirty) {
             cached_model =
               glm::inverse(m_app_cache.get_camera().get_projection_matrix() *
