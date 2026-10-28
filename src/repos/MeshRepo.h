@@ -219,7 +219,41 @@ public:
 
     for (const auto& vertex : desc.vertices) {
       local_AABB.add_point(vertex.position);
-      vertices_pos.push_back(std::move(vertex.position));
+      vertices_pos.push_back(vertex.position);
+    }
+
+    // Collect triangles for mesh-based collision processing.
+    std::vector<CollisionTriangle> collision_triangles;
+
+    auto add_triangle = [&](size_t i0, size_t i1, size_t i2) {
+      if (i0 >= desc.vertices.size() || i1 >= desc.vertices.size() ||
+          i2 >= desc.vertices.size()) {
+        return;
+      }
+
+      collision_triangles.push_back({ desc.vertices[i0].position,
+                                      desc.vertices[i1].position,
+                                      desc.vertices[i2].position });
+    };
+
+    if (desc.draw_primitive == GL_TRIANGLES) {
+      if constexpr (std::is_same_v<Indices, TriangleIndices>) {
+        for (const auto& idx : desc.indices) {
+          add_triangle(idx.vert1, idx.vert2, idx.vert3);
+        }
+      } else if constexpr (std::is_same_v<Indices, PointIndex>) {
+        if (!desc.indices.empty()) {
+          for (size_t i = 0; i + 2 < desc.indices.size(); i += 3) {
+            add_triangle(desc.indices[i].vert,
+                         desc.indices[i + 1].vert,
+                         desc.indices[i + 2].vert);
+          }
+        } else {
+          for (size_t i = 0; i + 2 < desc.vertices.size(); i += 3) {
+            add_triangle(i, i + 1, i + 2);
+          }
+        }
+      }
     }
 
     return RepoBase::create(desc.mesh_name,
