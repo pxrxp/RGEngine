@@ -96,8 +96,6 @@ public:
 
   void submit_to_renderer();
 
-  void set_enemy_root(SceneObjectStrongPtr root) { m_enemy_root = root; }
-
   SceneObjectStrongPtr get_scene_ptr() const;
   SceneObjectStrongPtr get_player() const { return m_player; }
 };
