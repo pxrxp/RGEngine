@@ -169,9 +169,14 @@ public:
       remove(desc.mesh_name);
     }
 
-    GLuint vao = 0, vbo = 0, ebo = 0;
-    GLuint vertex_count = desc.vertices.size();
-    GLuint index_count = desc.indices.size() * sizeof(Indices) / sizeof(GLuint);
+    GLuint vao = 0;
+    GLuint vbo = 0;
+    GLuint ebo = 0;
+
+    const GLuint vertex_count = static_cast<GLuint>(desc.vertices.size());
+
+    const GLuint index_count = static_cast<GLuint>(
+      desc.indices.size() * sizeof(Indices) / sizeof(GLuint));
 
     glCreateVertexArrays(1, &vao);
     glCreateBuffers(1, &vbo);
@@ -181,14 +186,17 @@ public:
 
     if (!desc.indices.empty()) {
       glCreateBuffers(1, &ebo);
+
       glNamedBufferData(
         ebo, index_count * sizeof(GLuint), desc.indices.data(), desc.usage);
+
       glVertexArrayElementBuffer(vao, ebo);
     }
 
     glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
 
     int attr_index = 0;
+
     if constexpr (std::is_same_v<Vertex, Vertex_Pos>) {
       VERTEX_P_FIELDS(SETUP_ATTRIB)
     } else if constexpr (std::is_same_v<Vertex, Vertex_PosCol>) {
