@@ -29,6 +29,8 @@ private:
   std::unique_ptr<TransformComponent> m_local_transform = nullptr;
   std::unique_ptr<PhysicsComponent> m_physics = nullptr;
 
+  bool m_collidable = true;
+
 public:
   TransformComponent& get_local_transform() { return *m_local_transform; }
   const TransformComponent& get_local_transform() const
