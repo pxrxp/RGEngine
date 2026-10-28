@@ -25,7 +25,7 @@ Mesh::~Mesh()
     glDeleteVertexArrays(1, &m_vao);
 
 #ifndef NDEBUG
-    std::cout << "Deleted vertex array object " << m_ebo << std::endl;
+    std::cout << "Deleted vertex array object " << m_vao << std::endl;
 #endif
   }
 
