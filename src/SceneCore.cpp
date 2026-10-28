@@ -7,12 +7,12 @@
 void
 Scene::init()
 {
-  m_player = std::make_shared<SceneObject>();
-  m_player->get_physics_component().disable();
-  m_player->get_local_transform().set_position({ 0.0f, PLAYER_EYE_HEIGHT, 0.0f });
-  m_scene_ptr->add_child(m_player);
+  SceneObjectStrongPtr player = std::make_shared<SceneObject>();
+  player->get_physics_component().disable();
+  player->get_local_transform().translate(AXIS_Y);
+  m_scene_ptr->add_child(player);
 
-  m_app_cache.get_camera().setup(m_player);
+  m_app_cache.get_camera().setup(player);
 }
 
 void
