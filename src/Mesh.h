@@ -53,7 +53,7 @@ public:
 
   void draw(unsigned int instance_count = 1);
   const BoundingBox& get_local_AABB() const;
-
+  const std::vector<CollisionTriangle>& get_collision_triangles() const;
   ~Mesh();
 };
 
