@@ -82,7 +82,7 @@ SceneObject::update_world_AABB()
 BoundingBox&
 SceneObject::get_world_AABB()
 {
-  if (m_world_AABB.is_dirty())
+  if (m_local_transform->is_dirty() || m_world_AABB.is_dirty())
     update_world_AABB();
 
   return m_world_AABB;
