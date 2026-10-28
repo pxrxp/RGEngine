@@ -1,6 +1,12 @@
 #pragma once
 #include "components/BoundingBox.h"
+#include <array>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+using CollisionTriangle = std::array<glm::vec3, 3>;
 
 class Mesh
 {
