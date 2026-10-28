@@ -73,13 +73,8 @@ SceneObject::update_world_AABB()
       world_max = glm::max(world_max, transformed);
     }
 
-    m_world_AABB.resize(AABB_corners);
-
-    m_world_AABB.m_min += m_world_AABB.m_delta_pos;
-    m_world_AABB.m_min -= 0.5f * m_world_AABB.m_delta_size;
-
-    m_world_AABB.m_max += m_world_AABB.m_delta_pos;
-    m_world_AABB.m_max += 0.5f * m_world_AABB.m_delta_size;
+    m_world_AABB.set_min(world_min);
+    m_world_AABB.set_max(world_max);
   }
   m_world_AABB.m_dirty = false;
 }
