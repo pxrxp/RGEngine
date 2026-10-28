@@ -32,23 +32,6 @@ private:
 protected:
   App& m_app_cache;
   SceneObjectStrongPtr m_scene_ptr;
-  SceneObjectStrongPtr m_player;
-  SceneObjectStrongPtr m_skybox;
-  SceneObjectStrongPtr m_enemy_root;
-
-  // Character Controller State
-  float m_player_vy = 0.0f;
-  bool m_player_grounded = true;
-  static constexpr float PLAYER_EYE_HEIGHT = 1.7f;
-  static constexpr float PLAYER_RADIUS = 0.35f;
-  static constexpr float MAX_STEP_HEIGHT = 0.55f;
-
-  bool m_space_was_pressed = false;
-  float m_jump_cooldown = 0.0f;
-
-  bool m_mouse_was_pressed = false;
-  virtual void handle_shooting();
-  void update_character_controller(float dt);
 
   void debug_object(std::weak_ptr<SceneObject> weak_object, const char* header);
   void debug_camera();
