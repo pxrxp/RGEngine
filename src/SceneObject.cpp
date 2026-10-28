@@ -50,12 +50,27 @@ void
 SceneObject::update_world_AABB()
 {
   if (m_render_packet.has_value()) {
-    auto local_AABB = m_render_packet.value()->mesh->get_local_AABB();
-    auto AABB_corners = local_AABB.corners();
+    const auto& local_AABB = m_render_packet.value()->mesh->get_local_AABB();
+    const glm::vec3 mn = local_AABB.get_min();
+    const glm::vec3 mx = local_AABB.get_max();
 
-    for (auto& corner : AABB_corners) {
-      corner = { get_world_transformation_mat() *
-                 glm::vec4(corner.position, 1.f) };
+    // Cache world transform once instead of 8 times!
+    const glm::mat4 world_mat = get_world_transformation_mat();
+
+    const glm::vec3 corners[8] = {
+      { mn.x, mn.y, mn.z }, { mx.x, mn.y, mn.z },
+      { mn.x, mx.y, mn.z }, { mx.x, mx.y, mn.z },
+      { mn.x, mn.y, mx.z }, { mx.x, mn.y, mx.z },
+      { mn.x, mx.y, mx.z }, { mx.x, mx.y, mx.z }
+    };
+
+    glm::vec3 world_min(std::numeric_limits<float>::max());
+    glm::vec3 world_max(std::numeric_limits<float>::lowest());
+
+    for (int i = 0; i < 8; ++i) {
+      glm::vec3 transformed = glm::vec3(world_mat * glm::vec4(corners[i], 1.0f));
+      world_min = glm::min(world_min, transformed);
+      world_max = glm::max(world_max, transformed);
     }
 
     m_world_AABB.resize(AABB_corners);
