@@ -42,7 +42,9 @@ private:
   std::unordered_set<TextureName> m_active_texture_names;
 
 public:
-  Material(MaterialRepo& repo, const std::string& material_name, ShaderProgramStrongPtr shader_program,
+  Material(MaterialRepo& repo,
+           const std::string& material_name,
+           ShaderProgramStrongPtr shader_program,
            const std::vector<TextureStrongPtr>& textures,
            const std::unordered_map<std::string, UniformValue>& uniforms = {})
     : m_id(++m_id_counter)
@@ -58,7 +60,7 @@ public:
 
   int get_id() { return m_id; }
   const std::string& get_name() { return m_name; }
-  
+
   void bind();
   void unbind();
 };
