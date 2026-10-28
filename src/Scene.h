@@ -97,5 +97,4 @@ public:
   void submit_to_renderer();
 
   SceneObjectStrongPtr get_scene_ptr() const;
-  SceneObjectStrongPtr get_player() const { return m_player; }
 };
