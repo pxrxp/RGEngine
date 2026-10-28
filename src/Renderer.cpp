@@ -77,6 +77,12 @@ Renderer::render()
     render_packet->render();
   }
 
+  // The last material is not followed by another material transition, so
+  // explicitly release its texture slots at the end of the frame.
+  if (current_material) {
+    current_material->unbind();
+  }
+
   m_render_queue.clear();
 }
 
