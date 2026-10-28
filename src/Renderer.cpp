@@ -44,15 +44,16 @@ Renderer::render()
   std::sort(m_render_queue.begin(),
             m_render_queue.end(),
             [](const auto& a, const auto& b) {
-              if (a->priority != b->priority) {
-                if (a->material->get_shader_program()->get_id() !=
-                    b->material->get_shader_program()->get_id()) {
-                  return a->material->get_shader_program()->get_id() <
-                         b->material->get_shader_program()->get_id();
-                }
-                return a->material->get_id() < b->material->get_id();
-              }
-              return a->priority < b->priority;
+              if (a->priority != b->priority)
+                return a->priority < b->priority;
+
+              const auto a_shader = a->material->get_shader_program()->get_id();
+              const auto b_shader = b->material->get_shader_program()->get_id();
+
+              if (a_shader != b_shader)
+                return a_shader < b_shader;
+
+              return a->material->get_id() < b->material->get_id();
             });
 
   std::shared_ptr<ShaderProgram> current_shader_program = nullptr;
