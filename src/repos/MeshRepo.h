@@ -158,13 +158,15 @@ public:
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
       if (!reload) {
-        if (!desc.is_getter_desc())
+        if (!desc.is_getter_desc()) {
           std::cout << "Mesh " << desc.mesh_name << " already exists!"
                     << std::endl;
+        }
+
         return mesh.value();
-      } else {
-        remove(desc.mesh_name);
       }
+
+      remove(desc.mesh_name);
     }
 
     GLuint vao = 0, vbo = 0, ebo = 0;
