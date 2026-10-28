@@ -5,6 +5,15 @@
 #include "filesystem.h"
 
 #include <charconv>
+#include <cstdio>
+#include <string>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <type_traits>
+#include <algorithm>
+#include <cctype>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <optional>
