@@ -45,6 +45,9 @@ public:
   BoundingBox& get_world_AABB();
   void update_world_AABB();
 
+  bool is_collidable() const { return m_collidable; }
+  void set_collidable(bool collidable) { m_collidable = collidable; }
+
 #ifndef NDEBUG
   bool display_AABB = false;
   bool display_axes = false;
