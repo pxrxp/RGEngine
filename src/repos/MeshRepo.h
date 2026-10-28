@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Mesh.h"
 #include "../components/BoundingBox.h"
 #include "../components/vertex_formats.h"
 #include "../util/opengl.h"
@@ -144,7 +145,6 @@ public:
   MeshStrongPtr load_mesh(const MeshDescriptor<Vertex, Indices>& desc,
                           bool reload = false)
   {
-
     static_assert(std::is_same<Vertex, Vertex_Pos>::value ||
                   std::is_same<Vertex, Vertex_PosCol>::value ||
                   std::is_same<Vertex, Vertex_PosTex>::value ||
