@@ -211,8 +211,12 @@ public:
       VERTEX_PTNTB_FIELDS(SETUP_ATTRIB)
     }
 
+    // Collect vertex positions and calculate the local AABB.
     std::vector<glm::vec3> vertices_pos;
+    vertices_pos.reserve(desc.vertices.size());
+
     BoundingBox local_AABB;
+
     for (const auto& vertex : desc.vertices) {
       local_AABB.add_point(vertex.position);
       vertices_pos.push_back(std::move(vertex.position));
