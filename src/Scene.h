@@ -38,6 +38,74 @@ protected:
   void setup_skybox(const SceneObjectStrongPtr& skybox,
                     const std::string& texture_name);
 
+  virtual bool blocks_vertical_capsule(float x,
+                                       float z,
+                                       float from_x,
+                                       float from_z,
+                                       float feet_y,
+                                       float head_y,
+                                       float radius) const
+  {
+    (void)x;
+    (void)z;
+    (void)from_x;
+    (void)from_z;
+    (void)feet_y;
+    (void)head_y;
+    (void)radius;
+    return false;
+  }
+
+  virtual bool static_mesh_ray_hit(const glm::vec3& origin,
+                                   const glm::vec3& direction,
+                                   float max_distance,
+                                   float& out_distance) const
+  {
+    (void)origin;
+    (void)direction;
+    (void)max_distance;
+    (void)out_distance;
+    return false;
+  }
+
+  virtual bool find_ground_surface_for_actor(float x,
+                                             float z,
+                                             float max_y,
+                                             float min_y,
+                                             float& out_y) const
+  {
+    return find_ground_surface(x, z, max_y, min_y, out_y);
+  }
+
+  virtual bool find_ground_surface(float x,
+                                   float z,
+                                   float max_y,
+                                   float min_y,
+                                   float& out_y) const
+  {
+    (void)x;
+    (void)z;
+    (void)max_y;
+    (void)min_y;
+    (void)out_y;
+    return false;
+  }
+
+  virtual bool find_landing_surface(float x,
+                                    float z,
+                                    float radius,
+                                    float previous_bottom,
+                                    float current_bottom,
+                                    float& out_y) const
+  {
+    (void)radius;
+    return find_ground_surface(x,
+                               z,
+                               previous_bottom + 0.05f,
+                               current_bottom - 0.05f,
+                               out_y);
+  }
+
 public:
   Scene(App& app)
     : m_app_cache(app)
