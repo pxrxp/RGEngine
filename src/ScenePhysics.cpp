@@ -40,12 +40,11 @@ struct CellHash
 constexpr float GRID_CELL_SIZE = 2.2f;
 constexpr float MAX_STACK_CORRECTION = 1.0f;
 
-    glm::vec3 momentum = physics.get_linear_momentum();
-    if (momentum.y < 0.0f) {
-      momentum.y = 0.0f;
-    }
-    physics.set_linear_momentum(momentum);
-  }
+Cell
+cell_for(const glm::vec3& p)
+{
+  return { static_cast<int>(std::floor(p.x / GRID_CELL_SIZE)),
+           static_cast<int>(std::floor(p.z / GRID_CELL_SIZE)) };
 }
 
 void
