@@ -124,6 +124,35 @@ public:
 
   App& get_app_cache() { return m_app_cache; }
 
+  bool blocks_vertical_capsule_for_actor(float x,
+                                         float z,
+                                         float from_x,
+                                         float from_z,
+                                         float feet_y,
+                                         float head_y,
+                                         float radius) const
+  {
+    return blocks_vertical_capsule(
+      x, z, from_x, from_z, feet_y, head_y, radius);
+  }
+
+  bool raycast_static_geometry(const glm::vec3& origin,
+                               const glm::vec3& direction,
+                               float max_distance,
+                               float& out_distance) const
+  {
+    return static_mesh_ray_hit(origin, direction, max_distance, out_distance);
+  }
+
+  bool find_actor_ground_surface(float x,
+                                 float z,
+                                 float max_y,
+                                 float min_y,
+                                 float& out_y) const
+  {
+    return find_ground_surface_for_actor(x, z, max_y, min_y, out_y);
+  }
+
   void set_view_matrix(RenderPacketStrongPtr render_packet,
                        const char* view_uniform_name = "u_view",
                        const glm::mat4& view_matrix = glm::mat4(1.f));
