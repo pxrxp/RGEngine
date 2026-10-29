@@ -118,13 +118,17 @@ Scene::step_simulation()
       object->get_physics_component().integrate_position();
   }
 
-    if (feet_y <= ground_y) {
-      player_pos.y = ground_y + PLAYER_EYE_HEIGHT;
-      m_player_vy = 0.0f;
-      m_player_grounded = true;
-    } else {
-      m_player_grounded = false;
-    }
+  // Broad phase: bucket dynamic gravity objects in XZ cells. A crate only
+  // checks its own cell and the eight adjacent cells, rather than all 256.
+  using BucketMap = std::unordered_map<Cell, std::vector<std::size_t>, CellHash>;
+  BucketMap buckets;
+  buckets.reserve(objects.size() * 2);
+
+  for (std::size_t i = 0; i < objects.size(); ++i) {
+    if (is_static_object(*objects[i]) ||
+        !objects[i]->get_physics_component().has_gravity())
+      continue;
+    buckets[cell_for(objects[i]->get_local_transform().get_position())].push_back(i);
   }
 
   m_player->get_local_transform().set_position(player_pos);
