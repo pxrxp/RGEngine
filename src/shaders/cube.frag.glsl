@@ -8,6 +8,10 @@ out vec4 FragColor;
 
 uniform mat4 u_view;
 uniform vec3 u_color = vec3(0.0);
+uniform sampler2D u_diffuse;
+uniform int u_use_texture = 0;
+uniform int u_is_gun = 0;
+uniform int u_preserve_color = 0;
 
 void main() {
     vec3 N = normalize(v_normal);
