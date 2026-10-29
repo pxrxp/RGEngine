@@ -76,8 +76,7 @@ void
 Scene::collect_colliders_recursive(SceneObjectStrongPtr object,
                                    std::vector<BoundingBox>& colliders)
 {
-  // Ignore player, skybox, and the enemy's own body parts!
-  if (object == m_player || object == m_skybox || object == m_enemy_root)
+  if (!object->is_collidable())
     return;
 
   if (object->get_render_packet().has_value()) {
