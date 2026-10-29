@@ -117,30 +117,6 @@ Scene::step_simulation()
     if (!is_static_object(*object))
       object->get_physics_component().integrate_position();
   }
-  m_space_was_pressed = space_is_pressed;
-
-  // Gravity & Landing (only land while falling down)
-  m_player_vy -= 18.0f * dt;
-  player_pos.y += m_player_vy * dt;
-  feet_y = player_pos.y - PLAYER_EYE_HEIGHT;
-
-  if (m_player_vy <= 0.0f && m_jump_cooldown <= 0.0f) {
-    float ground_y = 0.0f;
-    for (const auto& aabb : colliders) {
-      const glm::vec3& b_min = aabb.get_min();
-      const glm::vec3& b_max = aabb.get_max();
-
-      bool inside_x =
-        (player_pos.x >= b_min.x - 0.15f) && (player_pos.x <= b_max.x + 0.15f);
-      bool inside_z =
-        (player_pos.z >= b_min.z - 0.15f) && (player_pos.z <= b_max.z + 0.15f);
-
-      if (inside_x && inside_z) {
-        if (b_max.y <= feet_y + 0.35f && b_max.y > ground_y) {
-          ground_y = b_max.y;
-        }
-      }
-    }
 
     if (feet_y <= ground_y) {
       player_pos.y = ground_y + PLAYER_EYE_HEIGHT;
