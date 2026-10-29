@@ -90,9 +90,9 @@ std::vector<SceneObjectStrongPtr>
 Scene::get_all_physics_objects()
 {
   std::vector<SceneObjectStrongPtr> objects;
-  for (auto& child : *m_scene_ptr) {
+  objects.reserve(256);
+  for (auto& child : *m_scene_ptr)
     collect_physics_objects_recursive(child, objects);
-  }
   return objects;
 }
 
