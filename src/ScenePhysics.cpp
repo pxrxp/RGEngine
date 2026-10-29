@@ -145,9 +145,9 @@ Scene::step_simulation()
         if (it == buckets.end())
           continue;
 
-  for (auto& object : objects) {
-    auto& physics = object->get_physics_component();
-    physics.clear_forces();
+        for (const std::size_t j : it->second) {
+          if (j <= i)
+            continue;
 
     if (physics.has_gravity() && !is_static_object(*object)) {
       const glm::vec3 gravity_force =
