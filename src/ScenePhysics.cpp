@@ -197,8 +197,8 @@ Scene::step_simulation()
   // scene ground query remains accessible. City/player collision code is not
   // touched; this only settles dynamic gravity objects onto the scene surface.
   for (auto& object : objects) {
-    resolve_floor_plane(*object);
-  }
+    if (is_static_object(*object))
+      continue;
 
   for (size_t i = 0; i < objects.size(); ++i) {
     for (size_t j = i + 1; j < objects.size(); ++j) {
