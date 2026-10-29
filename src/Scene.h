@@ -171,7 +171,7 @@ public:
   std::vector<SceneObjectStrongPtr> get_all_physics_objects();
 
   static constexpr float FIXED_STEP = 1.f / 60.f;
-  void step_simulation();
+  virtual void step_simulation();
   virtual void update_physics();
 
   void submit_to_renderer();
