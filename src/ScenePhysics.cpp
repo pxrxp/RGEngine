@@ -99,77 +99,7 @@ Scene::get_all_physics_objects()
 void
 Scene::step_simulation()
 {
-  if (!m_player)
-    return;
-
-  // Only walk if cursor is disabled (mouse captured)
-  if (m_app_cache.get_window().get_cursor_mode() != GLFW_CURSOR_DISABLED)
-    return;
-
-  handle_shooting();
-
-  auto& window = m_app_cache.get_window();
-
-  // Read movement input
-  glm::vec3 wish_dir(0.0f);
-  if (window.is_key_pressed(GLFW_KEY_W) || window.is_key_pressed(GLFW_KEY_UP))
-    wish_dir.z += 1.0f;
-  if (window.is_key_pressed(GLFW_KEY_S) || window.is_key_pressed(GLFW_KEY_DOWN))
-    wish_dir.z -= 1.0f;
-  if (window.is_key_pressed(GLFW_KEY_A) || window.is_key_pressed(GLFW_KEY_LEFT))
-    wish_dir.x -= 1.0f;
-  if (window.is_key_pressed(GLFW_KEY_D) ||
-      window.is_key_pressed(GLFW_KEY_RIGHT))
-    wish_dir.x += 1.0f;
-
-  float walk_speed = 5.0f;
-  if (window.is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-    walk_speed *= 1.7f; // Sprint
-
-  glm::quat orientation = m_player->get_local_transform().get_rotation();
-  glm::vec3 forward = orientation * glm::vec3(AXIS_NEG_Z);
-  glm::vec3 right = orientation * glm::vec3(AXIS_X);
-  forward = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
-  right = glm::normalize(glm::vec3(right.x, 0.0f, right.z));
-
-  glm::vec3 move_heading = right * wish_dir.x + forward * wish_dir.z;
-  if (glm::length2(move_heading) > 0.0f)
-    move_heading = glm::normalize(move_heading);
-
-  // Gather scene colliders dynamically from the scene tree
-  std::vector<BoundingBox> colliders;
-  collect_colliders_recursive(m_scene_ptr, colliders);
-
-  glm::vec3 player_pos = m_player->get_local_transform().get_position();
-  float feet_y = player_pos.y - PLAYER_EYE_HEIGHT;
-
-  // Tick jump cooldown
-  if (m_jump_cooldown > 0.0f)
-    m_jump_cooldown -= dt;
-
-  // Move horizontally with axis-separated wall sliding & auto-step
-  if (glm::length2(move_heading) > 0.0f) {
-    glm::vec3 delta = move_heading * walk_speed * dt;
-    const float player_radius = 0.26f;
-    const float head_y = feet_y + PLAYER_EYE_HEIGHT + 0.2f;
-
-    auto test_axis = [&](float new_x, float new_z, float& out_step_y) -> bool {
-      for (const auto& aabb : colliders) {
-        const glm::vec3& b_min = aabb.get_min();
-        const glm::vec3& b_max = aabb.get_max();
-
-        bool overlap_x = (new_x + player_radius > b_min.x) &&
-                         (new_x - player_radius < b_max.x);
-        bool overlap_z = (new_z + player_radius > b_min.z) &&
-                         (new_z - player_radius < b_max.z);
-
-        if (overlap_x && overlap_z) {
-          // Ignore ceiling / door lintels above head
-          if (b_min.y >= head_y - 0.1f)
-            continue;
-          // Ignore ground below feet
-          if (b_max.y <= feet_y + 0.05f)
-            continue;
+  auto objects = get_all_physics_objects();
 
           // Never auto-step while in jump cooldown or moving upward!
           float step_diff = b_max.y - feet_y;
