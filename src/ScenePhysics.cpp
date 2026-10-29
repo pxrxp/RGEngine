@@ -79,16 +79,11 @@ Scene::collect_colliders_recursive(SceneObjectStrongPtr object,
   if (!object->is_collidable())
     return;
 
-  if (object->get_render_packet().has_value()) {
-    const auto& aabb = object->get_world_AABB();
-    if (aabb.get_max().x - aabb.get_min().x < 80.0f) {
-      colliders.push_back(aabb);
-    }
-  }
+  if (object->get_render_packet().has_value())
+    colliders.push_back(object->get_world_AABB());
 
-  for (auto& child : *object) {
+  for (auto& child : *object)
     collect_colliders_recursive(child, colliders);
-  }
 }
 
 std::vector<SceneObjectStrongPtr>
