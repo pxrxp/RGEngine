@@ -200,20 +200,21 @@ Scene::step_simulation()
     if (is_static_object(*object))
       continue;
 
-  for (size_t i = 0; i < objects.size(); ++i) {
-    for (size_t j = i + 1; j < objects.size(); ++j) {
-      SceneObjectStrongPtr& a = objects[i];
-      SceneObjectStrongPtr& b = objects[j];
+    auto& physics = object->get_physics_component();
+    if (!physics.has_gravity())
+      continue;
 
-      if (is_static_object(*a) && is_static_object(*b))
-        continue;
+    const BoundingBox aabb = object->get_world_AABB();
+    const float bottom = aabb.get_min().y;
+    const glm::vec3 center = 0.5f * (aabb.get_min() + aabb.get_max());
 
-      const BoundingBox& aabb_a = a->get_world_AABB();
-      const BoundingBox& aabb_b = b->get_world_AABB();
-
-      if (aabb_a && aabb_b && aabb_a.intersects(aabb_b)) {
-        resolve_penetration(*a, *b);
-      }
+    float groundY = 0.0f;
+    if (find_ground_surface(center.x, center.z,
+                            bottom + 0.10f, bottom - 1.0f, groundY) &&
+        bottom < groundY) {
+      object->get_local_transform().translate(
+        glm::vec3(0.0f, groundY - bottom, 0.0f));
+      stop_downward_motion(physics, 0.75f);
     }
   }
 }
