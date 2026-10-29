@@ -182,12 +182,20 @@ Scene::step_simulation()
             }
           }
 
-  for (auto& object : objects) {
-    if (!is_static_object(*object)) {
-      object->get_physics_component().integrate_position();
+          if (upperIndex != objects.size()) {
+            objects[upperIndex]->get_local_transform().translate(
+              glm::vec3(0.0f, correction, 0.0f));
+            stop_downward_motion(
+              objects[upperIndex]->get_physics_component(), 0.70f);
+          }
+        }
+      }
     }
   }
 
+  // Keep ground resolution in Scene::step_simulation so the protected virtual
+  // scene ground query remains accessible. City/player collision code is not
+  // touched; this only settles dynamic gravity objects onto the scene surface.
   for (auto& object : objects) {
     resolve_floor_plane(*object);
   }
