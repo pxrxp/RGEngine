@@ -101,33 +101,12 @@ Scene::step_simulation()
 {
   auto objects = get_all_physics_objects();
 
-          // Never auto-step while in jump cooldown or moving upward!
-          float step_diff = b_max.y - feet_y;
-          if (m_player_grounded && m_jump_cooldown <= 0.0f &&
-              step_diff > 0.05f && step_diff <= MAX_STEP_HEIGHT) {
-            if (b_max.y > out_step_y)
-              out_step_y = b_max.y;
-          } else {
-            return false;
-          }
-        }
-      }
-      return true;
-    };
+  for (auto& object : objects) {
+    auto& physics = object->get_physics_component();
+    physics.clear_forces();
 
-    float step_x = feet_y;
-    if (test_axis(player_pos.x + delta.x, player_pos.z, step_x)) {
-      player_pos.x += delta.x;
-      if (step_x > feet_y)
-        feet_y = step_x;
-    }
-
-    float step_z = feet_y;
-    if (test_axis(player_pos.x, player_pos.z + delta.z, step_z)) {
-      player_pos.z += delta.z;
-      if (step_z > feet_y)
-        feet_y = step_z;
-    }
+    if (physics.has_gravity() && !is_static_object(*object))
+      physics.apply_force(glm::vec3(0.0f, -14.0f, 0.0f) * physics.get_mass());
 
     // Only apply step elevation if grounded and not jumping
     if (m_player_grounded && m_jump_cooldown <= 0.0f &&
