@@ -14,11 +14,12 @@ is_static_object(const SceneObject& object)
   return std::isinf(physics.get_mass()) || !physics.is_enabled();
 }
 
-void
-resolve_floor_plane(SceneObject& object)
+struct Cell
 {
-  if (is_static_object(object))
-    return;
+  int x;
+  int z;
+  bool operator==(const Cell& other) const { return x == other.x && z == other.z; }
+};
 
   auto& physics = object.get_physics_component();
   if (!physics.has_gravity())
