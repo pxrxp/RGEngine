@@ -113,13 +113,9 @@ Scene::step_simulation()
     physics.integrate_velocity();
   }
 
-  // Jump: Only triggers once on initial key-press (no continuous boost)
-  bool space_is_pressed = window.is_key_pressed(GLFW_KEY_SPACE);
-  if (space_is_pressed && !m_space_was_pressed && m_player_grounded &&
-      m_jump_cooldown <= 0.0f) {
-    m_player_vy = 6.4f;
-    m_player_grounded = false;
-    m_jump_cooldown = 0.25f;
+  for (auto& object : objects) {
+    if (!is_static_object(*object))
+      object->get_physics_component().integrate_position();
   }
   m_space_was_pressed = space_is_pressed;
 
