@@ -108,11 +108,9 @@ Scene::step_simulation()
     if (physics.has_gravity() && !is_static_object(*object))
       physics.apply_force(glm::vec3(0.0f, -14.0f, 0.0f) * physics.get_mass());
 
-    // Only apply step elevation if grounded and not jumping
-    if (m_player_grounded && m_jump_cooldown <= 0.0f &&
-        feet_y > player_pos.y - PLAYER_EYE_HEIGHT) {
-      player_pos.y = feet_y + PLAYER_EYE_HEIGHT;
-    }
+    physics.set_linear_momentum(physics.get_linear_momentum() * 0.95f);
+    physics.set_angular_momentum(physics.get_angular_momentum() * 0.85f);
+    physics.integrate_velocity();
   }
 
   // Jump: Only triggers once on initial key-press (no continuous boost)
