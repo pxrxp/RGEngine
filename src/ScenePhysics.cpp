@@ -131,18 +131,19 @@ Scene::step_simulation()
     buckets[cell_for(objects[i]->get_local_transform().get_position())].push_back(i);
   }
 
-  m_player->get_local_transform().set_position(player_pos);
-  m_app_cache.get_camera().set_view_matrix_dirty();
-}
+  // Narrow phase: visit each candidate pair once, regardless of object order.
+  for (std::size_t i = 0; i < objects.size(); ++i) {
+    if (is_static_object(*objects[i]) ||
+        !objects[i]->get_physics_component().has_gravity())
+      continue;
 
-void
-Scene::step_simulation()
-{
-  // Character controller (player walking, stepping, jumping)
-  update_character_controller(FIXED_STEP);
+    const Cell cell = cell_for(objects[i]->get_local_transform().get_position());
 
-  // Rigidbodies
-  std::vector<SceneObjectStrongPtr> objects = get_all_physics_objects();
+    for (int dz = -1; dz <= 1; ++dz) {
+      for (int dx = -1; dx <= 1; ++dx) {
+        const auto it = buckets.find({ cell.x + dx, cell.z + dz });
+        if (it == buckets.end())
+          continue;
 
   for (auto& object : objects) {
     auto& physics = object->get_physics_component();
