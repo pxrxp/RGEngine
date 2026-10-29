@@ -37,9 +37,8 @@ struct CellHash
   }
 };
 
-  if (bottom < 0.0f) {
-    const float correction = -bottom;
-    object.get_local_transform().translate(glm::vec3(0.0f, correction, 0.0f));
+constexpr float GRID_CELL_SIZE = 2.2f;
+constexpr float MAX_STACK_CORRECTION = 1.0f;
 
     glm::vec3 momentum = physics.get_linear_momentum();
     if (momentum.y < 0.0f) {
