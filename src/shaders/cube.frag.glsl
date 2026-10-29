@@ -37,10 +37,15 @@ void main() {
     float spec = pow(max(dot(N, H), 0.0), 32.0) * (diff > 0.0 ? 1.0 : 0.0);
     vec3 specular = sun_col * spec * 0.25;
 
-    // Pick uniform color if supplied, else vertex color
-    vec3 base_color = (length(u_color) > 0.001) ? u_color : v_col;
-    if (length(base_color) < 0.001) {
-        base_color = vec3(0.75, 0.70, 0.65);
+    vec3 base_color = u_color;
+    if (u_use_texture == 1) {
+        if (u_is_gun == 1) {
+            base_color = texture(u_diffuse, v_uv).rgb * vec3(0.25, 0.26, 0.28);
+        } else {
+            base_color = texture(u_diffuse, v_uv).rgb;
+        }
+    } else if (length(base_color) < 0.001) {
+        base_color = vec3(0.55, 0.53, 0.52);
     }
 
     vec3 final_col = base_color * (ambient + sun_col * soft_diff) + specular;
