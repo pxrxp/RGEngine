@@ -1,6 +1,10 @@
 #include "Scene.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/norm.hpp>
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <unordered_map>
+#include <vector>
 
 namespace {
 bool
