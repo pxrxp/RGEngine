@@ -149,17 +149,17 @@ Scene::step_simulation()
           if (j <= i)
             continue;
 
-    if (physics.has_gravity() && !is_static_object(*object)) {
-      const glm::vec3 gravity_force =
-        glm::vec3(0.0f, -9.81f, 0.0f) * physics.get_mass();
-      physics.apply_force(gravity_force);
-    }
+          const BoundingBox a = objects[i]->get_world_AABB();
+          const BoundingBox b = objects[j]->get_world_AABB();
 
-    const glm::vec3 velocity = physics.get_velocity();
-    if (std::isfinite(velocity.x) && std::isfinite(velocity.y) &&
-        std::isfinite(velocity.z)) {
-      physics.apply_force(-physics.get_drag() * velocity);
-    }
+          const float overlapX =
+            std::min(a.get_max().x, b.get_max().x) -
+            std::max(a.get_min().x, b.get_min().x);
+          const float overlapZ =
+            std::min(a.get_max().z, b.get_max().z) -
+            std::max(a.get_min().z, b.get_min().z);
+          if (overlapX <= 0.0f || overlapZ <= 0.0f)
+            continue;
 
     physics.integrate_velocity();
   }
