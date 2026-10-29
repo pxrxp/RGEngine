@@ -21,12 +21,21 @@ struct Cell
   bool operator==(const Cell& other) const { return x == other.x && z == other.z; }
 };
 
-  auto& physics = object.get_physics_component();
-  if (!physics.has_gravity())
-    return;
-
-  const auto& aabb = object.get_world_AABB();
-  const float bottom = aabb.get_min().y;
+struct CellHash
+{
+  std::size_t operator()(const Cell& cell) const
+  {
+    const std::uint64_t x = static_cast<std::uint32_t>(cell.x);
+    const std::uint64_t z = static_cast<std::uint32_t>(cell.z);
+    std::uint64_t h = (x << 32) | z;
+    h ^= h >> 30;
+    h *= 0xbf58476d1ce4e5b9ULL;
+    h ^= h >> 27;
+    h *= 0x94d049bb133111ebULL;
+    h ^= h >> 31;
+    return static_cast<std::size_t>(h);
+  }
+};
 
   if (bottom < 0.0f) {
     const float correction = -bottom;
