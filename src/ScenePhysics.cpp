@@ -161,8 +161,26 @@ Scene::step_simulation()
           if (overlapX <= 0.0f || overlapZ <= 0.0f)
             continue;
 
-    physics.integrate_velocity();
-  }
+          // If one crate has penetrated the top face of the other, lift the
+          // upper crate. This is symmetric, so spawn/index order does not matter.
+          std::size_t upperIndex = objects.size();
+          float correction = 0.0f;
+
+          const float aBottomIntoBTop = b.get_max().y - a.get_min().y;
+          if (aBottomIntoBTop > 0.0f &&
+              aBottomIntoBTop < MAX_STACK_CORRECTION &&
+              a.get_max().y > b.get_max().y) {
+            upperIndex = i;
+            correction = aBottomIntoBTop;
+          } else {
+            const float bBottomIntoATop = a.get_max().y - b.get_min().y;
+            if (bBottomIntoATop > 0.0f &&
+                bBottomIntoATop < MAX_STACK_CORRECTION &&
+                b.get_max().y > a.get_max().y) {
+              upperIndex = j;
+              correction = bBottomIntoATop;
+            }
+          }
 
   for (auto& object : objects) {
     if (!is_static_object(*object)) {
