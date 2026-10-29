@@ -65,15 +65,11 @@ Scene::collect_physics_objects_recursive(
   SceneObjectStrongPtr object,
   std::vector<SceneObjectStrongPtr>& objects)
 {
-  if (object == m_player || object == m_skybox)
-    return;
-
   if (object->get_physics_component().is_enabled())
     objects.push_back(object);
 
-  for (auto& child : *object) {
+  for (auto& child : *object)
     collect_physics_objects_recursive(child, objects);
-  }
 }
 
 void
