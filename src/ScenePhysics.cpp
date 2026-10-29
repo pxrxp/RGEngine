@@ -48,46 +48,15 @@ cell_for(const glm::vec3& p)
 }
 
 void
-resolve_penetration(SceneObject& a, SceneObject& b)
+stop_downward_motion(PhysicsComponent& physics, float horizontal_damping)
 {
-  const BoundingBox& aabb_a = a.get_world_AABB();
-  const BoundingBox& aabb_b = b.get_world_AABB();
-
-  float overlap_x = std::min(aabb_a.get_max().x, aabb_b.get_max().x) -
-                    std::max(aabb_a.get_min().x, aabb_b.get_min().x);
-  float overlap_y = std::min(aabb_a.get_max().y, aabb_b.get_max().y) -
-                    std::max(aabb_a.get_min().y, aabb_b.get_min().y);
-  float overlap_z = std::min(aabb_a.get_max().z, aabb_b.get_max().z) -
-                    std::max(aabb_a.get_min().z, aabb_b.get_min().z);
-
-  if (overlap_x <= 0.0f || overlap_y <= 0.0f || overlap_z <= 0.0f)
-    return;
-
-  glm::vec3 center_a = 0.5f * (aabb_a.get_min() + aabb_a.get_max());
-  glm::vec3 center_b = 0.5f * (aabb_b.get_min() + aabb_b.get_max());
-  glm::vec3 delta = center_b - center_a;
-
-  glm::vec3 mtv(0.0f);
-  if (overlap_x <= overlap_y && overlap_x <= overlap_z) {
-    mtv.x = (delta.x < 0.0f) ? -overlap_x : overlap_x;
-  } else if (overlap_y <= overlap_z) {
-    mtv.y = (delta.y < 0.0f) ? -overlap_y : overlap_y;
-  } else {
-    mtv.z = (delta.z < 0.0f) ? -overlap_z : overlap_z;
-  }
-
-  float inv_mass_a = a.get_physics_component().get_inverse_mass();
-  float inv_mass_b = b.get_physics_component().get_inverse_mass();
-  float total_inv_mass = inv_mass_a + inv_mass_b;
-
-  if (total_inv_mass <= 0.0001f)
-    return;
-
-  float move_a = inv_mass_a / total_inv_mass;
-  float move_b = inv_mass_b / total_inv_mass;
-
-  a.get_local_transform().translate(-mtv * move_a);
-  b.get_local_transform().translate(mtv * move_b);
+  glm::vec3 momentum = physics.get_linear_momentum();
+  if (momentum.y < 0.0f)
+    momentum.y = 0.0f;
+  momentum.x *= horizontal_damping;
+  momentum.z *= horizontal_damping;
+  physics.set_linear_momentum(momentum);
+  physics.set_angular_momentum(glm::vec3(0.0f));
 }
 } // namespace
 
