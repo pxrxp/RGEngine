@@ -45,8 +45,7 @@ void main() {
     float spec_str = (u_is_gun == 1) ? 0.65 : 0.15;
     vec3 final_col = base_color * (ambient + sun_col * soft_diff) + sun_col * spec * spec_str;
 
-    // Filmic tone map & gamma correction
-    final_col = final_col / (final_col + vec3(1.0));
+    final_col = clamp(final_col, vec3(0.0), vec3(1.0));
     final_col = pow(final_col, vec3(1.0 / 2.2));
 
     FragColor = vec4(final_col, 1.0);
