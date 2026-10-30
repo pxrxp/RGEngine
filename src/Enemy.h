@@ -29,10 +29,7 @@ private:
   std::shared_ptr<EnemyVisualState> m_visual_state =
     std::make_shared<EnemyVisualState>();
   SceneObjectStrongPtr m_root;
-  SceneObjectStrongPtr m_torso;
-  SceneObjectStrongPtr m_head;
-  SceneObjectStrongPtr m_visor;
-
+  std::vector<SceneObjectStrongPtr> m_body_parts;
   EnemyState m_state = EnemyState::PATROL;
   float m_health = 100.0f;
   float m_speed = 3.0f;
