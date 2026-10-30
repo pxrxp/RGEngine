@@ -72,6 +72,7 @@ Enemy::Enemy(Scene& scene,
         }));
 
     m_root->add_child(part);
+    m_body_parts.push_back(part);
     return part;
   };
 
