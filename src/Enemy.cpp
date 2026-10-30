@@ -28,6 +28,7 @@ Enemy::Enemy(Scene& scene,
     auto part = std::make_shared<SceneObject>();
     part->get_local_transform().set_position(offset).set_scale(scale);
     part->get_physics_component().disable();
+    part->set_collidable(false);
 
     std::string name =
       "enemy_" + std::to_string(offset.y) + "_" + std::to_string(scale.y);
