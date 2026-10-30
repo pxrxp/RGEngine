@@ -38,7 +38,8 @@ private:
   float m_damage_flash = 0.0f;
   bool m_has_been_spotted = false;
 
-  glm::vec3 m_target_pos = { 0.f, 0.f, 0.f };
+  glm::vec3 m_spawn_point;
+  glm::vec3 m_target_pos;
   std::vector<glm::vec3> m_waypoints;
   size_t m_current_waypoint = 0;
 
