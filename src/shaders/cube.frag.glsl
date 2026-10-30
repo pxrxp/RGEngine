@@ -23,16 +23,13 @@ void main() {
     float hemi = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);
     vec3 ambient = mix(ground_ambient, sky_ambient, hemi);
 
-    // Diffuse light with soft wrap
     float diff = max(dot(N, L), 0.0);
     float soft_diff = diff * 0.70 + 0.30;
 
-    // Specular highlight
     vec3 cam_pos = inverse(u_view)[3].xyz;
     vec3 V = normalize(cam_pos - v_world_pos);
     vec3 H = normalize(L + V);
     float spec = pow(max(dot(N, H), 0.0), 32.0) * (diff > 0.0 ? 1.0 : 0.0);
-    vec3 specular = sun_col * spec * 0.25;
 
     vec3 base_color = u_color;
     if (u_use_texture == 1) {
