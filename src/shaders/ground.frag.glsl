@@ -12,13 +12,13 @@ void main() {
         ground_col = texture(u_ground_tex, uv).rgb;
     }
 
-    // Checker pattern
-    vec2 check_tile = floor(v_world_pos.xz);
-    float checker = mod(check_tile.x + check_tile.y, 2.0);
-    vec3 tile_col = mix(vec3(0.24, 0.26, 0.30), vec3(0.20, 0.22, 0.25), checker);
-    vec3 grid_col = vec3(0.40, 0.44, 0.52);
+    // Directional sunlight & twilight ambient matching the sunset sky
+    vec3 L = normalize(vec3(0.65, 0.40, -0.65));
+    vec3 sun_col = vec3(1.0, 0.85, 0.65);
+    vec3 sky_ambient = vec3(0.35, 0.38, 0.48);
+    float diff = max(dot(vec3(0, 1, 0), L), 0.0);
 
-    vec3 final_col = mix(tile_col, grid_col, c);
+    vec3 final_col = ground_col * (sky_ambient + sun_col * (diff * 0.7 + 0.3));
 
     // Fade into the horizon distance (fog) so it smoothly joins the skybox
     float dist = length(v_world_pos.xz);
