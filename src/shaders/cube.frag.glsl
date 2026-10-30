@@ -25,7 +25,7 @@ void main() {
 
     // Diffuse light with soft wrap
     float diff = max(dot(N, L), 0.0);
-    float soft_diff = diff * 0.75 + 0.25;
+    float soft_diff = diff * 0.70 + 0.30;
 
     // Specular highlight
     vec3 cam_pos = inverse(u_view)[3].xyz;
