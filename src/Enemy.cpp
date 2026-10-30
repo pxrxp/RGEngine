@@ -18,11 +18,9 @@ Enemy::Enemy(Scene& scene,
   m_root->get_physics_component().disable();
   m_root->set_collidable(false);
 
-  // Register enemy root so its own body is excluded from world colliders
-  scene.set_enemy_root(m_root);
-
-  const glm::vec3 c_armor = { 0.20f, 0.22f, 0.25f };
-  const glm::vec3 c_visor = { 0.95f, 0.15f, 0.15f };
+  const glm::vec3 c_armor = { 0.68f, 0.69f, 0.70f };
+  const glm::vec3 c_visor = { 0.95f, 0.20f, 0.20f };
+  const glm::vec3 c_gun = { 0.16f, 0.16f, 0.18f };
 
   auto create_part = [&](const glm::vec3& offset,
                          const glm::vec3& scale,
@@ -55,14 +53,15 @@ Enemy::Enemy(Scene& scene,
     return part;
   };
 
-  create_part({ -0.2f, 0.5f, 0.0f }, { 0.25f, 1.0f, 0.25f }, c_armor);
-  create_part({ 0.2f, 0.5f, 0.0f }, { 0.25f, 1.0f, 0.25f }, c_armor);
-  m_torso = create_part({ 0.0f, 1.35f, 0.0f }, { 0.65f, 0.75f, 0.4f }, c_armor);
-  m_head = create_part({ 0.0f, 1.95f, 0.0f }, { 0.45f, 0.45f, 0.45f }, c_armor);
-  m_visor =
-    create_part({ 0.0f, 1.95f, -0.23f }, { 0.35f, 0.12f, 0.05f }, c_visor);
+  create_part({ -0.25f, 0.5f, 0.0f }, { 0.32f, 1.0f, 0.32f }, c_armor);
+  create_part({ 0.25f, 0.5f, 0.0f }, { 0.32f, 1.0f, 0.32f }, c_armor);
+  create_part({ 0.0f, 1.35f, 0.0f }, { 0.85f, 0.80f, 0.50f }, c_armor);
+  create_part({ 0.0f, 2.05f, 0.0f }, { 0.52f, 0.52f, 0.52f }, c_armor);
+  create_part({ 0.0f, 2.05f, -0.28f }, { 0.42f, 0.14f, 0.08f }, c_visor);
 
-  scene.get_scene_ptr()->add_child(m_root);
+  create_part({ 0.30f, 1.25f, -0.45f }, { 0.10f, 0.16f, 0.95f }, c_gun);
+  create_part({ 0.30f, 1.12f, -0.32f }, { 0.08f, 0.26f, 0.12f }, c_gun);
+  create_part({ 0.30f, 1.38f, -0.30f }, { 0.08f, 0.11f, 0.30f }, c_gun);
 
   if (!m_waypoints.empty()) {
     m_target_pos = m_waypoints[0];
