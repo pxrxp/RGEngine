@@ -8,8 +8,7 @@
 enum class EnemyState
 {
   PATROL,
-  INVESTIGATE,
-  HUNT,
+  COMBAT,
   DEAD
 };
 
