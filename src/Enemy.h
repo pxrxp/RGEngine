@@ -34,6 +34,9 @@ private:
   float m_max_health = 300.0f;
   float m_shoot_cooldown = 0.0f;
   float m_alert_timer = 0.0f;
+  float m_regen_cooldown = 0.0f;
+  float m_damage_flash = 0.0f;
+  bool m_has_been_spotted = false;
 
   glm::vec3 m_target_pos = { 0.f, 0.f, 0.f };
   std::vector<glm::vec3> m_waypoints;
