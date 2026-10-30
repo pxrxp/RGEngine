@@ -101,8 +101,8 @@ BoundingBox
 Enemy::get_hitbox() const
 {
   glm::vec3 pos = get_position();
-  return BoundingBox({ pos.x - 0.5f, pos.y, pos.z - 0.5f },
-                     { pos.x + 0.5f, pos.y + 2.3f, pos.z + 0.5f });
+  return BoundingBox({ pos.x - 0.55f, pos.y, pos.z - 0.55f },
+                     { pos.x + 0.55f, pos.y + 2.3f, pos.z + 0.55f });
 }
 
 bool
