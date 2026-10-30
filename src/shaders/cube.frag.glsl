@@ -18,13 +18,8 @@ void main() {
     vec3 L = normalize(vec3(0.65, 0.55, -0.50));
     vec3 sun_col = vec3(1.0, 0.95, 0.85);
     
-    // Golden hour sunlight
-    vec3 L = normalize(vec3(0.65, 0.40, -0.65));
-    vec3 sun_col = vec3(1.0, 0.85, 0.65);
-    
-    // Ambient hemisphere light (warm ground, cool twilight sky)
-    vec3 sky_ambient = vec3(0.30, 0.32, 0.45);
-    vec3 ground_ambient = vec3(0.18, 0.14, 0.12);
+    vec3 sky_ambient = vec3(0.40, 0.42, 0.48);
+    vec3 ground_ambient = vec3(0.22, 0.20, 0.20);
     float hemi = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);
     vec3 ambient = mix(ground_ambient, sky_ambient, hemi);
 
