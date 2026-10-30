@@ -1,7 +1,11 @@
 #include "Enemy.h"
+#include "Material.h"
 #include "Mesh.h"
 #include "Scene.h"
+#include "ShaderProgram.h"
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 
 Enemy::Enemy(Scene& scene,
              const glm::vec3& spawn_pos,
