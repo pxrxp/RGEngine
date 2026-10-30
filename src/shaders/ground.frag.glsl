@@ -1,13 +1,16 @@
 #version 330 core
+
 in vec3 v_world_pos;
 out vec4 FragColor;
 
 void main() {
-    // 1-meter grid
-    vec2 coord = v_world_pos.xz * 2.0;
-    vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
-    float line = min(grid.x, grid.y);
-    float c = 1.0 - min(line, 1.0);
+    // World-space seamless texture tiling (tiles every ~4 meters)
+    vec2 uv = v_world_pos.xz * 0.25;
+    vec3 ground_col = vec3(0.32, 0.30, 0.27);
+
+    if (u_has_texture == 1) {
+        ground_col = texture(u_ground_tex, uv).rgb;
+    }
 
     // Checker pattern
     vec2 check_tile = floor(v_world_pos.xz);
