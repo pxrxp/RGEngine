@@ -1,5 +1,8 @@
 #pragma once
 #include "SceneObject.h"
+#include <atomic>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 enum class EnemyState
@@ -15,6 +18,10 @@ class Scene;
 class Enemy
 {
 private:
+  inline static std::atomic<std::uint64_t> s_next_id{ 0 };
+  const std::uint64_t m_id = s_next_id.fetch_add(1, std::memory_order_relaxed);
+  std::shared_ptr<EnemyVisualState> m_visual_state =
+    std::make_shared<EnemyVisualState>();
   SceneObjectStrongPtr m_root;
   SceneObjectStrongPtr m_torso;
   SceneObjectStrongPtr m_head;
