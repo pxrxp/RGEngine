@@ -20,10 +20,10 @@ void main() {
 
     vec3 final_col = ground_col * (sky_ambient + sun_col * (diff * 0.7 + 0.3));
 
-    // Fade into the horizon distance (fog) so it smoothly joins the skybox
+    // Atmospheric horizon haze: fades terrain into sunset skybox between 150m and 750m
     float dist = length(v_world_pos.xz);
-    vec3 horizon_fog = vec3(0.70, 0.55, 0.45);
-    float fog = clamp((dist - 30.0) / 60.0, 0.0, 1.0);
+    vec3 horizon_fog = vec3(0.72, 0.54, 0.44);
+    float fog = clamp((dist - 150.0) / 600.0, 0.0, 1.0);
     final_col = mix(final_col, horizon_fog, fog);
 
     final_col = final_col / (final_col + vec3(1.0));
