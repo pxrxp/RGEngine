@@ -15,6 +15,12 @@ enum class EnemyState
 
 class Scene;
 
+struct EnemyVisualState
+{
+  EnemyState state = EnemyState::PATROL;
+  float damage_flash = 0.0f;
+};
+
 class Enemy
 {
 private:
