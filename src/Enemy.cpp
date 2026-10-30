@@ -34,6 +34,7 @@ Enemy::Enemy(Scene& scene,
                        std::to_string(offset.x) + "_" +
                        std::to_string(offset.y);
 
+    std::weak_ptr<EnemyVisualState> visual_state = m_visual_state;
     part->set_render_packet(
       scene.get_app_cache().mesh_repo.get("sharp_box_mesh").value(),
       scene.get_app_cache().material_repo.load_material(MaterialDescriptor{
@@ -41,14 +42,18 @@ Enemy::Enemy(Scene& scene,
         .shader_program_desc = { .program_name = "cube_program",
                                  .shaders = { "cube.vert", "cube.frag" } },
         .texture_desc_list = {},
-        .uniforms = { { "u_color", col } } }),
+        .uniforms = { { "u_color", col },
+                      { "u_use_texture", 0 },
+                      { "u_is_gun", 0 } } }),
       capture_weak(
         part,
-        [&scene](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
+        [&scene, col, visual_state](SceneObjectStrongPtr self,
+                                    RenderPacketStrongPtr packet) {
           scene.set_view_matrix(packet);
           scene.set_projection_matrix(packet);
           scene.set_model_matrix(packet, self->get_world_transformation_mat());
           packet->mesh->draw();
+          shader_program->set_uniform("u_preserve_color", 0);
         }));
 
     m_root->add_child(part);
