@@ -86,9 +86,9 @@ Enemy::Enemy(Scene& scene,
   create_part({ 0.30f, 1.12f, -0.32f }, { 0.08f, 0.26f, 0.12f }, c_gun);
   create_part({ 0.30f, 1.38f, -0.30f }, { 0.08f, 0.11f, 0.30f }, c_gun);
 
-  if (!m_waypoints.empty()) {
-    m_target_pos = m_waypoints[0];
-  }
+  scene.get_scene_ptr()->add_child(m_root);
+  m_target_pos = m_waypoints.empty() ? spawn_pos : m_waypoints[0];
+  m_visual_state->state = m_state;
 }
 
 glm::vec3
