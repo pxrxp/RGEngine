@@ -30,8 +30,9 @@ Enemy::Enemy(Scene& scene,
     part->get_physics_component().disable();
     part->set_collidable(false);
 
-    std::string name =
-      "enemy_" + std::to_string(offset.y) + "_" + std::to_string(scale.y);
+    std::string name = "enm_" + std::to_string(m_id) + "_" +
+                       std::to_string(offset.x) + "_" +
+                       std::to_string(offset.y);
 
     part->set_render_packet(
       scene.get_app_cache().mesh_repo.get("sharp_box_mesh").value(),
