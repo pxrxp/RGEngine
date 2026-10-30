@@ -60,12 +60,25 @@ public:
         const glm::vec3& spawn_pos,
         const std::vector<glm::vec3>& waypoints);
 
-  void update(Scene& scene, float dt);
-  bool take_damage(float damage, const glm::vec3& impulse);
+  void update(Scene& scene,
+              const glm::vec3& player_pos,
+              const glm::vec3& player_cam_fwd,
+              const std::vector<BoundingBox>& colliders,
+              float dt,
+              float& out_damage,
+              bool& out_fired_shot,
+              glm::vec3& out_gun_pos);
+
+  bool take_damage(Scene& scene,
+                   float damage,
+                   const glm::vec3& impulse,
+                   const std::vector<BoundingBox>& colliders);
 
   EnemyState get_state() const { return m_state; }
   float get_health() const { return m_health; }
+  float get_max_health() const { return m_max_health; }
   bool is_dead() const { return m_state == EnemyState::DEAD; }
+  float get_damage_flash() const { return m_damage_flash; }
   glm::vec3 get_position() const;
   BoundingBox get_hitbox() const;
   SceneObjectStrongPtr get_root() const { return m_root; }
