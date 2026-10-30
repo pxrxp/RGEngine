@@ -43,7 +43,16 @@ private:
   std::vector<glm::vec3> m_waypoints;
   size_t m_current_waypoint = 0;
 
-  bool has_line_of_sight(const glm::vec3& player_pos,
+  static constexpr float ENEMY_COLLISION_RADIUS = 0.48f;
+  static constexpr float ENEMY_COLLISION_HEIGHT = 2.2f;
+  static constexpr float ENEMY_KNOCKBACK_SCALE = 0.5f;
+  static constexpr float MAX_VISION_RANGE = 64.0f;
+  static constexpr float HEARING_DISTANCE = 64.0f;
+  static constexpr float MAX_VERTICAL_AIM = 0.65f;
+  static constexpr float FOV_COSINE = 0.35f;
+
+  bool has_line_of_sight(const Scene& scene,
+                         const glm::vec3& player_pos,
                          const std::vector<BoundingBox>& colliders) const;
 
 public:
