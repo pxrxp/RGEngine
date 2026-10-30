@@ -42,13 +42,8 @@ void main() {
         base_color = vec3(0.55, 0.53, 0.52);
     }
 
-    vec3 final_col = base_color * (ambient + sun_col * soft_diff) + specular;
-
-    // Subtle atmospheric distance haze
-    float dist = length(v_world_pos.xz);
-    vec3 haze_color = vec3(0.70, 0.55, 0.45);
-    float haze = clamp((dist - 35.0) / 70.0, 0.0, 0.7);
-    final_col = mix(final_col, haze_color, haze);
+    float spec_str = (u_is_gun == 1) ? 0.65 : 0.15;
+    vec3 final_col = base_color * (ambient + sun_col * soft_diff) + sun_col * spec * spec_str;
 
     // Filmic tone map & gamma correction
     final_col = final_col / (final_col + vec3(1.0));
