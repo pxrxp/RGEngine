@@ -10,11 +10,13 @@
 Enemy::Enemy(Scene& scene,
              const glm::vec3& spawn_pos,
              const std::vector<glm::vec3>& waypoints)
-  : m_waypoints(waypoints)
+  : m_spawn_point(spawn_pos)
+  , m_waypoints(waypoints)
 {
   m_root = std::make_shared<SceneObject>();
   m_root->get_local_transform().set_position(spawn_pos);
   m_root->get_physics_component().disable();
+  m_root->set_collidable(false);
 
   // Register enemy root so its own body is excluded from world colliders
   scene.set_enemy_root(m_root);
