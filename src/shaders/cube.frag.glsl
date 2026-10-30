@@ -15,6 +15,8 @@ uniform int u_preserve_color = 0;
 
 void main() {
     vec3 N = normalize(v_normal);
+    vec3 L = normalize(vec3(0.65, 0.55, -0.50));
+    vec3 sun_col = vec3(1.0, 0.95, 0.85);
     
     // Golden hour sunlight
     vec3 L = normalize(vec3(0.65, 0.40, -0.65));
