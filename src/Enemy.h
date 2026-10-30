@@ -30,8 +30,9 @@ private:
   SceneObjectStrongPtr m_root;
   std::vector<SceneObjectStrongPtr> m_body_parts;
   EnemyState m_state = EnemyState::PATROL;
-  float m_health = 100.0f;
-  float m_speed = 3.0f;
+  float m_health = 300.0f;
+  float m_max_health = 300.0f;
+  float m_shoot_cooldown = 0.0f;
   float m_alert_timer = 0.0f;
 
   glm::vec3 m_target_pos = { 0.f, 0.f, 0.f };
