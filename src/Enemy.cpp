@@ -52,6 +52,21 @@ Enemy::Enemy(Scene& scene,
           scene.set_view_matrix(packet);
           scene.set_projection_matrix(packet);
           scene.set_model_matrix(packet, self->get_world_transformation_mat());
+
+          glm::vec3 active_color = col;
+          const auto state = visual_state.lock();
+          if (state) {
+            if (state->state == EnemyState::DEAD) {
+              active_color = { 0.4823529411764706f,
+                               0.06666666666666667f,
+                               0.07450980392156863f };
+            } else if (state->damage_flash > 0.0f) {
+              active_color = glm::mix(col, glm::vec3(1.0f, 0.1f, 0.1f), 0.75f);
+            }
+          }
+          auto shader_program = packet->material->get_shader_program();
+          shader_program->set_uniform("u_color", active_color);
+          shader_program->set_uniform("u_preserve_color", 1);
           packet->mesh->draw();
           shader_program->set_uniform("u_preserve_color", 0);
         }));
