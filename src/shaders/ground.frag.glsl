@@ -26,6 +26,7 @@ void main() {
     float fog = clamp((dist - 150.0) / 600.0, 0.0, 1.0);
     final_col = mix(final_col, horizon_fog, fog);
 
+    // Tone mapping & gamma
     final_col = final_col / (final_col + vec3(1.0));
     final_col = pow(final_col, vec3(1.0 / 2.2));
 
