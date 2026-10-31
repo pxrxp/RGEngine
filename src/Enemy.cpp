@@ -222,9 +222,10 @@ Enemy::update(Scene& scene,
   if (m_state == EnemyState::DEAD)
     return;
 
-  auto player = scene.get_player();
-  if (!player)
-    return;
+  if (m_damage_flash > 0.0f)
+    m_damage_flash = std::max(0.0f, m_damage_flash - dt);
+  m_visual_state->state = m_state;
+  m_visual_state->damage_flash = m_damage_flash;
 
   glm::vec3 player_pos = player->get_local_transform().get_position();
   glm::vec3 pos = get_position();
