@@ -115,6 +115,7 @@ App::get_delta_time() const
 
 App::~App()
 {
+  destroy_scene_render_resources();
   if (m_imgui_initialized) {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
