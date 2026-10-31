@@ -106,11 +106,13 @@ Enemy::get_hitbox() const
 }
 
 bool
-Enemy::has_line_of_sight(const glm::vec3& player_pos, const std::vector<BoundingBox>& colliders) const
+Enemy::has_line_of_sight(const Scene& scene,
+                         const glm::vec3& player_pos,
+                         const std::vector<BoundingBox>& colliders) const
 {
-  glm::vec3 eye_pos = get_position() + glm::vec3(0.0f, 1.8f, 0.0f);
+  glm::vec3 eye_pos = get_position() + glm::vec3(0.0f, 1.9f, 0.0f);
   glm::vec3 to_player = player_pos - eye_pos;
-  float dist_to_player = glm::length(to_player);
+  float dist = glm::length(to_player);
 
   if (dist_to_player > 40.0f)
     return false;
