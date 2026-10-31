@@ -291,8 +291,9 @@ Enemy::update(Scene& scene,
   }
 
   if (m_state == EnemyState::PATROL && !m_waypoints.empty()) {
-    if (glm::distance(glm::vec2(pos.x, pos.z),
-                      glm::vec2(m_target_pos.x, m_target_pos.z)) < 1.5f) {
+    float to_wp_dist = glm::distance(glm::vec2(pos.x, pos.z),
+                                     glm::vec2(m_target_pos.x, m_target_pos.z));
+    if (to_wp_dist < 2.5f) {
       m_current_waypoint = (m_current_waypoint + 1) % m_waypoints.size();
       m_target_pos = m_waypoints[m_current_waypoint];
     }
