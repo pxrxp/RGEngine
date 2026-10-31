@@ -155,8 +155,41 @@ Enemy::take_damage(Scene& scene,
     return false;
 
   m_health -= damage;
-  m_state = EnemyState::HUNT;
-  m_root->get_local_transform().translate(impulse);
+  m_state = EnemyState::COMBAT;
+  m_has_been_spotted = true;
+  m_alert_timer = 6.0f;
+  m_regen_cooldown = 4.0f;
+  m_damage_flash = 0.22f;
+
+  glm::vec3 current_pos = get_position();
+  glm::vec3 test_pos = current_pos + impulse * ENEMY_KNOCKBACK_SCALE;
+
+  bool blocked = false;
+  for (const auto& aabb : colliders) {
+    const glm::vec3& b_min = aabb.get_min();
+    const glm::vec3& b_max = aabb.get_max();
+    if (test_pos.x + 0.4f > b_min.x && test_pos.x - 0.4f < b_max.x &&
+        test_pos.z + 0.4f > b_min.z && test_pos.z - 0.4f < b_max.z) {
+      if (b_max.y > current_pos.y + 0.2f && b_min.y < current_pos.y + 2.0f) {
+        blocked = true;
+        break;
+      }
+    }
+  }
+
+  if (!blocked) {
+    blocked = scene.blocks_vertical_capsule_for_actor(test_pos.x,
+                                                      test_pos.z,
+                                                      current_pos.x,
+                                                      current_pos.z,
+                                                      current_pos.y,
+                                                      current_pos.y +
+                                                        ENEMY_COLLISION_HEIGHT,
+                                                      ENEMY_COLLISION_RADIUS);
+  }
+
+  if (!blocked)
+    m_root->get_local_transform().set_position(test_pos);
 
   if (m_health <= 0.0f) {
     m_health = 0.0f;
