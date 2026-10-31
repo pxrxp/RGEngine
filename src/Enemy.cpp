@@ -117,7 +117,15 @@ Enemy::has_line_of_sight(const Scene& scene,
   if (dist > MAX_VISION_RANGE || dist < 0.1f)
     return false;
 
-  glm::vec3 ray_dir = glm::normalize(to_player);
+  glm::vec3 ray_dir = to_player / dist;
+
+  if (std::abs(ray_dir.y) > MAX_VERTICAL_AIM)
+    return false;
+
+  glm::quat rot = m_root->get_local_transform().get_rotation();
+  glm::vec3 forward = rot * glm::vec3(0.0f, 0.0f, -1.0f);
+  if (m_state == EnemyState::PATROL && glm::dot(forward, ray_dir) < FOV_COSINE)
+    return false;
 
   for (const auto& aabb : colliders) {
     float t = 0.0f;
