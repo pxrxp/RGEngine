@@ -137,6 +137,11 @@ Enemy::has_line_of_sight(const Scene& scene,
     }
   }
 
+  float hit_t = 0.0f;
+  if (scene.raycast_static_geometry(eye_pos, ray_dir, dist - 0.4f, hit_t) &&
+      hit_t > 0.4f)
+    return false;
+
   return true;
 }
 
