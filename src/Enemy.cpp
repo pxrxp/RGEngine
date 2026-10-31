@@ -313,10 +313,10 @@ Enemy::update(Scene& scene,
       for (const auto& aabb : colliders) {
         const glm::vec3& b_min = aabb.get_min();
         const glm::vec3& b_max = aabb.get_max();
-
-        if (tx + 0.35f > b_min.x && tx - 0.35f < b_max.x &&
-            tz + 0.35f > b_min.z && tz - 0.35f < b_max.z) {
-          if (b_max.y > pos.y + 0.5f && b_min.y < pos.y + 2.0f)
+        if (nx + 0.5f > b_min.x && nx - 0.5f < b_max.x && nz + 0.5f > b_min.z &&
+            nz - 0.5f < b_max.z) {
+          if (b_max.y > pos.y + 0.3f &&
+              b_min.y < pos.y + ENEMY_COLLISION_HEIGHT)
             return false;
         }
       }
