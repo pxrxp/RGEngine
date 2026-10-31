@@ -236,19 +236,22 @@ Enemy::update(Scene& scene,
     m_health = std::min(m_max_health, m_health + 15.0f * dt);
   }
 
-  std::vector<BoundingBox> colliders;
-  scene.collect_colliders_recursive(scene.get_scene_ptr(), colliders);
+  glm::vec3 pos = get_position();
+  out_gun_pos = pos + glm::vec3(0.30f, 1.25f, -0.45f);
 
   float dist_to_player = glm::distance(glm::vec2(pos.x, pos.z),
                                        glm::vec2(player_pos.x, player_pos.z));
-  bool can_see = has_line_of_sight(player_pos, colliders);
 
-  // Hearing radius (14 meters) or direct line of sight
-  if (can_see || dist_to_player < 14.0f) {
-    m_state = EnemyState::HUNT;
-    m_target_pos = player_pos;
-    m_alert_timer = 6.0f;
-  } else if (m_state == EnemyState::HUNT) {
+  const bool player_heard = dist_to_player <= HEARING_DISTANCE;
+  const bool can_see = has_line_of_sight(scene, player_pos, colliders);
+
+  if (can_see || player_heard) {
+    m_has_been_spotted = true;
+    m_state = EnemyState::COMBAT;
+    m_alert_timer = 7.0f;
+  }
+
+  if (m_state == EnemyState::COMBAT) {
     m_alert_timer -= dt;
     if (m_alert_timer <= 0.0f) {
       m_state = EnemyState::PATROL;
