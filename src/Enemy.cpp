@@ -342,6 +342,16 @@ Enemy::update(Scene& scene,
     if (moved_z)
       new_pos.z += delta.z;
 
+    if (!moved_x && !moved_z && m_state == EnemyState::PATROL &&
+        !m_waypoints.empty()) {
+      m_current_waypoint = (m_current_waypoint + 1) % m_waypoints.size();
+      m_target_pos = m_waypoints[m_current_waypoint];
+    }
+
+    float ground_y = new_pos.y;
+    if (scene.find_actor_ground_surface(
+          new_pos.x, new_pos.z, pos.y + 1.0f, pos.y - 2.0f, ground_y))
+      new_pos.y = ground_y;
     m_root->get_local_transform().set_position(new_pos);
 
     float yaw = atan2(-dir.x, -dir.z);
