@@ -61,6 +61,7 @@ private:
 public:
   MeshRepo mesh_repo;
   MaterialRepo material_repo;
+  TextureRepo texture_repo;
 
   App() = default;
   App(const App&) = delete;
