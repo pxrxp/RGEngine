@@ -1,9 +1,15 @@
 #include "App.h"
+#include "ShaderProgram.h"
 #include "util/gl_debug.h"
+#include <algorithm>
 #include <iostream>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+namespace {
+constexpr int SCENE_SAMPLE_COUNT = 4;
+}
 
 void
 App::init()
