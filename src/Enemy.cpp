@@ -301,12 +301,11 @@ Enemy::update(Scene& scene,
 
   glm::vec3 to_target = m_target_pos - pos;
   to_target.y = 0.0f;
-  float dist = glm::length(to_target);
+  float dist_to_target = glm::length(to_target);
 
-  if (dist > 0.4f) {
-    glm::vec3 dir = glm::normalize(to_target);
-    float current_speed =
-      (m_state == EnemyState::HUNT) ? m_speed * 1.6f : m_speed;
+  if (dist_to_target > 1.2f) {
+    glm::vec3 dir = to_target / dist_to_target;
+    float current_speed = (m_state == EnemyState::COMBAT) ? 3.4f : 2.0f;
     glm::vec3 delta = dir * current_speed * dt;
 
     auto can_move = [&](float tx, float tz) -> bool {
