@@ -146,7 +146,10 @@ Enemy::has_line_of_sight(const Scene& scene,
 }
 
 bool
-Enemy::take_damage(float damage, const glm::vec3& impulse)
+Enemy::take_damage(Scene& scene,
+                   float damage,
+                   const glm::vec3& impulse,
+                   const std::vector<BoundingBox>& colliders)
 {
   if (m_state == EnemyState::DEAD)
     return false;
@@ -158,8 +161,11 @@ Enemy::take_damage(float damage, const glm::vec3& impulse)
   if (m_health <= 0.0f) {
     m_health = 0.0f;
     m_state = EnemyState::DEAD;
-    m_root->get_local_transform().rotate_deg(AXIS_X, 85.0f);
-    m_root->get_local_transform().translate({ 0.0f, -0.8f, 0.0f });
+    m_visual_state->state = m_state;
+    m_visual_state->damage_flash = 0.0f;
+    m_root->get_local_transform().set_position(current_pos +
+                                               glm::vec3{ 0, 0.5, 0 });
+    m_root->get_local_transform().rotate_deg(AXIS_X, 90.0f);
     return true;
   }
 
