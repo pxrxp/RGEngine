@@ -227,8 +227,14 @@ Enemy::update(Scene& scene,
   m_visual_state->state = m_state;
   m_visual_state->damage_flash = m_damage_flash;
 
-  glm::vec3 player_pos = player->get_local_transform().get_position();
-  glm::vec3 pos = get_position();
+  if (m_shoot_cooldown > 0.0f)
+    m_shoot_cooldown -= dt;
+
+  if (m_regen_cooldown > 0.0f) {
+    m_regen_cooldown -= dt;
+  } else if (m_health < m_max_health) {
+    m_health = std::min(m_max_health, m_health + 15.0f * dt);
+  }
 
   std::vector<BoundingBox> colliders;
   scene.collect_colliders_recursive(scene.get_scene_ptr(), colliders);
