@@ -5,6 +5,7 @@
 #include "repos/MeshRepo.h"
 #include "repos/MaterialRepo.h"
 #include "Window.h"
+#include "util/opengl.h"
 
 struct GLFWwindow;
 class Window;
@@ -19,6 +20,27 @@ private:
 
   static bool m_first_mouse_update;
   bool m_imgui_initialized = false;
+
+  GLuint m_scene_framebuffer = 0;
+  GLuint m_scene_resolve_framebuffer = 0;
+  GLuint m_scene_color_texture = 0;
+  GLuint m_scene_color_mask_texture = 0;
+  GLuint m_scene_color_buffer = 0;
+  GLuint m_scene_color_mask_buffer = 0;
+  GLuint m_scene_depth_buffer = 0;
+  ShaderProgramStrongPtr m_postprocess_program;
+  GLuint m_postprocess_vertex_array = 0;
+  int m_scene_buffer_width = 0;
+  int m_scene_buffer_height = 0;
+  bool m_scene_framebuffer_ready = false;
+  bool m_scene_pass_active = false;
+  GLint m_previous_framebuffer = 0;
+  GLint m_previous_read_framebuffer = 0;
+  GLint m_previous_viewport[4] = { 0, 0, 0, 0 };
+
+  bool create_scene_framebuffer(int width, int height);
+  bool create_postprocess_program();
+  void destroy_scene_render_resources();
 
   float m_delta_time;
   double m_last_frame_time, m_current_frame_time;
