@@ -253,7 +253,7 @@ Enemy::update(Scene& scene,
 
   if (m_state == EnemyState::COMBAT) {
     m_alert_timer -= dt;
-    if (m_alert_timer <= 0.0f) {
+    if (m_alert_timer <= 0.0f && !can_see && !player_heard) {
       m_state = EnemyState::PATROL;
     }
   }
