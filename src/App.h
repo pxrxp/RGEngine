@@ -81,6 +81,8 @@ public:
 
   void init_debug_gui();
   void render_debug_gui();
+  void begin_scene_render();
+  void end_scene_render();
 };
 
 inline bool App::m_first_mouse_update = true;
