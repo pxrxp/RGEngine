@@ -131,8 +131,8 @@ Enemy::has_line_of_sight(const Scene& scene,
     float t = 0.0f;
     glm::vec3 normal(0.0f);
     if (aabb.intersects_ray(eye_pos, ray_dir, t, normal)) {
-      if (t > 0.5f && t < dist_to_player - 0.5f) {
-        return false; // Real wall in between
+      if (t > 0.4f && t < (dist - 0.4f)) {
+        return false;
       }
     }
   }
