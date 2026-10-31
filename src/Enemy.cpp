@@ -308,7 +308,8 @@ Enemy::update(Scene& scene,
     float current_speed = (m_state == EnemyState::COMBAT) ? 3.4f : 2.0f;
     glm::vec3 delta = dir * current_speed * dt;
 
-    auto can_move = [&](float tx, float tz) -> bool {
+    auto test_step =
+      [&](float nx, float nz, float from_x, float from_z) -> bool {
       for (const auto& aabb : colliders) {
         const glm::vec3& b_min = aabb.get_min();
         const glm::vec3& b_max = aabb.get_max();
@@ -323,8 +324,8 @@ Enemy::update(Scene& scene,
     };
 
     glm::vec3 new_pos = pos;
-    // Slide along X if open
-    if (can_move(pos.x + delta.x, pos.z))
+    const bool moved_x = test_step(pos.x + delta.x, pos.z, pos.x, pos.z);
+    if (moved_x)
       new_pos.x += delta.x;
     // Slide along Z if open
     if (can_move(new_pos.x, pos.z + delta.z))
