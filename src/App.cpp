@@ -560,8 +560,11 @@ App::render_debug_gui()
                        1.5f);
   }
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   glEnable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
 }
