@@ -206,8 +206,19 @@ Enemy::take_damage(Scene& scene,
 }
 
 void
-Enemy::update(Scene& scene, float dt)
+Enemy::update(Scene& scene,
+              const glm::vec3& player_pos,
+              const glm::vec3& player_cam_fwd,
+              const std::vector<BoundingBox>& colliders,
+              float dt,
+              float& out_damage,
+              bool& out_fired_shot,
+              glm::vec3& out_gun_pos)
 {
+  (void)player_cam_fwd;
+  out_damage = 0.0f;
+  out_fired_shot = false;
+
   if (m_state == EnemyState::DEAD)
     return;
 
