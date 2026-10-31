@@ -320,6 +320,15 @@ Enemy::update(Scene& scene,
             return false;
         }
       }
+      if (scene.blocks_vertical_capsule_for_actor(nx,
+                                                  nz,
+                                                  from_x,
+                                                  from_z,
+                                                  pos.y,
+                                                  pos.y +
+                                                    ENEMY_COLLISION_HEIGHT,
+                                                  ENEMY_COLLISION_RADIUS))
+        return false;
       return true;
     };
 
