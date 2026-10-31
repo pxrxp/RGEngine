@@ -336,8 +336,10 @@ Enemy::update(Scene& scene,
     const bool moved_x = test_step(pos.x + delta.x, pos.z, pos.x, pos.z);
     if (moved_x)
       new_pos.x += delta.x;
-    // Slide along Z if open
-    if (can_move(new_pos.x, pos.z + delta.z))
+
+    const bool moved_z =
+      test_step(new_pos.x, pos.z + delta.z, new_pos.x, pos.z);
+    if (moved_z)
       new_pos.z += delta.z;
 
     m_root->get_local_transform().set_position(new_pos);
