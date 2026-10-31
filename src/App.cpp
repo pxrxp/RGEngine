@@ -535,7 +535,7 @@ App::init_debug_gui()
 void
 App::render_debug_gui()
 {
-  // Crosshair
+
   if (m_window.get_cursor_mode() == GLFW_CURSOR_DISABLED) {
     ImDrawList* draw_list = ImGui::GetForegroundDrawList();
     const ImGuiIO& io = ImGui::GetIO();
