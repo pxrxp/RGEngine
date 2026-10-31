@@ -255,6 +255,38 @@ Enemy::update(Scene& scene,
     m_alert_timer -= dt;
     if (m_alert_timer <= 0.0f && !can_see && !player_heard) {
       m_state = EnemyState::PATROL;
+      m_has_been_spotted = false;
+      m_target_pos = m_waypoints.empty() ? m_spawn_point : m_waypoints[0];
+    } else {
+
+      glm::vec3 to_p = player_pos - pos;
+      to_p.y = 0.0f;
+      float dist_h = glm::length(to_p);
+
+      if (dist_h > 0.05f) {
+        glm::vec3 look_dir = to_p / dist_h;
+        float target_yaw = std::atan2(-look_dir.x, -look_dir.z);
+        m_root->get_local_transform().set_rotation(
+          glm::quat(glm::vec3(0.0f, target_yaw, 0.0f)));
+      }
+
+      if (dist_h > 18.0f) {
+        m_target_pos = player_pos;
+      } else if (dist_h < 7.0f) {
+        m_target_pos = pos - glm::normalize(to_p) * 6.0f;
+      } else {
+        glm::vec3 right = glm::normalize(
+          glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), glm::normalize(to_p)));
+        m_target_pos = pos + right * 3.5f;
+      }
+
+      glm::vec3 aim_dir = glm::normalize(player_pos - out_gun_pos);
+      if (std::abs(aim_dir.y) <= MAX_VERTICAL_AIM && m_shoot_cooldown <= 0.0f &&
+          dist_to_player <= 36.0f) {
+        out_fired_shot = true;
+        out_damage = 16.0f;
+        m_shoot_cooldown = 0.90f;
+      }
     }
   }
 
