@@ -69,7 +69,8 @@ App::init()
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  create_postprocess_program();
+  create_scene_framebuffer(width, height);
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
