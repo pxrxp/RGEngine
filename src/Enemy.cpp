@@ -354,8 +354,10 @@ Enemy::update(Scene& scene,
       new_pos.y = ground_y;
     m_root->get_local_transform().set_position(new_pos);
 
-    float yaw = atan2(-dir.x, -dir.z);
-    m_root->get_local_transform().set_rotation(
-      glm::quat(glm::vec3(0.0f, yaw, 0.0f)));
+    if (m_state != EnemyState::COMBAT) {
+      float yaw = std::atan2(-dir.x, -dir.z);
+      m_root->get_local_transform().set_rotation(
+        glm::quat(glm::vec3(0.0f, yaw, 0.0f)));
+    }
   }
 }
