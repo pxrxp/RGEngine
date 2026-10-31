@@ -114,7 +114,7 @@ Enemy::has_line_of_sight(const Scene& scene,
   glm::vec3 to_player = player_pos - eye_pos;
   float dist = glm::length(to_player);
 
-  if (dist_to_player > 40.0f)
+  if (dist > MAX_VISION_RANGE || dist < 0.1f)
     return false;
 
   glm::vec3 ray_dir = glm::normalize(to_player);
