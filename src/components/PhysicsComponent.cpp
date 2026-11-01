@@ -179,7 +179,6 @@ operator<<(std::ostream& os, const PhysicsComponent& obj)
      << std::boolalpha << "Enabled:               " << obj.m_enabled << "\n"
      << "Has Gravity:           " << obj.m_has_gravity << "\n"
      << "Initial Cond. Set:     " << obj.m_initial_conditions_set << "\n"
-     << "Is First Step:         " << obj.m_is_first_step << "\n"
      << "---------------------------\n";
   return os;
 }

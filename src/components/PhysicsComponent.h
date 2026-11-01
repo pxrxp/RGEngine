@@ -101,5 +101,4 @@ private:
   float m_drag = 0.5f;
   bool m_enabled = true;
   bool m_initial_conditions_set = false;
-  bool m_is_first_step = true;
 };
