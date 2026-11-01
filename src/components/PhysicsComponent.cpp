@@ -16,7 +16,7 @@ PhysicsComponent::get_velocity() const
 const glm::vec3
 PhysicsComponent::get_angular_velocity() const
 {
-  auto rotation_matrix = glm::toMat3(m_local_transform.get_rotation());
+  auto rotation_matrix = glm::mat3_cast(m_local_transform.get_rotation());
   auto world_inverse_inertia_tensor = rotation_matrix *
                                       m_inverse_inertia_tensor *
                                       glm::transpose(rotation_matrix);
@@ -70,8 +70,8 @@ PhysicsComponent::set_initial_conditions(
       m_linear_momentum_half_step = glm::vec3(0.f);
     }
 
-    if (glm::length2(initial.angular_velocity) > 0.0001f) {
-      auto rotationMatrix = glm::toMat3(m_local_transform.get_rotation());
+    if (glm::dot(initial.angular_velocity, initial.angular_velocity) > 0.0001f) {
+      auto rotationMatrix = glm::mat3_cast(m_local_transform.get_rotation());
       auto world_inertia_tensor = rotationMatrix *
                                   glm::inverse(m_inverse_inertia_tensor) *
                                   glm::transpose(rotationMatrix);
