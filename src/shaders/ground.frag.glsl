@@ -2,6 +2,10 @@
 
 in vec3 v_world_pos;
 out vec4 FragColor;
+layout(location = 1) out float out_color_mask;
+
+uniform sampler2D u_ground_tex;
+uniform int u_has_texture = 0;
 
 void main() {
     // World-space seamless texture tiling (tiles every ~4 meters)
@@ -31,4 +35,5 @@ void main() {
     final_col = pow(final_col, vec3(1.0 / 2.2));
 
     FragColor = vec4(final_col, 1.0);
+    out_color_mask = 0.0;
 }
