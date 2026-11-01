@@ -141,7 +141,9 @@ public:
   void init() override
   {
     Scene::init();
+#ifndef NDEBUG
     debug_camera();
+#endif
 
     m_player = std::make_shared<SceneObject>();
     m_player->get_physics_component().disable();
