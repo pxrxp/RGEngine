@@ -1,5 +1,5 @@
 #pragma once
-#include "SceneObject.h"
+#include <engine/SceneObject.h>
 #include <atomic>
 #include <cstdint>
 #include <memory>
