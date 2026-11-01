@@ -60,7 +60,7 @@ IF NOT EXIST ".\vcpkg" (
 )
 
 SET BUILD_DIR=build
-SET SRC_DIR=src
+SET SHADERS_DIR=engine\shaders
 IF NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 
 REM Clean only CMake cache/files if requested
@@ -92,7 +92,7 @@ if exist "%BUILD_DIR%\shaders" (
 )
 
 REM Copy shaders folder recursively
-xcopy "%SRC_DIR%\shaders" "%BUILD_DIR%\shaders" /E /I /Y
+xcopy "%SHADERS_DIR%" "%BUILD_DIR%\shaders" /E /I /Y
 
 echo Copying resources...
 REM Remove the build resources folder if it exists
