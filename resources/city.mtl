@@ -1,0 +1,512 @@
+# Blender 5.2.3 LTS MTL File: 'drone City.blend'
+# www.blender.org
+
+newmtl Material
+Ns 194.636688
+Ka 1.000000 1.000000 1.000000
+Kd 0.035457 0.027780 0.013881
+Ks 0.254902 0.254902 0.254902
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl autos-BLANCO1
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-BLANCO2
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-ROJO
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-Taxi1
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-camionetablanca
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-gris1
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl autos-gris2
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocity-AUTOS.png
+
+newmtl busnaranjo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-MOD.png
+
+newmtl ciudadortogonal-ACONDICIONADORes
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-ACONDICIONADORes.png
+
+newmtl ciudadortogonal-CALLE1mod
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-CALLE1mod1.png
+
+newmtl ciudadortogonal-CALLE1mod.22
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-CALLE1mod22.png
+
+newmtl ciudadortogonal-CALLE2mod
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-CALLE2mod.png
+
+newmtl ciudadortogonal-VEREDA1mod
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-VEREDA1mod.png
+
+newmtl closetelectrico-detechos
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortclosetelectricotecho.png
+
+newmtl hospitalladoventanas
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/hospitalladoventanas.png
+
+newmtl hospitaltecho
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/hospitaltecho.png
+
+newmtl hospitaltechomod
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/hospitaltecho-mod.png
+
+newmtl orto-edificio22-adosolocemento
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/orto-edificio22-adosolocemento.png
+
+newmtl orto-edificio22-ladoventanas
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/orto-edificio22-ladoventanas.png
+
+newmtl orto-edificio22-techoybase
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/orto-edificio22-techoybase.png
+
+newmtl ortocasuchadetecho-allparts
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortocasuchadetecho-allparts.png
+
+newmtl ortocity
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ciudadortogonal-MOD.png
+
+newmtl ortoedificio-frontal-frontal
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.319767 0.319767 0.319767
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificio-frontal-frontal.png
+
+newmtl ortoedificio-frontal-frontal-GLASS
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificio-frontal-frontal.png
+
+newmtl ortoedificioceleste-frontal
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificioceleste-frontal-MOD.png
+
+newmtl ortoedificioceleste-lado
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificioceleste-lado.png
+
+newmtl ortoedificioceleste-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificioceleste-techo.png
+
+newmtl ortoedificioceleste-techo.mod
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificioceleste-techo-mod.png
+
+newmtl ortoedificiocontechorojo-ladoventanas
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiocontechorojo-ladoventanas.png
+
+newmtl ortoedificiocontechorojo-ladoventanasGlass
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiocontechorojo-ladoventanas.png
+
+newmtl ortoedificiocontechorojo-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiocontechorojo-techo.png
+
+newmtl ortoedificiocontechorojo-techo-extension-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiocontechorojo-techo-extension-techo.png
+
+newmtl ortoedificiorojo-frontal
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiorojo-frontal.png
+
+newmtl ortoedificiorojo-frontalglass
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiorojo-frontal.png
+
+newmtl ortoedificiorojo-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiorojo-techo.png
+
+newmtl ortoedificiotechoceleste_-lado1ventana
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiotechoceleste -lado1ventana.png
+
+newmtl ortoedificiotechoceleste_-ladoventanas
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiotechoceleste -ladoventanas.png
+
+newmtl ortoedificiotechoceleste_-ladoventanasGLASS
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiotechoceleste -ladoventanas.png
+
+newmtl ortoedificiotechoceleste_-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortoedificiotechoceleste -techo.png
+
+newmtl ortomicroceleste_-lado
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortomicroceleste -lado.png
+
+newmtl ortomicroceleste_-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortomicroceleste -techo.png
+
+newmtl ortotechocarcel-cuartitoeneltecho
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd city_textures/ortotechocarcel-cuartitoeneltecho.png
+map_d ortotechocarcel-cuartitoeneltecho.png
+
+newmtl ortotechocarcel-ladoventanas
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortotechocarcel-ladoventanas.png
+
+newmtl ortotechocarcel-ladoventanas2
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortotechocarcel-ladoventanas2.png
+
+newmtl ortotechocarcel-ladoventanas2GLASS
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortotechocarcel-ladoventanas2.png
+
+newmtl ortotechocarcel-ladoventanasGLASS
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortotechocarcel-ladoventanas.png
+
+newmtl ortotechocarcel-techo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/ortotechocarcel-techo.png
+
+newmtl techolocalcomercialoxxo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/techolocalcomercialoxxo-Mod.png
+
+newmtl techolocalcomercialoxxo--acondicionadores
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/techolocalcomercialoxxo.png
+
+newmtl vitrinalocalcomercialoxxo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd city_textures/vitrinalocalcomercialoxxo.png
