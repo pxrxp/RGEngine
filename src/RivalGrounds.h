@@ -1411,7 +1411,7 @@ private:
     glm::vec3 rgt = glm::normalize(glm::vec3(rgt_raw.x, 0.0f, rgt_raw.z));
 
     glm::vec3 move_dir = rgt * wish.x + fwd * wish.z;
-    if (glm::length2(move_dir) > 0.0f)
+    if (glm::dot(move_dir, move_dir) > 0.0f)
       move_dir = glm::normalize(move_dir);
 #ifndef NDEBUG
     if (m_debug_noclip) {
@@ -1432,7 +1432,7 @@ private:
     }
 #endif
 
-    if (glm::length2(move_dir) > 0.0f) {
+    if (glm::dot(move_dir, move_dir) > 0.0f) {
       glm::vec3 delta = move_dir * speed * dt;
 
       auto test_axis = [&](float nx, float nz) -> bool {
