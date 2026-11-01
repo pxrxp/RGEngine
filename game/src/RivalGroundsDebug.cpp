@@ -1,4 +1,4 @@
-#include "RivalGrounds.h"
+#include <rivalgrounds/RivalGrounds.h>
 
 #ifndef NDEBUG
 namespace {

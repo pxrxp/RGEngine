@@ -1,4 +1,4 @@
-#include "Enemy.h"
+#include <rivalgrounds/Enemy.h>
 #include <engine/Material.h>
 #include <engine/Mesh.h>
 #include <engine/Scene.h>

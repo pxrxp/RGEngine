@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/App.h>
 #include <engine/CollisionWorld.h>
-#include "Enemy.h"
+#include <rivalgrounds/Enemy.h>
 #include <engine/Material.h>
 #include <engine/Mesh.h>
 #include <engine/Renderer.h>

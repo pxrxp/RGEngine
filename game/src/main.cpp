@@ -1,5 +1,5 @@
 #include <engine/App.h>
-#include "RivalGrounds.h"
+#include <rivalgrounds/RivalGrounds.h>
 #include <engine/util/definitions.h>
 #include <memory>
 
