@@ -1,5 +1,5 @@
 #include "App.h"
-#include "TestScene.h"
+#include "RivalGrounds.h"
 #include "util/definitions.h"
 #include <memory>
 
@@ -10,7 +10,7 @@ main()
   app->init();
 
   {
-    auto test_scene = std::make_shared<TestScene>(*app);
+    auto test_scene = std::make_shared<RivalGrounds>(*app);
     test_scene->init();
 
     while (app->is_running()) {
