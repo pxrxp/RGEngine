@@ -35,7 +35,7 @@ while getopts "glh" opt; do
     esac
 done
 
-BINARY="./build/RivalGrounds"
+BINARY="./build/game/RivalGrounds"
 
 if [ ! -f "$BINARY" ]; then
     echo "Binary not found. Building first..."

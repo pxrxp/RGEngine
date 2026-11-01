@@ -22,7 +22,7 @@ set "ORIGINAL_DIR=%CD%"
 REM Move to the directory of this batch file
 cd /d "%~dp0"
 
-set BINARY="%ORIGINAL_DIR%\build\RivalGrounds.exe"
+set BINARY="%ORIGINAL_DIR%\build\game\RivalGrounds.exe"
 
 IF EXIST "%BINARY%" (
     IF "%RENDERDOC%"=="true" (

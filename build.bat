@@ -92,16 +92,16 @@ if exist "%BUILD_DIR%\shaders" (
 )
 
 REM Copy shaders folder recursively
-xcopy "%SHADERS_DIR%" "%BUILD_DIR%\shaders" /E /I /Y
+xcopy "%SHADERS_DIR%" "%BUILD_DIR%\game\shaders" /E /I /Y
 
 echo Copying resources...
 REM Remove the build resources folder if it exists
-if exist "%BUILD_DIR%\resources" (
-    rmdir /s /q "%BUILD_DIR%\resources"
+if exist "%BUILD_DIR%\game\resources" (
+    rmdir /s /q "%BUILD_DIR%\game\resources"
 )
 
 REM Copy resources folder recursively
-xcopy "resources" "%BUILD_DIR%\resources" /E /I /Y
+xcopy "resources" "%BUILD_DIR%\game\resources" /E /I /Y
 
 set INSTALLED_BIN_DIR=
 if /I "%BUILD_TYPE%"=="Debug" (
