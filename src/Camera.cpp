@@ -38,7 +38,7 @@ Camera::get_camera_move_dir(App& app) const
   if (go_down)
     direction.y -= 1.0f;
 
-  if (glm::length2(direction) > 0.0f) {
+  if (glm::dot(direction, direction) > 0.0f) {
     direction = glm::normalize(direction);
   }
 
