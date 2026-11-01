@@ -5,6 +5,7 @@ in vec2 v_uv;
 in vec3 v_normal;
 
 out vec4 FragColor;
+layout(location = 1) out float out_color_mask;
 
 uniform mat4 u_view;
 uniform vec3 u_color = vec3(0.0);
@@ -49,4 +50,5 @@ void main() {
     final_col = pow(final_col, vec3(1.0 / 2.2));
 
     FragColor = vec4(final_col, 1.0);
+    out_color_mask = float(u_preserve_color);
 }
