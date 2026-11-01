@@ -59,19 +59,5 @@ find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-)
-
-add_executable(RivalGrounds ${SRC_FILES})
-
-target_compile_options(RivalGrounds PRIVATE ${PROJECT_WARNING_FLAGS})
-
-target_link_libraries(RivalGrounds PRIVATE
-    glad::glad
-    glfw
-    imgui::imgui
-    OpenGL::GL
-    ZLIB::ZLIB
-    PNG::PNG
-)
+add_subdirectory(engine)
+add_subdirectory(game)
