@@ -1,79 +1,62 @@
 # RGEngine
 
-RGEngine is a small C++20 / OpenGL 3.3 engine, and this repository is its
-reference game: **RivalGrounds**, a first-person shooter set in an abandoned
-city.
+A small 3D engine in C++20 and OpenGL 3.3, and RivalGrounds, the first-person
+shooter it was written for.
 
-The split is deliberate. `engine/` knows about windows, cameras, meshes and
-shaders but nothing about cities, enemies or scrolls. `game/` owns every piece of
-content and every gameplay rule, and talks to the engine only through public
-headers. If you want to build something else on RGEngine, delete `game/` and
-start there.
+`engine/` handles the window, the renderer, the scene graph, collision and the
+asset loaders. `game/` holds the city, the player, the enemies and the rules, and
+only uses the engine's public headers. To build something else on the engine,
+`game/` is the part you replace.
 
-## What it is, in plain terms
+## The game
 
-RGEngine is the toolkit: it opens a window, draws 3D geometry, moves things
-around, checks what hits what, and loads models and textures. None of it knows
-about this particular game.
+You come down over an abandoned city on another world. Your ship doesn't make
+it, and the scroll you were sent for is somewhere in the streets below. The
+people already living there don't want you around.
 
-RivalGrounds is the game built with that toolkit. You are on a scouting run over
-an empty city on another world, your ship has broken apart over the rooftops, and
-the one thing you came for, a scroll, went out the cargo door somewhere on the
-way down. The locals are still here: pale, thin, and hostile. Find the scroll,
-shoot what gets in the way, and use the crates the ship dropped as stairs when
-the scroll is on a roof.
+The city is greyscale; the things that matter keep their colour — enemies, your
+rifle, the scroll. Soldiers patrol, notice you, and shoot. Your ship scattered
+crates across the city as it broke up, and they stack, which is how you reach
+anything the scroll landed on top of.
 
-A match looks like this:
+A match starts on the title screen, drops you somewhere random with ten seconds
+of grace, and ends when you touch the scroll or run out of health.
 
-- the title screen sets the scene, then you drop into a random part of the city
-  with ten seconds of protection;
-- the city is greyscale, and only what matters keeps its colour: your rifle,
-  enemies, and the scroll;
-- soldiers patrol the streets, see you if you are in front of them, and shoot;
-- right click carries a crate, right click again stacks or throws it, `H` hides
-  the crate you are carrying;
-- touch the golden scroll to win, run out of health to lose, `R` to try again.
+## What the engine has
 
-There is no installer, no account, no telemetry, and no network traffic. It is a
-self-contained desktop program that reads the files next to it.
+- GLFW window, input polling, cursor capture
+- Camera with view and projection helpers
+- Scene graph with cached world-space bounding boxes
+- Forward renderer with an MSAA framebuffer and a pluggable post-process pass
+- Cached repositories for meshes, shaders, materials and textures
+- OBJ and PNG loading, skybox rendering
+- Triangle-mesh collider built from a BVH, plus ray and overlap queries
+- Dear ImGui for debug UI
 
-## What is in the box
-
-| RGEngine | RivalGrounds |
-| --- | --- |
-| GLFW window, input polling, cursor modes | City level built from a scaled OBJ model plus invisible boundary walls |
-| Camera with view/projection helpers | First-person controller with gravity, jumping, sprint, sneak, noclip (debug) |
-| Scene graph with cached world AABBs | Hitscan rifle, viewmodel, recoil, tracers, hit markers |
-| Forward renderer: MSAA framebuffer, colour + auxiliary attachments, pluggable post-process | Grayscale post-process that preserves colour on the things that matter |
-| Cached repositories for meshes, shaders, materials and textures | 128 physics crates that can be shot, grabbed, thrown and stacked |
-| OBJ and PNG loading, skybox | 14 patrolling enemies with vision, cover checks and reinforcements |
-| BVH triangle-mesh collider, ray/AABB queries, capsule and ground tests | Scroll objective, win/lose states, HUD |
-| Dear ImGui debug GUI and in-world editor helpers | F1 debug menu: teleport, noclip, invincibility, hitboxes, camera tuning |
-| No game types, assets or content | All game types, assets and content |
+The postprocessing pass, the HUD, the weapon and everything else in RivalGrounds live
+in `game/`, not in the engine.
 
 ## Requirements
 
-- CMake 3.15 or newer, a C++20 compiler.
-- [vcpkg](https://github.com/microsoft/vcpkg) at `vcpkg/`. The build scripts clone
-  and bootstrap it if it is missing. Dependencies are declared in `vcpkg.json`:
-  glad, GLFW, glm, Dear ImGui, libpng and zlib.
-- On Linux, the dev packages GLFW needs to build against (X11 or Wayland
-  development headers), plus a GPU/driver that can create an OpenGL 3.3 core
-  context.
-- On Windows, the scripts expect a MinGW triplet (`x64-mingw-dynamic`) and copy
-  the required DLLs next to the executable.
+- CMake 3.15+, a C++20 compiler
+- [vcpkg](https://github.com/microsoft/vcpkg) in `vcpkg/` — the build scripts
+  clone and bootstrap it if it is missing. Dependencies are in `vcpkg.json`
+  (glad, GLFW, glm, Dear ImGui, libpng, zlib)
+- Linux: the X11 and Wayland development headers GLFW builds against, and a
+  driver that can create an OpenGL 3.3 core context
+- Windows: MinGW and a `x64-mingw-dynamic` triplet
 
 ## Build
 
-The wrappers read a few environment variables:
+`build.sh` and `build.bat` read these variables:
 
 | Variable | Example | Meaning |
 | --- | --- | --- |
-| `TRIPLET` | `x64-linux`, `x64-mingw-dynamic` | vcpkg triplet to build against |
+| `TRIPLET` | `x64-linux`, `x64-mingw-dynamic` | vcpkg triplet |
 | `BUILD_TYPE` | `Debug`, `Release` | CMake build type |
-| `ENABLE_ASAN_UBSAN` | `ON`, `OFF` | Address/UB sanitizers (debug builds) |
-| `ENABLE_WERROR` | `ON`, `OFF` | Treat warnings as errors |
-| `GLFW_BACKEND` | `wayland`, `x11`, `windows` | GLFW backend feature (Unix only); `wayland` covers both Wayland and X11 |
+| `ENABLE_ASAN_UBSAN` | `ON`, `OFF` | Address and UB sanitizers |
+| `ENABLE_WERROR` | `ON`, `OFF` | Warnings as errors |
+| `GLFW_BACKEND` | `wayland`, `x11`, `windows` | GLFW backend (Unix); `wayland` covers both Wayland and X11 at runtime |
 
 Linux:
 
@@ -87,7 +70,7 @@ export GLFW_BACKEND=wayland
 ./run.sh
 ```
 
-Windows (from a shell with MinGW and CMake on `PATH`):
+Windows:
 
 ```bat
 set TRIPLET=x64-mingw-dynamic
@@ -98,7 +81,7 @@ build.bat
 run.bat
 ```
 
-Or drive CMake yourself:
+Or call CMake yourself:
 
 ```bash
 cmake -B build -S . -DCMAKE_BUILD_TYPE=Release \
@@ -108,9 +91,9 @@ cmake -B build -S . -DCMAKE_BUILD_TYPE=Release \
 cmake --build build --parallel
 ```
 
-Shaders and assets are resolved relative to the executable, so every build runs
-a `POST_BUILD` step that copies `engine/shaders/`, `game/shaders/` and
-`resources/` next to `build/game/RivalGrounds`. There is no manual copy step.
+Shaders and assets are looked up relative to the executable, so a post-build
+step copies `engine/shaders/`, `game/shaders/` and `resources/` next to
+`build/game/RivalGrounds`. No manual copy is needed.
 
 ## Controls
 
@@ -122,49 +105,43 @@ a `POST_BUILD` step that copies `engine/shaders/`, `game/shaders/` and
 | `Space` | Jump |
 | Left click | Fire |
 | Right click | Grab a crate, or throw the held one |
-| `H` | Show/hide the held crate (it stays held) |
-| `Tab` / `Esc` | Capture / release the mouse cursor |
-| `R` | Restart the match |
+| `H` | Show or hide the crate you are holding |
+| `Tab` / `Esc` | Capture or release the mouse |
+| `R` | Restart |
 | `F1` | Debug menu |
 
 ## Tests
 
 ```bash
-cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-`tests/` builds `engine_tests`, a dependency-free harness covering the
-`BoundingBox` and `TriangleMeshCollider` math. Those tests compile only the
-GL-free engine sources, so they run headless in CI.
+`tests/` builds `engine_tests`, which covers the bounding-box and triangle-mesh
+collider maths. It links only the parts of the engine that don't need a GL
+context, so it runs headless.
 
 ## Releases
-
-The install rules and CPack configuration ship a runnable archive, assets
-included:
 
 ```bash
 cmake --build build --target package
 ```
 
-That produces `build/RGEngine-RivalGrounds-<version>-<system>-<arch>.zip`
+CPack writes `build/RGEngine-RivalGrounds-<version>-<system>-<arch>.zip`
 containing:
 
 ```text
 RivalGrounds(.exe)
 shaders/      engine/shaders + game/shaders, merged
-resources/    models, textures, skybox faces, logo (~76 MB)
+resources/    models, textures, skybox, logo (~76 MB)
 LICENSE
 LICENSES.md
 ```
 
-Both archives are self-contained as far as the project is concerned. Windows
-builds link the MinGW C++ runtime statically and import only system DLLs; Linux
-builds expect the system OpenGL, X11/Wayland and GLFW runtime libraries, which is
-normal for a desktop OpenGL application.
+The Windows archive links the MinGW runtime statically and imports only system
+DLLs. The Linux archive still needs the system OpenGL, X11/Wayland and GLFW
+libraries, as any desktop OpenGL program does.
 
-A Windows archive can also be produced from Linux with llvm-mingw and the
-vcpkg `x64-mingw-static` triplet:
+Windows archives can be cross-built from Linux with llvm-mingw:
 
 ```bash
 export LLVM_MINGW_ROOT=/path/to/llvm-mingw-<date>-ucrt-ubuntu-22.04-x86_64
@@ -178,38 +155,36 @@ cmake --build build-win --parallel
 cmake --build build-win --target package
 ```
 
-| Verified build | Result |
-| --- | --- |
-| Linux x86_64, GCC, vcpkg static libraries | build, tests, package; archive ran from an extracted directory |
-| Windows x86_64, llvm-mingw 20261020 + `x64-mingw-static` | cross build and package; imports only system DLLs (not executed: no Windows host or Wine here) |
+Last built here: Linux x86_64 with GCC (build, tests, package; archive extracted
+and run) and Windows x86_64 with llvm-mingw 20261020 (cross build and package;
+not executed, there was no Windows host or Wine available to try it).
 
 ## Layout
 
 ```text
-CMakeLists.txt   project, warnings, sanitizers, CPack/install config
-vcpkg.json       dependency manifest (and GLFW backend features)
-build.sh/.bat    configure + build wrappers
+CMakeLists.txt   project, warnings, sanitizers, install/CPack rules
+vcpkg.json       dependencies and GLFW backend features
+build.sh/.bat    configure and build wrappers
 run.sh/.bat      run the executable, optionally under a debugger
-engine/          RGEngine: static library, GLSL in engine/shaders/
-game/            RivalGrounds: executable, GLSL in game/shaders/
-tests/           headless engine tests (CTest)
+engine/          RGEngine, a static library, GLSL in engine/shaders/
+game/            RivalGrounds, the executable, GLSL in game/shaders/
+tests/           headless engine tests
 resources/       city, crates, weapon, textures, skybox, logo
 docs/            engine, game, player guide and development docs
 ```
 
 ## Documentation
 
-Start at [`docs/README.md`](docs/README.md):
+Start at [`docs/README.md`](docs/README.md).
 
-- [`docs/engine/`](docs/engine/Home.md) — RGEngine systems and how to extend them
-- [`docs/game/`](docs/game/Home.md) — RivalGrounds: loop, player, combat, enemies, world
-- [`docs/player-guide/`](docs/player-guide/Home.md) — install, controls, gameplay
+- [`docs/engine/`](docs/engine/Home.md) — the engine's systems and how to extend them
+- [`docs/game/`](docs/game/Home.md) — RivalGrounds: game loop, player, combat, enemies, world
+- [`docs/player-guide/`](docs/player-guide/Home.md) — installing and playing
 - [`docs/development/`](docs/development/Home.md) — building, structure, conventions, debugging
 
-The docs describe the code as it is, including its limits. If a page and the
-source disagree, the source wins.
+Where a page and the source disagree, the source is right.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE). Third-party components and asset credits are
-listed in [`LICENSES.md`](LICENSES.md).
+MIT, see [`LICENSE`](LICENSE). Third-party credits are in
+[`LICENSES.md`](LICENSES.md).
