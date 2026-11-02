@@ -25,37 +25,69 @@ RivalGrounds::render_game_hud()
     draw->AddRectFilled(
       ImVec2(0, 0), io.DisplaySize, IM_COL32(10, 10, 12, 255));
 
-    float top_y = cy - 140.0f;
+    float top_y = io.DisplaySize.y * 0.08f;
     if (m_logo_texture) {
-      float logo_w = std::min(io.DisplaySize.x * 0.35f, 400.0f);
+      float logo_w = std::min(io.DisplaySize.x * 0.30f, 320.0f);
       float logo_h = logo_w * m_logo_texture->get_aspect_ratio();
-      top_y = cy - logo_h * 0.5f - 40.0f;
 
       draw->AddImage((ImTextureID)(intptr_t)m_logo_texture->get_id(),
                      ImVec2(cx - logo_w * 0.5f, top_y),
                      ImVec2(cx + logo_w * 0.5f, top_y + logo_h));
-      top_y += logo_h + 24.0f;
+      top_y += logo_h + 28.0f;
     }
+
+    const char* backstory =
+      "We came down hard. The ship broke up over the rooftops, and what's left "
+      "of it is scattered through the streets with the cargo.\n\n"
+      "The city was already empty when we landed. The people are still here, "
+      "though. Pale as chalk, thin as paper, and they don't want us. They "
+      "shoot "
+      "before they ask.\n\n"
+      "The scroll went out with the cargo on the way down. A roof, a "
+      "stairwell, "
+      "under a crate. Nobody knows.\n\n"
+      "Use what the ship dropped. The crates stack. Stack them, climb, and "
+      "bring "
+      "the scroll home.";
+
+    const float story_width = std::min(io.DisplaySize.x * 0.55f, 600.0f);
+    const float story_font_size = 15.0f;
+    const ImVec2 story_size =
+      ImGui::CalcTextSize(backstory, nullptr, false, story_width);
+    const float story_height =
+      story_size.y * (story_font_size / ImGui::GetFontSize());
+
+    draw->AddText(nullptr,
+                  story_font_size,
+                  ImVec2(cx - story_width * 0.5f, top_y),
+                  IM_COL32(178, 183, 192, 235),
+                  backstory,
+                  nullptr,
+                  story_width);
+    top_y += story_height + 30.0f;
 
     const char* controls[] = {
       "WASD  Move",  "Ctrl  Sprint",     "Shift  Sneak",
       "Space  Jump", "Left Click  Fire", "Right Click  Grab and place crate"
     };
 
+    const float column_width = 214.0f;
+    const float block_left = cx - column_width * 1.5f;
     for (int i = 0; i < 6; ++i) {
-      ImVec2 sz = ImGui::CalcTextSize(controls[i]);
-      draw->AddText(nullptr,
-                    15.0f,
-                    ImVec2(cx - sz.x * 0.5f, top_y + i * 22.0f),
-                    IM_COL32(165, 170, 180, 220),
-                    controls[i]);
+      draw->AddText(
+        nullptr,
+        15.0f,
+        ImVec2(block_left + (i % 3) * column_width, top_y + (i / 3) * 22.0f),
+        IM_COL32(165, 170, 180, 220),
+        controls[i]);
     }
+    top_y += 2 * 22.0f + 32.0f;
 
     const char* prompt = "Press Space or Click to Begin";
     ImVec2 p_sz = ImGui::CalcTextSize(prompt);
     draw->AddText(nullptr,
                   16.0f,
-                  ImVec2(cx - p_sz.x * 0.5f, top_y + 160.0f),
+                  ImVec2(cx - p_sz.x * 0.5f, top_y),
                   IM_COL32(230, 215, 125, 240),
                   prompt);
     return;

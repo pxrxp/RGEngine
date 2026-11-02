@@ -20,11 +20,12 @@ Parts use `sharp_box_mesh` and a shared `cube_program` material per part name, e
 
 ## Spawning
 
-- `spawn_tactical_enemies()` places 14 enemies at random city positions at least 45 m from the player, each with a two-waypoint patrol route offset by up to ±24 m.
+- `spawn_tactical_enemies()` places 14 enemies in three rings around the player: 4 at 20–30 m, 5 at 32–50 m and 5 at 52–74 m. A candidate is rejected (up to 64 tries per enemy) when it falls outside the city bounds minus a 12 m inset, when no ground surface is found beneath it, or when a 0.4 m capsule at that spot already overlaps geometry, so enemies do not start inside walls or on rooftops. The spawning routine logs the squad size and the nearest horizontal distance.
 - The reinforcement timer spawns one more enemy every 14 s at 55–115 m from the player (random angle) while fewer than 14 enemies are alive.
 - The F1 debug menu can spawn an extra enemy 8 m away.
+- Patrol legs are validated the same way; a leg that would run into a wall is dropped and the enemy patrols in place.
 
-Enemies spawn at y = 0.85 and settle onto the ground through the movement code.
+Enemies spawn on the ground surface reported by the collision mesh at that spot.
 
 ## Death
 

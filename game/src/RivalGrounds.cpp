@@ -422,35 +422,94 @@ RivalGrounds::spawn_tactical_enemies(std::mt19937& rng)
   if (!m_city_bounds_valid)
     return;
 
-  std::uniform_real_distribution<float> x_dist(m_city_world_min.x + 12.0f,
-                                               m_city_world_max.x - 12.0f);
-  std::uniform_real_distribution<float> z_dist(m_city_world_min.z + 12.0f,
-                                               m_city_world_max.z - 12.0f);
-  std::uniform_real_distribution<float> offset_dist(-24.0f, 24.0f);
+  // Scattering the squad over the whole city left most of them inside walls or
+  // far out of reach, so place them in rings around the player and only on
+  // ground the collision mesh actually agrees with.
+  struct SpawnRing
+  {
+    int count;
+    float min_distance;
+    float max_distance;
+  };
+  const SpawnRing rings[] = {
+    { 4, 20.0f, 30.0f },
+    { 5, 32.0f, 50.0f },
+    { 5, 52.0f, 74.0f },
+  };
 
+  constexpr float CITY_INSET = 12.0f;
   const glm::vec3 player_pos = m_player->get_local_transform().get_position();
-  for (int i = 0; i < 14; ++i) {
-    glm::vec3 spawn_pos(0.0f, 0.85f, 0.0f);
-    bool found_spawn = false;
-    for (int attempt = 0; attempt < 100; ++attempt) {
-      spawn_pos.x = x_dist(rng);
-      spawn_pos.z = z_dist(rng);
-      if (glm::distance(glm::vec2(spawn_pos.x, spawn_pos.z),
-                        glm::vec2(player_pos.x, player_pos.z)) > 45.0f) {
-        found_spawn = true;
-        break;
-      }
-    }
-    if (!found_spawn)
-      break;
 
-    const float ox = offset_dist(rng);
-    const float oz = offset_dist(rng);
-    std::vector<glm::vec3> patrol_route = {
-      spawn_pos + glm::vec3(ox, 0.0f, oz), spawn_pos - glm::vec3(ox, 0.0f, oz)
-    };
-    m_enemies.push_back(
-      std::make_shared<Enemy>(*this, spawn_pos, patrol_route));
+  auto is_walkable = [this](const glm::vec3& p) {
+    float ground = 0.0f;
+    if (!m_collision_world.find_ground_height(
+          p.x, p.z, p.y + 6.0f, p.y - 2.0f, ground))
+      return false;
+    return !m_collision_world.blocks_vertical_capsule(
+      p.x, p.z, p.x, p.z, ground + 0.15f, ground + 1.75f, 0.4f);
+  };
+
+  std::uniform_real_distribution<float> angle_dist(0.0f, 6.2831853f);
+  std::uniform_real_distribution<float> offset_dist(-18.0f, 18.0f);
+
+  for (const SpawnRing& ring : rings) {
+    std::uniform_real_distribution<float> distance_dist(ring.min_distance,
+                                                        ring.max_distance);
+    for (int i = 0; i < ring.count; ++i) {
+      glm::vec3 spawn_pos(0.0f);
+      bool found_spawn = false;
+      for (int attempt = 0; attempt < 64 && !found_spawn; ++attempt) {
+        const float angle = angle_dist(rng);
+        const float distance = distance_dist(rng);
+        const float x = player_pos.x + std::cos(angle) * distance;
+        const float z = player_pos.z + std::sin(angle) * distance;
+
+        if (x < m_city_world_min.x + CITY_INSET ||
+            x > m_city_world_max.x - CITY_INSET ||
+            z < m_city_world_min.z + CITY_INSET ||
+            z > m_city_world_max.z - CITY_INSET)
+          continue;
+
+        float ground = 0.0f;
+        if (!m_collision_world.find_ground_height(x, z, 6.0f, -2.0f, ground))
+          continue;
+        if (m_collision_world.blocks_vertical_capsule(
+              x, z, x, z, ground + 0.15f, ground + 1.75f, 0.4f))
+          continue;
+
+        spawn_pos = glm::vec3(x, ground, z);
+        found_spawn = true;
+      }
+      if (!found_spawn)
+        continue;
+
+      const float ox = offset_dist(rng);
+      const float oz = offset_dist(rng);
+      std::vector<glm::vec3> patrol_route = { spawn_pos };
+      // Skip patrol legs that would run the enemy into a wall.
+      const glm::vec3 leg_a = spawn_pos + glm::vec3(ox, 0.0f, oz);
+      const glm::vec3 leg_b = spawn_pos - glm::vec3(ox, 0.0f, oz);
+      if (is_walkable(leg_a))
+        patrol_route.push_back(leg_a);
+      if (is_walkable(leg_b))
+        patrol_route.push_back(leg_b);
+      m_enemies.push_back(
+        std::make_shared<Enemy>(*this, spawn_pos, patrol_route));
+    }
+  }
+
+  if (!m_enemies.empty()) {
+    float nearest = std::numeric_limits<float>::max();
+    for (const auto& enemy : m_enemies) {
+      const glm::vec3 enemy_pos = enemy->get_position();
+      nearest = std::min(nearest,
+                         glm::distance(glm::vec2(enemy_pos.x, enemy_pos.z),
+                                       glm::vec2(player_pos.x, player_pos.z)));
+    }
+    std::fprintf(stderr,
+                 "Rival Grounds: %zu enemies spawned, nearest %.1f m away.\n",
+                 m_enemies.size(),
+                 nearest);
   }
 }
 

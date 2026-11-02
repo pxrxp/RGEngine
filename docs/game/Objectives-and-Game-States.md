@@ -8,7 +8,7 @@ enum class GameState { INTRO, PLAYING, VICTORY, DEFEATED };
 
 | State | Behaviour |
 | --- | --- |
-| `INTRO` | Full-screen dark overlay with the `logo` texture, the control list, and "Press Space or Click to Begin". `Space`, `Enter`, or left click starts the match. |
+| `INTRO` | Full-screen dark overlay with the `logo` texture, a four-paragraph backstory, a 3×2 control list, and "Press Space or Click to Begin". `Space`, `Enter`, or left click starts the match. |
 | `PLAYING` | Normal frame: controller, shooting, grabbing, enemies, HUD. |
 | `VICTORY` | "You found the scroll" overlay. `R` restarts. |
 | `DEFEATED` | "You were taken down" overlay. `R` restarts. |
