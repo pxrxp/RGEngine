@@ -5,7 +5,8 @@ All HUD drawing is in `RivalGrounds::render_game_hud()` using ImGui draw lists. 
 ## Intro screen
 
 - Full-screen near-black overlay.
-- `logo` texture scaled to at most 35% of the window width (aspect ratio preserved) when it loaded successfully.
+- `logo` texture scaled to at most 30% of the window width and 320 px (aspect ratio preserved) when it loaded successfully.
+- Four-paragraph backstory between the logo and the controls.
 - Control list: WASD move, Ctrl sprint, Shift sneak, Space jump, left click fire, right click grab/place crate.
 - "Press Space or Click to Begin".
 

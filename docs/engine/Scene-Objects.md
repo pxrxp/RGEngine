@@ -23,12 +23,12 @@ parent->add_child(object);
 | Member | Notes |
 | --- | --- |
 | `get_local_transform()` | `TransformComponent`; setters mark the node dirty. |
-| `get_physics_component()` | `PhysicsComponent`; enabled by default, imports gravity from `true`. |
+| `get_physics_component()` | `PhysicsComponent`; enabled by default, with gravity on. |
 | `set_render_packet(args...)` | Builds a `RenderPacket{mesh, material, render, priority}`. All arguments are forwarded, so the overload is selected by the packet constructor. |
 | `get_render_packet()` | `std::optional<RenderPacketStrongPtr>`; empty when the object is not drawable. |
 | `visible` | Public flag; `capture_weak` respects it. |
 | `set_collidable()` / `is_collidable()` | Controls whether `Scene::collect_colliders_recursive` includes the object. |
-| `add_child()` / `get_parent()` | Parent is a weak pointer; iteration over children is available through `begin()`/`end()`. |
+| `add_child()` / `remove_child()` / `get_parent()` | Parent is a weak pointer; `remove_child` detaches a node without destroying it; iteration over children is available through `begin()`/`end()`. |
 | `get_world_AABB()` | Recomputes from the mesh's local AABB when the transform is dirty. |
 
 ## Render packets and priority

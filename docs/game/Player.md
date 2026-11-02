@@ -41,7 +41,7 @@ Enemy shots reduce `m_player_health` by 6 (before spawn grace ends) and set a 6 
 
 ## Crates
 
-Right click picks the nearest physics object within 4 m of the camera ray, disables its physics and collidability, and moves it 2.2 m in front of the camera each frame. Right click again places it: on top of the hit object if the hit normal points up, beside it otherwise, or 2.2 m ahead at crate half-height if nothing is hit. `H` toggles the carried crate's visibility (with a 2 s re-show delay).
+Right click picks the nearest physics object within 4 m of the camera ray, disables its physics and collidability, and moves it 2.2 m in front of the camera each frame. Right click again places it: on top of the hit object if the hit normal points up, beside it otherwise, or 2.2 m ahead at crate half-height if nothing is hit. `H` toggles the carried crate's visibility; the hidden state resets when the crate is grabbed or thrown.
 
 ## Spawn
 

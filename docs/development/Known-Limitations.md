@@ -32,7 +32,7 @@
 - `Scene` is a single class with a fixed-step accumulator; there is one scene at a time.
 - Input is polled; there are no input mappings or rebinding.
 - No scripting, serialisation, or editor.
-- The game's main class is a single large header (`RivalGrounds.h`), which slows incremental builds.
+- The game's main class is declared in one fairly wide header (`RivalGrounds.h`); the implementation is split across five `.cpp` files.
 
 ## Platform
 
@@ -42,4 +42,4 @@
 
 ## Testing
 
-- There is no automated test suite. Verification is build + manual play.
+- `tests/` covers the `BoundingBox` and `TriangleMeshCollider` math only. There are no tests for the game layer (world generation, combat, enemy AI), so gameplay verification is still build + manual play.

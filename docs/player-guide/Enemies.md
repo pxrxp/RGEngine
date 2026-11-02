@@ -17,4 +17,4 @@ Enemies are armoured soldiers built from grey boxes with a red visor. They are w
 
 ## Reinforcements
 
-The match starts with 14 soldiers. While fewer than 14 are alive, a new one is spawned every 14 s at 55–115 m from you. Clearing the map is therefore temporary; the objective stays the scroll.
+The match starts with 14 soldiers. While fewer than 14 are alive, a new one is spawned every 14 s at 45–75 m from you. Soldiers you leave far behind (more than 170 m) are removed and replaced near you, so the fight follows you across the city. Clearing the map is therefore temporary; the objective stays the scroll.

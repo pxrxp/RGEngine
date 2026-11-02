@@ -20,7 +20,7 @@ The project uses `.clang-format` with `BasedOnStyle: Mozilla` and `AlignConsecut
 ## Structure
 
 - Headers in `include/`, implementations in `src/`, mirrored paths.
-- One class per header, header-named `.cpp` for its implementation. The game's `RivalGrounds` is the deliberate exception: one large header plus a separate debug-menu source.
+- One class per header, header-named `.cpp` for its implementation. Large classes are split across several `.cpp` files by responsibility; `RivalGrounds` uses `RivalGrounds.cpp`, `PlayerController.cpp`, `Combat.cpp`, `Hud.cpp` and `RivalGroundsDebug.cpp`.
 - Public engine headers should include only what they need; prefer forward declarations in headers and full includes in `.cpp` files.
 
 ## Design habits used in this codebase

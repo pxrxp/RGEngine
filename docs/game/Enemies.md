@@ -21,7 +21,8 @@ Parts use `sharp_box_mesh` and a shared `cube_program` material per part name, e
 ## Spawning
 
 - `spawn_tactical_enemies()` places 14 enemies in three rings around the player: 4 at 20–30 m, 5 at 32–50 m and 5 at 52–74 m. A candidate is rejected (up to 64 tries per enemy) when it falls outside the city bounds minus a 12 m inset, when no ground surface is found beneath it, or when a 0.4 m capsule at that spot already overlaps geometry, so enemies do not start inside walls or on rooftops. The spawning routine logs the squad size and the nearest horizontal distance.
-- The reinforcement timer spawns one more enemy every 14 s at 55–115 m from the player (random angle) while fewer than 14 enemies are alive.
+- The reinforcement timer spawns one more enemy every 14 s at 45–75 m from the player while fewer than 14 enemies are alive.
+- Enemies farther than 170 m from the player are removed from the scene tree. A living one is immediately replaced by a fresh enemy at 60–90 m, so the squad stays where the player is instead of waiting on the far side of the city.
 - The F1 debug menu can spawn an extra enemy 8 m away.
 - Patrol legs are validated the same way; a leg that would run into a wall is dropped and the enemy patrols in place.
 
@@ -29,4 +30,4 @@ Enemies spawn on the ground surface reported by the collision mesh at that spot.
 
 ## Death
 
-Taking damage to 0 health sets `EnemyState::DEAD`, drops the body 0.5 m, rotates it 90° around X, colours it dark red, and stops all further updates. Dead enemies are skipped by combat, HUD indicators, and minimap dots. There is no corpse cleanup and no respawn of a specific enemy; reinforcements keep coming.
+Taking damage to 0 health sets `EnemyState::DEAD`, drops the body 0.5 m, rotates it 90° around X, colours it dark red, and stops all further updates. Dead enemies are skipped by combat, HUD indicators, and minimap dots. Bodies are not cleaned up individually; a corpse disappears once it is culled for being more than 170 m away. Reinforcements keep the living count at 14.

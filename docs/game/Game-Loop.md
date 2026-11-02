@@ -34,9 +34,10 @@ Then, while playing:
 7. `handle_shooting()` — resolve a hitscan shot on click.
 8. `handle_object_grab()` — pick up / place a crate on right click.
 9. Collect colliders (scene AABBs plus living enemy hitboxes).
-10. Reinforcement timer — spawn an enemy every 14 s while fewer than 14 are alive.
-11. Update every living enemy; resolve their shots against the world; apply damage.
-12. Check the scroll objective for victory.
+10. Cull enemies farther than 170 m from the player, replacing living ones at 60–90 m.
+11. Reinforcement timer — spawn an enemy every 14 s at 45–75 m while fewer than 14 are alive.
+12. Update every living enemy; resolve their shots against the world; apply damage.
+13. Check the scroll objective for victory.
 
 ## Fixed vs frame time
 

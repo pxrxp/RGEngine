@@ -2,13 +2,21 @@
 
 ## RivalGrounds
 
-`RivalGrounds` derives from `Scene` and is declared entirely in `game/include/rivalgrounds/RivalGrounds.h`. There is no separate `.cpp` for its gameplay code; only the debug menu (debug builds) is compiled from `RivalGroundsDebug.cpp`. This is intentional for a single-file vertical slice, but it means the header is large.
+`RivalGrounds` derives from `Scene`. The declaration, state and small helpers live in `game/include/rivalgrounds/RivalGrounds.h`; the implementation is split by responsibility across `game/src/`:
+
+| File | Contents |
+| --- | --- |
+| `RivalGrounds.cpp` | match setup and reset, city/bounds/plane, enemy spawning and culling, weapon viewmodel, render submission |
+| `PlayerController.cpp` | per-frame gameplay update, movement and collision, enemy shots, reinforcements, objective check |
+| `Combat.cpp` | hitscan shooting, crate grab/throw/hide |
+| `Hud.cpp` | intro/victory/defeat screens, HUD, minimap, hitbox overlay |
+| `RivalGroundsDebug.cpp` | the F1 debug menu (debug builds only) |
 
 State it owns:
 
 | Group | Members |
 | --- | --- |
-| Session | `GameState m_game_state`, `m_logo_texture`, `m_scroll_pos`, `m_scroll_objective` |
+| Session | `GameState m_game_state`, `m_logo_texture`, `m_scroll_pos`, `m_scroll_objective`, `m_rng` |
 | Player | `m_player`, health/regen, vertical velocity, grounded/jump state, spawn grace |
 | Weapon | `m_weapon_viewmodel`, `m_gun_recoil`, mouse latch, tracers, hit marker, damage flash |
 | Interaction | `m_held_object`, `m_held_object_hidden`, hide-key latch |

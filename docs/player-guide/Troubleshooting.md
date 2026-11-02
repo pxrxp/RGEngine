@@ -29,4 +29,4 @@ Debug builds enable AddressSanitizer and UndefinedBehaviorSanitizer by default. 
 
 ## Where the game writes output
 
-Everything goes to stdout/stderr: GL debug messages, shader logs, missing-asset warnings, the city collision triangle count, and the MSAA line. Copy that output when reporting a problem.
+Everything goes to stdout/stderr: GL debug messages, shader logs, missing-asset warnings, the city collision triangle count, the enemy spawn count and nearest distance, and the MSAA line. Copy that output when reporting a problem.

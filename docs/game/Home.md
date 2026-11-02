@@ -10,6 +10,10 @@ game/
 ├── src/
 │   ├── main.cpp           window config, post-process, frame loop
 │   ├── Enemy.cpp          enemy AI and body
+│   ├── RivalGrounds.cpp   match setup, city, enemy spawning and culling
+│   ├── PlayerController.cpp  per-frame update, movement, enemy shots
+│   ├── Combat.cpp         shooting, crate grab/throw/hide
+│   ├── Hud.cpp            title/victory/defeat screens, HUD, minimap
 │   └── RivalGroundsDebug.cpp  F1 debug menu (debug builds only)
 └── shaders/
     ├── cube.vert/frag     the game's material shader

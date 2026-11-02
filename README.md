@@ -10,6 +10,33 @@ content and every gameplay rule, and talks to the engine only through public
 headers. If you want to build something else on RGEngine, delete `game/` and
 start there.
 
+## What it is, in plain terms
+
+RGEngine is the toolkit: it opens a window, draws 3D geometry, moves things
+around, checks what hits what, and loads models and textures. None of it knows
+about this particular game.
+
+RivalGrounds is the game built with that toolkit. You are on a scouting run over
+an empty city on another world, your ship has broken apart over the rooftops, and
+the one thing you came for, a scroll, went out the cargo door somewhere on the
+way down. The locals are still here: pale, thin, and hostile. Find the scroll,
+shoot what gets in the way, and use the crates the ship dropped as stairs when
+the scroll is on a roof.
+
+A match looks like this:
+
+- the title screen sets the scene, then you drop into a random part of the city
+  with ten seconds of protection;
+- the city is greyscale, and only what matters keeps its colour: your rifle,
+  enemies, and the scroll;
+- soldiers patrol the streets, see you if you are in front of them, and shoot;
+- right click carries a crate, right click again stacks or throws it, `H` hides
+  the crate you are carrying;
+- touch the golden scroll to win, run out of health to lose, `R` to try again.
+
+There is no installer, no account, no telemetry, and no network traffic. It is a
+self-contained desktop program that reads the files next to it.
+
 ## What is in the box
 
 | RGEngine | RivalGrounds |

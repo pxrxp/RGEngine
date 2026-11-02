@@ -47,4 +47,4 @@ A CMake post-build step copies `engine/shaders` and `game/shaders` into `build/g
 ## Notes
 
 - Debug builds include the F1 debug menu. Release builds remove it.
-- The game must be started from a directory where it can find its staged assets next to the executable; `run.sh` and `build/game/` both satisfy that because assets are resolved relative to the binary.
+- Assets are resolved relative to the executable, not the working directory, so the built game runs from anywhere as long as `shaders/` and `resources/` sit next to the binary (the build stages them there).
