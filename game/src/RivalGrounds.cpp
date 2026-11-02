@@ -168,6 +168,7 @@ RivalGrounds::reset_match()
   m_player->get_local_transform().set_position(player_spawn);
   m_player_vy = 0.0f;
   m_player_grounded = false;
+  m_awaiting_landing = true;
   m_space_was_pressed = false;
   m_app_cache.get_camera().look_at(player_spawn + glm::vec3(0.0f, 0.0f, -1.0f));
 

@@ -492,6 +492,12 @@ RivalGrounds::update_character_controller(float dt)
     if (std::isfinite(landing_y)) {
       player_pos.y = landing_y + PLAYER_EYE_HEIGHT;
       m_player_vy = 0.0f;
+      if (!m_player_grounded && m_awaiting_landing) {
+        // The drop from the rooftops takes longer than the initial grace, so
+        // the player would land defenceless. Start the grace on touchdown.
+        m_awaiting_landing = false;
+        m_spawn_grace_timer = 3.0f;
+      }
       m_player_grounded = true;
     } else {
       m_player_grounded = false;

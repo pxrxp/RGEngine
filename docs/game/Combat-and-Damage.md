@@ -33,14 +33,14 @@ throwing always sets `visible = true` so a crate never lands invisible.
 1. computes the direction to the player and the distance;
 2. raycasts the city mesh and scene AABBs toward the player;
 3. discards damage if geometry blocks the shot before `distance - 0.15`;
-4. otherwise applies 16 damage unless the player is in spawn grace or debug-invincible;
+4. otherwise applies 10 damage unless the player is in spawn grace or debug-invincible;
 5. adds a red tracer from the muzzle to the first obstruction or near the player.
 
 Damage sets a 0.28 s damage flash, a 6 s health-regen cooldown, and can end the match in defeat.
 
 ## Health and regeneration
 
-- Player: 100 max, regenerates 4 HP/s after 6 s without damage. A 2.5 s spawn grace protects the player at the start of a match.
+- Player: 100 max, regenerates 4 HP/s after 6 s without damage. A 2.5 s spawn grace starts with the match, and touching down after the drop-in refreshes it to 3 s so the fall cannot be punished.
 - Enemy: 300 max, regenerates 15 HP/s after 4 s without damage. Player shots do 65, so five hits kill an enemy before regeneration can outpace the damage.
 
 ## Feedback

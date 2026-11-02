@@ -279,8 +279,8 @@ Enemy::update(Scene& scene,
       if (std::abs(aim_dir.y) <= MAX_VERTICAL_AIM && m_shoot_cooldown <= 0.0f &&
           dist_to_player <= 36.0f) {
         out_fired_shot = true;
-        out_damage = 16.0f;
-        m_shoot_cooldown = 0.90f;
+        out_damage = 10.0f;
+        m_shoot_cooldown = 1.40f;
       }
     }
   }

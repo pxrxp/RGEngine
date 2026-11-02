@@ -10,7 +10,7 @@
 | Collision radius 0.48 m, height 2.2 m | `ENEMY_COLLISION_RADIUS`, `ENEMY_COLLISION_HEIGHT` |
 | Vision and hearing range 64 m | `MAX_VISION_RANGE`, `HEARING_DISTANCE` |
 | Vision cone cosine 0.35 while patrolling | `FOV_COSINE` |
-| Shot damage 16, cooldown 0.9 s, range 36 m | `Enemy::update` |
+| Shot damage 10, cooldown 1.4 s, range 36 m | `Enemy::update` |
 | Knockback scale 0.5 on damage | `ENEMY_KNOCKBACK_SCALE` |
 | Hitbox 1.1 × 2.3 × 1.1 m around the root | `get_hitbox()` |
 

@@ -45,6 +45,7 @@ private:
   float m_player_regen_cooldown = 0.0f;
   float m_player_vy = 0.0f;
   bool m_player_grounded = true;
+  bool m_awaiting_landing = false;
   bool m_space_was_pressed = false;
   float m_jump_cooldown = 0.0f;
   float m_spawn_grace_timer = 2.0f;
