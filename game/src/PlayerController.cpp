@@ -60,16 +60,6 @@ RivalGrounds::update_physics()
       std::min(m_player_max_health, m_player_health + 4.0f * dt);
   }
 
-  if (m_held_object) {
-    glm::vec3 hold_pos = m_player->get_local_transform().get_position() +
-                         m_app_cache.get_camera().get_forward() * 2.4f +
-                         glm::vec3(0.0f, -0.1f, 0.0f);
-    m_held_object->get_local_transform().set_position(hold_pos).set_rotation(
-      glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    m_held_object->get_physics_component().set_linear_momentum({ 0, 0, 0 });
-    m_held_object->get_physics_component().set_angular_momentum({ 0, 0, 0 });
-  }
-
   for (auto it = m_tracers.begin(); it != m_tracers.end();) {
     it->lifetime -= dt;
     if (it->lifetime <= 0.0f) {
