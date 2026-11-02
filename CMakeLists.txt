@@ -61,3 +61,6 @@ find_package(PNG REQUIRED)
 
 add_subdirectory(engine)
 add_subdirectory(game)
+
+enable_testing()
+add_subdirectory(tests)

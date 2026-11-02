@@ -38,6 +38,17 @@ build/game/resources/ <- resources/
 
 The engine resolves shaders from `shaders/<name>.glsl` and assets from `resources/<path>` relative to the executable directory (see `Util::get_exe_dir()`), so a CMake build is runnable without extra copying. There is no separate manual copy step in the build scripts anymore.
 
+## Tests
+
+```bash
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+
+`tests/` builds `engine_tests`, a dependency-free harness covering the
+`BoundingBox` and `TriangleMeshCollider` math that does not need a GL context.
+There is no game-level test target yet.
+
 ## Running
 
 ```bash
