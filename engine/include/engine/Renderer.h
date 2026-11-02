@@ -52,10 +52,11 @@ class Renderer
 {
   std::vector<RenderPacketStrongPtr> m_render_queue;
 
-public:
   void add(RenderPacketStrongPtr render_packet);
   void add_children(SceneObjectStrongPtr root,
                     std::unordered_set<SceneObjectStrongPtr>& set);
+
+public:
   void submit(SceneObjectStrongPtr scene);
   void render();
   void clear();

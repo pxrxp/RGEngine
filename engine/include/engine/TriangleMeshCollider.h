@@ -144,14 +144,6 @@ public:
   bool empty() const { return m_triangles.empty(); }
   std::size_t triangle_count() const { return m_triangles.size(); }
   const Triangle& triangle(std::size_t i) const { return m_triangles[i].p; }
-  const glm::vec3& triangle_min(std::size_t i) const
-  {
-    return m_triangles[i].mn;
-  }
-  const glm::vec3& triangle_max(std::size_t i) const
-  {
-    return m_triangles[i].mx;
-  }
 
   void query(const glm::vec3& mn,
              const glm::vec3& mx,

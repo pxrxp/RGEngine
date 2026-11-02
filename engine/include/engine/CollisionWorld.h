@@ -22,7 +22,6 @@ private:
 public:
   void clear() { m_static_meshes.clear(); }
 
-  bool empty() const { return m_static_meshes.empty(); }
   std::size_t static_mesh_count() const { return m_static_meshes.size(); }
 
   // Registers a static mesh by copying/transformation-building its collision
