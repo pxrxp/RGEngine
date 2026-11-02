@@ -1,5 +1,5 @@
 <p align="center">
-<img width="433" height="68" alt="image" src="https://github.com/user-attachments/assets/e5329ac2-9283-4c52-860c-e3e7bee5d964" />
+<img width="433" height="68" alt="image" src="https://github.com/user-attachments/assets/ab6140f1-79df-4beb-bda0-c8dacd10a680" />
 </p>
 
 ![C++](https://img.shields.io/badge/c%2B%2B-%2300599C.svg?style=for-the-badge&logo=cplusplus&logoColor=white)
