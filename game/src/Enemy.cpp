@@ -4,8 +4,6 @@
 #include <engine/Scene.h>
 #include <engine/ShaderProgram.h>
 #include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/norm.hpp>
 
 Enemy::Enemy(Scene& scene,
              const glm::vec3& spawn_pos,
@@ -156,7 +154,6 @@ Enemy::take_damage(Scene& scene,
 
   m_health -= damage;
   m_state = EnemyState::COMBAT;
-  m_has_been_spotted = true;
   m_alert_timer = 6.0f;
   m_regen_cooldown = 4.0f;
   m_damage_flash = 0.22f;
@@ -246,7 +243,6 @@ Enemy::update(Scene& scene,
   const bool can_see = has_line_of_sight(scene, player_pos, colliders);
 
   if (can_see || player_heard) {
-    m_has_been_spotted = true;
     m_state = EnemyState::COMBAT;
     m_alert_timer = 7.0f;
   }
@@ -255,7 +251,6 @@ Enemy::update(Scene& scene,
     m_alert_timer -= dt;
     if (m_alert_timer <= 0.0f && !can_see && !player_heard) {
       m_state = EnemyState::PATROL;
-      m_has_been_spotted = false;
       m_target_pos = m_waypoints.empty() ? m_spawn_point : m_waypoints[0];
     } else {
 

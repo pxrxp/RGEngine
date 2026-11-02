@@ -16,21 +16,13 @@
 #include <imgui.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <algorithm>
-#include <array>
-#include <chrono>
 #include <cmath>
-#include <cstdint>
 #include <cstdio>
 #include <filesystem>
-#include <fstream>
-#include <future>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
 #include <limits>
 #include <random>
-#include <sstream>
 #include <unordered_map>
-#include <unordered_set>
 
 enum class GameState
 {
@@ -67,23 +59,16 @@ private:
 
   static constexpr float PLAYER_EYE_HEIGHT = 1.7f;
   static constexpr float PLAYER_RADIUS = 0.28f;
-  static constexpr float MAX_STEP_HEIGHT = 0.65f;
-  static constexpr float HOUSE_SCALE = 2.6f;
-  static constexpr float HOUSE_VOXEL_WORLD_SIZE = 0.50f;
-  static constexpr float HOUSE_SPATIAL_BUCKET_SIZE = 2.0f;
 
   const glm::vec3 m_player_spawn = { -11.58f, PLAYER_EYE_HEIGHT, -0.48f };
   glm::vec3 m_scroll_pos = { 0.0f, 0.8f, -100.0f };
 
   SceneObjectStrongPtr m_weapon_viewmodel;
   float m_gun_recoil = 0.0f;
-  float m_muzzle_flash_timer = 0.0f;
   bool m_mouse_was_pressed = false;
   bool m_right_mouse_was_pressed = false;
   float m_damage_flash_timer = 0.0f;
   float m_hitmarker_timer = 0.0f;
-  float m_incoming_tracer_timer = 0.0f;
-  glm::vec3 m_last_incoming_shot_origin = { 0.0f, 0.0f, 0.0f };
   std::vector<BulletTracer> m_tracers;
 
   SceneObjectStrongPtr m_held_object = nullptr;
@@ -91,35 +76,12 @@ private:
 
   SceneObjectStrongPtr m_scroll_objective;
   std::vector<std::shared_ptr<Enemy>> m_enemies;
-  SceneObjectStrongPtr m_city_object;
   CollisionWorld m_collision_world;
 
   glm::vec3 m_city_world_min{ 0.0f };
   glm::vec3 m_city_world_max{ 0.0f };
   bool m_city_bounds_valid = false;
 
-  struct HouseVoxelCell
-  {
-    BoundingBox bounds;
-    bool walkable_top = false;
-  };
-
-  struct HouseVoxelSet
-  {
-    std::string filename;
-    glm::vec3 center{ 0.0f };
-    glm::vec3 world_min{ 0.0f };
-    glm::vec3 world_max{ 0.0f };
-    std::vector<HouseVoxelCell> world_cells;
-    bool voxelization_attempted = false;
-
-    std::unordered_map<std::uint64_t, std::vector<std::size_t>> spatial_buckets;
-  };
-  std::vector<HouseVoxelSet> m_house_voxel_sets;
-  std::unordered_map<std::string, std::vector<HouseVoxelCell>>
-    m_house_voxel_cache;
-  std::unordered_map<std::string, std::future<std::vector<HouseVoxelCell>>>
-    m_house_voxel_jobs;
 #ifndef NDEBUG
   bool m_debug_menu_open = false;
   bool m_debug_noclip = false;
@@ -153,7 +115,7 @@ public:
 
     setup_weapon_viewmodel();
 
-    m_logo_texture = m_app_cache.texture_repo.load_texture(
+    m_logo_texture = m_app_cache.material_repo.tex_repo.load_texture(
       TextureDescriptor{ .texture_name = "logo",
                          .wrap_s = GL_CLAMP_TO_EDGE,
                          .wrap_t = GL_CLAMP_TO_EDGE,
@@ -175,7 +137,7 @@ public:
     }
 
     std::vector<BoundingBox> colliders;
-    collect_game_colliders(colliders, 20.0f, false);
+    collect_game_colliders(colliders, false);
     for (const auto& aabb : colliders) {
       float t = 0.0f;
       glm::vec3 norm(0.0f);
@@ -195,66 +157,8 @@ public:
                                float head_y,
                                float radius) const override
   {
-    if (m_collision_world.blocks_vertical_capsule(
-          x, z, from_x, from_z, feet_y, head_y, radius))
-      return true;
-
-    const float min_x = std::min(x, from_x) - radius;
-    const float max_x = std::max(x, from_x) + radius;
-    const float min_z = std::min(z, from_z) - radius;
-    const float max_z = std::max(z, from_z) + radius;
-    const glm::ivec3 bucket_min =
-      spatial_bucket_coord({ min_x, feet_y, min_z });
-    const glm::ivec3 bucket_max =
-      spatial_bucket_coord({ max_x, head_y, max_z });
-
-    for (const auto& set : m_house_voxel_sets) {
-      if (set.spatial_buckets.empty())
-        continue;
-      std::unordered_set<std::size_t> visited;
-      for (int by = bucket_min.y; by <= bucket_max.y; ++by) {
-        for (int bz = bucket_min.z; bz <= bucket_max.z; ++bz) {
-          for (int bx = bucket_min.x; bx <= bucket_max.x; ++bx) {
-            const auto bucket =
-              set.spatial_buckets.find(spatial_bucket_key({ bx, by, bz }));
-            if (bucket == set.spatial_buckets.end())
-              continue;
-            for (const std::size_t index : bucket->second) {
-              if (!visited.insert(index).second ||
-                  index >= set.world_cells.size())
-                continue;
-              const BoundingBox& bounds = set.world_cells[index].bounds;
-              const glm::vec3 cell_min = bounds.get_min();
-              const glm::vec3 cell_max = bounds.get_max();
-              if (cell_max.y < feet_y || cell_min.y > head_y)
-                continue;
-              const float segment_x = x - from_x;
-              const float segment_z = z - from_z;
-              const float segment_length_sq =
-                segment_x * segment_x + segment_z * segment_z;
-              const float projection =
-                segment_length_sq > 1e-8f
-                  ? std::clamp(
-                      ((cell_min.x + cell_max.x) * 0.5f - from_x) * segment_x +
-                        ((cell_min.z + cell_max.z) * 0.5f - from_z) * segment_z,
-                      0.0f,
-                      segment_length_sq) /
-                      segment_length_sq
-                  : 0.0f;
-              const float closest_x = from_x + segment_x * projection;
-              const float closest_z = from_z + segment_z * projection;
-              const float dx = std::max(
-                { cell_min.x - closest_x, 0.0f, closest_x - cell_max.x });
-              const float dz = std::max(
-                { cell_min.z - closest_z, 0.0f, closest_z - cell_max.z });
-              if (dx * dx + dz * dz <= radius * radius)
-                return true;
-            }
-          }
-        }
-      }
-    }
-    return false;
+    return m_collision_world.blocks_vertical_capsule(
+      x, z, from_x, from_z, feet_y, head_y, radius);
   }
 
   bool find_ground_surface_for_actor(float x,
@@ -353,16 +257,21 @@ public:
 
   void update_physics() override
   {
+    auto& window = m_app_cache.get_window();
+    if (window.is_key_pressed(GLFW_KEY_ESCAPE))
+      window.set_cursor_mode(GLFW_CURSOR_NORMAL);
+    if (window.is_key_pressed(GLFW_KEY_TAB))
+      window.set_cursor_mode(GLFW_CURSOR_DISABLED);
+
     if (m_game_state != GameState::PLAYING) {
       if (m_app_cache.get_window().is_key_pressed(GLFW_KEY_R)) {
         reset_match();
         return;
       }
       if (m_game_state == GameState::INTRO) {
-        auto& win = m_app_cache.get_window();
-        if (win.is_key_pressed(GLFW_KEY_SPACE) ||
-            win.is_key_pressed(GLFW_KEY_ENTER) ||
-            win.is_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
+        if (window.is_key_pressed(GLFW_KEY_SPACE) ||
+            window.is_key_pressed(GLFW_KEY_ENTER) ||
+            window.is_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
           m_game_state = GameState::PLAYING;
           m_spawn_grace_timer = 2.5f;
         }
@@ -379,17 +288,11 @@ public:
       m_gun_recoil = 0.0f;
     }
 
-    if (m_muzzle_flash_timer > 0.0f)
-      m_muzzle_flash_timer -= dt;
-
     if (m_damage_flash_timer > 0.0f)
       m_damage_flash_timer -= dt;
 
     if (m_hitmarker_timer > 0.0f)
       m_hitmarker_timer -= dt;
-
-    if (m_incoming_tracer_timer > 0.0f)
-      m_incoming_tracer_timer -= dt;
 
     if (m_spawn_grace_timer > 0.0f)
       m_spawn_grace_timer -= dt;
@@ -439,7 +342,7 @@ public:
     glm::vec3 cam_fwd = m_app_cache.get_camera().get_forward();
 
     std::vector<BoundingBox> colliders;
-    collect_game_colliders(colliders, 6.0f);
+    collect_game_colliders(colliders);
 
     m_reinforcement_timer -= dt;
     if (m_reinforcement_timer <= 0.0f) {
@@ -507,8 +410,6 @@ public:
       }
 
       if (shot_fired) {
-        m_incoming_tracer_timer = 0.15f;
-        m_last_incoming_shot_origin = gun_pos;
         glm::vec3 tracer_end = player_pos + glm::vec3(0, -0.2f, 0);
         const float tracer_distance = glm::distance(gun_pos, tracer_end);
         if (tracer_distance > 0.001f) {
@@ -587,769 +488,19 @@ public:
       origin, direction, max_distance, out_distance);
   }
 
-  bool get_static_ground_height(float x,
-                                float z,
-                                float max_y,
-                                float min_y,
-                                float& out_y) const
-  {
-    return m_collision_world.find_ground_height(x, z, max_y, min_y, out_y);
-  }
-
 private:
-  static bool triangle_intersects_box(const std::array<glm::vec3, 3>& tri,
-                                      const glm::vec3& box_min,
-                                      const glm::vec3& box_max)
-  {
-    const glm::vec3 center = (box_min + box_max) * 0.5f;
-    const glm::vec3 half = (box_max - box_min) * 0.5f;
-    const glm::vec3 v0 = tri[0] - center;
-    const glm::vec3 v1 = tri[1] - center;
-    const glm::vec3 v2 = tri[2] - center;
-    const glm::vec3 edges[3] = { v1 - v0, v2 - v1, v0 - v2 };
-
-    auto separates = [&](const glm::vec3& axis) {
-      if (glm::dot(axis, axis) < 1e-12f)
-        return false;
-      const float p0 = glm::dot(v0, axis);
-      const float p1 = glm::dot(v1, axis);
-      const float p2 = glm::dot(v2, axis);
-      const float tri_min = std::min(p0, std::min(p1, p2));
-      const float tri_max = std::max(p0, std::max(p1, p2));
-      const float radius = half.x * std::abs(axis.x) +
-                           half.y * std::abs(axis.y) +
-                           half.z * std::abs(axis.z);
-      return tri_min > radius || tri_max < -radius;
-    };
-
-    if (std::max(v0.x, std::max(v1.x, v2.x)) < -half.x ||
-        std::min(v0.x, std::min(v1.x, v2.x)) > half.x ||
-        std::max(v0.y, std::max(v1.y, v2.y)) < -half.y ||
-        std::min(v0.y, std::min(v1.y, v2.y)) > half.y ||
-        std::max(v0.z, std::max(v1.z, v2.z)) < -half.z ||
-        std::min(v0.z, std::min(v1.z, v2.z)) > half.z)
-      return false;
-
-    const glm::vec3 box_axes[3] = { glm::vec3(1, 0, 0),
-                                    glm::vec3(0, 1, 0),
-                                    glm::vec3(0, 0, 1) };
-    for (const auto& edge : edges) {
-      for (const auto& axis : box_axes) {
-        if (separates(glm::cross(edge, axis)))
-          return false;
-      }
-    }
-
-    return !separates(glm::cross(edges[0], edges[1]));
-  }
-
-  static bool ray_intersects_bounds(const glm::vec3& origin,
-                                    const glm::vec3& direction,
-                                    const glm::vec3& bounds_min,
-                                    const glm::vec3& bounds_max,
-                                    float max_distance)
-  {
-    float t_min = 0.0f;
-    float t_max = max_distance;
-    for (int axis = 0; axis < 3; ++axis) {
-      const float o = origin[axis];
-      const float d = direction[axis];
-      if (std::abs(d) < 1e-6f) {
-        if (o < bounds_min[axis] || o > bounds_max[axis])
-          return false;
-        continue;
-      }
-      float t1 = (bounds_min[axis] - o) / d;
-      float t2 = (bounds_max[axis] - o) / d;
-      if (t1 > t2)
-        std::swap(t1, t2);
-      t_min = std::max(t_min, t1);
-      t_max = std::min(t_max, t2);
-      if (t_min > t_max)
-        return false;
-    }
-    return t_max >= 0.0f;
-  }
-
-  static std::uint64_t spatial_bucket_key(const glm::ivec3& cell)
-  {
-
-    constexpr std::uint64_t MASK = (1ull << 21) - 1ull;
-    return ((static_cast<std::uint64_t>(cell.x) & MASK) << 42) |
-           ((static_cast<std::uint64_t>(cell.y) & MASK) << 21) |
-           (static_cast<std::uint64_t>(cell.z) & MASK);
-  }
-
-  static glm::ivec3 spatial_bucket_coord(const glm::vec3& p)
-  {
-    return glm::ivec3(
-      static_cast<int>(std::floor(p.x / HOUSE_SPATIAL_BUCKET_SIZE)),
-      static_cast<int>(std::floor(p.y / HOUSE_SPATIAL_BUCKET_SIZE)),
-      static_cast<int>(std::floor(p.z / HOUSE_SPATIAL_BUCKET_SIZE)));
-  }
-
-  struct CollisionTriangle
-  {
-    std::array<glm::vec3, 3> p;
-    glm::vec3 min;
-    glm::vec3 max;
-  };
-
-  struct CollisionTriangleMesh
-  {
-    std::vector<CollisionTriangle> triangles;
-    glm::vec3 min{ 0.0f };
-    glm::vec3 max{ 0.0f };
-  };
-
-  static void finalize_collision_mesh(CollisionTriangleMesh& mesh)
-  {
-    if (mesh.triangles.empty())
-      return;
-    mesh.min = glm::vec3(std::numeric_limits<float>::max());
-    mesh.max = glm::vec3(std::numeric_limits<float>::lowest());
-    for (auto& tri : mesh.triangles) {
-      tri.min = glm::min(tri.p[0], glm::min(tri.p[1], tri.p[2]));
-      tri.max = glm::max(tri.p[0], glm::max(tri.p[1], tri.p[2]));
-      mesh.min = glm::min(mesh.min, tri.min);
-      mesh.max = glm::max(mesh.max, tri.max);
-    }
-  }
-
-  static bool load_original_house_collision_mesh(
-    const std::string& extracted_filename,
-    CollisionTriangleMesh& out)
-  {
-    std::ifstream extracted("resources/" + extracted_filename);
-    if (!extracted)
-      return false;
-    std::string header;
-    std::getline(extracted, header);
-    if (header.rfind("# ", 0) != 0)
-      return false;
-    const auto delim = header.find(" - ");
-    if (delim == std::string::npos)
-      return false;
-    const std::string wanted_group = header.substr(2, delim - 2);
-    if (wanted_group.empty())
-      return false;
-
-    std::ifstream source("resources/Houses.obj");
-    if (!source)
-      source.open("Houses.obj");
-    if (!source)
-      source.open("/tmp/mozilla_admin0/Houses.obj");
-    if (!source) {
-      std::fprintf(stderr,
-                   "Original Houses.obj not found (tried resources/Houses.obj, "
-                   "./Houses.obj, and /tmp/mozilla_admin0/Houses.obj); "
-                   "collision will fall back to the extracted house mesh.\n");
-      return false;
-    }
-
-    std::vector<glm::vec3> positions;
-    std::string current_group = "default";
-    std::string line;
-    while (std::getline(source, line)) {
-      std::istringstream row(line);
-      std::string tag;
-      row >> tag;
-      if (tag.empty() || tag[0] == '#')
-        continue;
-      if (tag == "v") {
-        float x, y, z;
-        if (row >> x >> y >> z) {
-
-          positions.emplace_back(x * 0.01f, z * 0.01f, -y * 0.01f);
-        }
-      } else if (tag == "g" || tag == "o") {
-        row >> current_group;
-      } else if (tag == "f" && current_group == wanted_group) {
-        std::vector<int> face;
-        std::string corner;
-        while (row >> corner) {
-          const auto slash = corner.find('/');
-          const std::string index_text = corner.substr(0, slash);
-          if (index_text.empty())
-            continue;
-          int index = 0;
-          try {
-            index = std::stoi(index_text);
-          } catch (...) {
-            index = 0;
-          }
-          const int resolved =
-            index > 0 ? index - 1 : static_cast<int>(positions.size()) + index;
-          if (resolved >= 0 &&
-              static_cast<std::size_t>(resolved) < positions.size())
-            face.push_back(resolved);
-        }
-        if (face.size() >= 3) {
-          for (std::size_t i = 1; i + 1 < face.size(); ++i) {
-            CollisionTriangle tri;
-            tri.p = { positions[face[0]],
-                      positions[face[i]],
-                      positions[face[i + 1]] };
-            out.triangles.push_back(tri);
-          }
-        }
-      }
-    }
-    if (out.triangles.empty())
-      return false;
-
-    finalize_collision_mesh(out);
-    const glm::vec3 offset((out.min.x + out.max.x) * 0.5f,
-                           out.min.y,
-                           (out.min.z + out.max.z) * 0.5f);
-    for (auto& tri : out.triangles)
-      for (auto& point : tri.p)
-        point -= offset;
-    finalize_collision_mesh(out);
-    return true;
-  }
-
-  static CollisionTriangleMesh collision_mesh_from_descriptor(
-    const MeshDescriptor<Vertex_PosTexNorm, TriangleIndices>& desc)
-  {
-    CollisionTriangleMesh mesh;
-    if (desc.vertices.empty() || desc.indices.empty())
-      return mesh;
-    mesh.triangles.reserve(desc.indices.size());
-    for (const auto& idx : desc.indices) {
-      if (idx.vert1 >= desc.vertices.size() ||
-          idx.vert2 >= desc.vertices.size() ||
-          idx.vert3 >= desc.vertices.size())
-        continue;
-      CollisionTriangle tri;
-      tri.p = { desc.vertices[idx.vert1].position,
-                desc.vertices[idx.vert2].position,
-                desc.vertices[idx.vert3].position };
-      mesh.triangles.push_back(tri);
-    }
-    finalize_collision_mesh(mesh);
-    return mesh;
-  }
-
-  static std::vector<HouseVoxelCell> build_house_voxels_from_mesh(
-    const CollisionTriangleMesh& mesh)
-  {
-
-    constexpr float CELL_SIZE = HOUSE_VOXEL_WORLD_SIZE / HOUSE_SCALE;
-    constexpr std::size_t MAX_TRIANGLE_CELL_TESTS = 12'000'000;
-    constexpr std::size_t MAX_RAW_CELLS = 150'000;
-    constexpr std::size_t MAX_OUTPUT_CELLS = 32'000;
-    constexpr int MAX_GRID_AXIS = 2048;
-    if (mesh.triangles.empty())
-      return {};
-
-    const glm::vec3 extent = mesh.max - mesh.min;
-    if (!std::isfinite(extent.x) || !std::isfinite(extent.y) ||
-        !std::isfinite(extent.z) || extent.x <= 1e-5f || extent.y <= 1e-5f ||
-        extent.z <= 1e-5f)
-      return {};
-
-    const int nx =
-      std::max(1, static_cast<int>(std::ceil(extent.x / CELL_SIZE)));
-    const int ny =
-      std::max(1, static_cast<int>(std::ceil(extent.y / CELL_SIZE)));
-    const int nz =
-      std::max(1, static_cast<int>(std::ceil(extent.z / CELL_SIZE)));
-    if (nx > MAX_GRID_AXIS || ny > MAX_GRID_AXIS || nz > MAX_GRID_AXIS) {
-      std::fprintf(stderr,
-                   "House voxel grid axis exceeds safety limit (%d, %d, %d).\n",
-                   nx,
-                   ny,
-                   nz);
-      return {};
-    }
-
-    auto key_for = [](int x, int y, int z) -> std::uint64_t {
-      return ((static_cast<std::uint64_t>(x) & ((1ull << 21) - 1ull)) << 42) |
-             ((static_cast<std::uint64_t>(y) & ((1ull << 21) - 1ull)) << 21) |
-             (static_cast<std::uint64_t>(z) & ((1ull << 21) - 1ull));
-    };
-    auto decode_key = [](std::uint64_t key) -> glm::ivec3 {
-      constexpr std::uint64_t mask = (1ull << 21) - 1ull;
-      return glm::ivec3(static_cast<int>((key >> 42) & mask),
-                        static_cast<int>((key >> 21) & mask),
-                        static_cast<int>(key & mask));
-    };
-
-    std::unordered_map<std::uint64_t, bool> occupied;
-    occupied.reserve(
-      std::min<std::size_t>(MAX_RAW_CELLS, mesh.triangles.size() * 8));
-    std::size_t triangle_cell_tests = 0;
-    bool aborted = false;
-
-    for (const auto& tri : mesh.triangles) {
-      int x0 = std::clamp(
-        static_cast<int>(std::floor((tri.min.x - mesh.min.x) / CELL_SIZE)),
-        0,
-        nx - 1);
-      int y0 = std::clamp(
-        static_cast<int>(std::floor((tri.min.y - mesh.min.y) / CELL_SIZE)),
-        0,
-        ny - 1);
-      int z0 = std::clamp(
-        static_cast<int>(std::floor((tri.min.z - mesh.min.z) / CELL_SIZE)),
-        0,
-        nz - 1);
-      int x1 = std::clamp(
-        static_cast<int>(std::floor((tri.max.x - mesh.min.x) / CELL_SIZE)),
-        0,
-        nx - 1);
-      int y1 = std::clamp(
-        static_cast<int>(std::floor((tri.max.y - mesh.min.y) / CELL_SIZE)),
-        0,
-        ny - 1);
-      int z1 = std::clamp(
-        static_cast<int>(std::floor((tri.max.z - mesh.min.z) / CELL_SIZE)),
-        0,
-        nz - 1);
-
-      const glm::vec3 normal =
-        glm::cross(tri.p[1] - tri.p[0], tri.p[2] - tri.p[0]);
-      const float normal_len = glm::length(normal);
-      const bool horizontal_surface =
-        normal_len > 1e-7f && std::abs(normal.y) / normal_len >= 0.70f;
-
-      for (int x = x0; x <= x1 && !aborted; ++x) {
-        for (int y = y0; y <= y1 && !aborted; ++y) {
-          for (int z = z0; z <= z1; ++z) {
-            if (++triangle_cell_tests > MAX_TRIANGLE_CELL_TESTS) {
-              aborted = true;
-              break;
-            }
-            const glm::vec3 cell_min =
-              mesh.min + glm::vec3(x, y, z) * CELL_SIZE;
-            const glm::vec3 cell_max =
-              glm::min(cell_min + glm::vec3(CELL_SIZE), mesh.max);
-            if (!triangle_intersects_box(tri.p, cell_min, cell_max))
-              continue;
-
-            const std::uint64_t key = key_for(x, y, z);
-            auto [it, inserted] = occupied.emplace(key, horizontal_surface);
-            if (!inserted && horizontal_surface)
-              it->second = true;
-            if (occupied.size() > MAX_RAW_CELLS) {
-              aborted = true;
-              break;
-            }
-          }
-        }
-      }
-      if (aborted)
-        break;
-    }
-
-    if (aborted) {
-      std::fprintf(
-        stderr,
-        "House voxelization hit safety budget (triangle-cell tests=%zu, raw "
-        "cells=%zu); model collision was discarded.\n",
-        triangle_cell_tests,
-        occupied.size());
-      return {};
-    }
-    if (occupied.empty())
-      return {};
-
-    struct MergeNode
-    {
-      int x, y, z;
-      int size;
-      bool full;
-      bool walkable_top;
-    };
-    std::vector<MergeNode> active;
-    active.reserve(occupied.size());
-    for (const auto& [key, walkable] : occupied) {
-      const glm::ivec3 c = decode_key(key);
-      const glm::vec3 cell_min = mesh.min + glm::vec3(c) * CELL_SIZE;
-      const glm::vec3 cell_max =
-        glm::min(cell_min + glm::vec3(CELL_SIZE), mesh.max);
-      const glm::vec3 actual_size = cell_max - cell_min;
-      const bool full = std::abs(actual_size.x - CELL_SIZE) < 1e-5f &&
-                        std::abs(actual_size.y - CELL_SIZE) < 1e-5f &&
-                        std::abs(actual_size.z - CELL_SIZE) < 1e-5f;
-      active.push_back({ c.x, c.y, c.z, 1, full, walkable });
-    }
-
-    std::vector<MergeNode> final_nodes;
-    final_nodes.reserve(active.size());
-    int level_size = 1;
-    while (!active.empty()) {
-      std::unordered_map<std::uint64_t, std::size_t> lookup;
-      lookup.reserve(active.size());
-      for (std::size_t i = 0; i < active.size(); ++i)
-        lookup.emplace(key_for(active[i].x, active[i].y, active[i].z), i);
-      std::vector<bool> consumed(active.size(), false);
-      std::vector<MergeNode> parents;
-      parents.reserve(active.size() / 8);
-
-      for (std::size_t i = 0; i < active.size(); ++i) {
-        const auto& node = active[i];
-        if (consumed[i] || !node.full || node.x % (level_size * 2) != 0 ||
-            node.y % (level_size * 2) != 0 || node.z % (level_size * 2) != 0)
-          continue;
-
-        std::array<std::size_t, 8> siblings{};
-        bool can_merge = true;
-        bool parent_walkable_top = false;
-        for (int child = 0; child < 8; ++child) {
-          const int cx = node.x + ((child & 1) ? level_size : 0);
-          const int cy = node.y + ((child & 2) ? level_size : 0);
-          const int cz = node.z + ((child & 4) ? level_size : 0);
-          auto found = lookup.find(key_for(cx, cy, cz));
-          if (found == lookup.end() || !active[found->second].full ||
-              consumed[found->second]) {
-            can_merge = false;
-            break;
-          }
-          siblings[child] = found->second;
-          if ((child & 2) && active[found->second].walkable_top)
-            parent_walkable_top = true;
-        }
-        if (!can_merge)
-          continue;
-
-        for (const std::size_t sibling : siblings)
-          consumed[sibling] = true;
-        parents.push_back({ node.x,
-                            node.y,
-                            node.z,
-                            level_size * 2,
-                            true,
-                            parent_walkable_top });
-      }
-
-      for (std::size_t i = 0; i < active.size(); ++i) {
-        if (!consumed[i])
-          final_nodes.push_back(active[i]);
-      }
-      if (parents.empty())
-        break;
-      active = std::move(parents);
-      level_size *= 2;
-    }
-
-    if (final_nodes.size() > MAX_OUTPUT_CELLS) {
-      std::fprintf(stderr,
-                   "House voxel output exceeds limit (%zu cells); model "
-                   "collision was discarded.\n",
-                   final_nodes.size());
-      return {};
-    }
-
-    std::vector<HouseVoxelCell> cells;
-    cells.reserve(final_nodes.size());
-    for (const auto& node : final_nodes) {
-      const glm::vec3 mn =
-        mesh.min + glm::vec3(node.x, node.y, node.z) * CELL_SIZE;
-      const glm::vec3 mx =
-        glm::min(mn + glm::vec3(node.size * CELL_SIZE), mesh.max);
-      if (mn.x >= mx.x || mn.y >= mx.y || mn.z >= mx.z)
-        continue;
-      HouseVoxelCell cell;
-      cell.bounds.add_point(mn);
-      cell.bounds.add_point(mx);
-      cell.walkable_top = node.walkable_top;
-      cells.push_back(std::move(cell));
-    }
-    return cells;
-  }
-
-  static std::vector<HouseVoxelCell> build_house_voxels(
-    const MeshDescriptor<Vertex_PosTexNorm, TriangleIndices>& desc)
-  {
-    return build_house_voxels_from_mesh(collision_mesh_from_descriptor(desc));
-  }
-
-  static std::vector<HouseVoxelCell> build_house_voxels_for_model(
-    const std::string& filename)
-  {
-    CollisionTriangleMesh original_mesh;
-    if (load_original_house_collision_mesh(filename, original_mesh)) {
-      auto cells = build_house_voxels_from_mesh(original_mesh);
-      if (cells.empty())
-        std::fprintf(stderr,
-                     "WARNING: no collision voxels generated from Houses.obj "
-                     "group for %s.\n",
-                     filename.c_str());
-      return cells;
-    }
-
-    auto desc =
-      from_OBJ<Vertex_PosTexNorm, TriangleIndices>(filename, GL_TRIANGLES);
-    auto cells = build_house_voxels(desc);
-    if (cells.empty())
-      std::fprintf(
-        stderr,
-        "WARNING: no collision voxels generated from extracted model %s.\n",
-        filename.c_str());
-    return cells;
-  }
-
-  void collect_game_colliders(
-    std::vector<BoundingBox>& colliders,
-    float house_query_radius = 6.0f,
-    bool include_nearby_enemies = true,
-    std::vector<BoundingBox>* walkable_house_tops = nullptr,
-    std::size_t* scene_collider_count = nullptr)
+  void collect_game_colliders(std::vector<BoundingBox>& colliders,
+                              bool include_nearby_enemies = true)
   {
     colliders.clear();
-    if (walkable_house_tops)
-      walkable_house_tops->clear();
     collect_colliders_recursive(m_scene_ptr, colliders);
-    if (scene_collider_count)
-      *scene_collider_count = colliders.size();
 
-    std::vector<glm::vec3> query_centers;
-    glm::vec3 player_center(0.0f);
-    const bool has_player = static_cast<bool>(m_player);
-    if (has_player) {
-      player_center = m_player->get_local_transform().get_position();
-      query_centers.push_back(player_center);
-    }
-    if (include_nearby_enemies) {
-      for (const auto& enemy : m_enemies) {
-        if (!enemy || enemy->is_dead())
-          continue;
-        const BoundingBox hitbox = enemy->get_hitbox();
-        query_centers.push_back((hitbox.get_min() + hitbox.get_max()) * 0.5f);
-      }
-    }
-
-    constexpr float MODEL_CACHE_UNLOAD_RADIUS = 42.0f;
-    constexpr float INSTANCE_UNLOAD_RADIUS = 20.0f;
-    constexpr float INSTANCE_BUILD_RADIUS = 16.0f;
-    constexpr float VOXEL_PRELOAD_RADIUS = 34.0f;
-    const float model_unload_radius_sq =
-      MODEL_CACHE_UNLOAD_RADIUS * MODEL_CACHE_UNLOAD_RADIUS;
-    const float instance_unload_radius_sq =
-      INSTANCE_UNLOAD_RADIUS * INSTANCE_UNLOAD_RADIUS;
-    const float instance_build_radius_sq =
-      INSTANCE_BUILD_RADIUS * INSTANCE_BUILD_RADIUS;
-    const float preload_radius_sq = VOXEL_PRELOAD_RADIUS * VOXEL_PRELOAD_RADIUS;
-
-    for (auto& set : m_house_voxel_sets) {
-      bool keep_instance = false;
-      for (const auto& center : query_centers) {
-        const glm::vec3 closest =
-          glm::clamp(center, set.world_min, set.world_max);
-        if (glm::distance2(center, closest) <= instance_unload_radius_sq) {
-          keep_instance = true;
-          break;
-        }
-      }
-      if (!keep_instance) {
-        std::vector<HouseVoxelCell>().swap(set.world_cells);
-        decltype(set.spatial_buckets)().swap(set.spatial_buckets);
-        set.voxelization_attempted = false;
-      }
-    }
-
-    if (query_centers.empty()) {
-      for (auto& set : m_house_voxel_sets) {
-        std::vector<HouseVoxelCell>().swap(set.world_cells);
-        decltype(set.spatial_buckets)().swap(set.spatial_buckets);
-        set.voxelization_attempted = false;
-      }
-      m_house_voxel_cache.clear();
+    if (!include_nearby_enemies)
       return;
-    }
 
-    const float radius_sq = house_query_radius * house_query_radius;
-
-    if (m_house_voxel_jobs.empty()) {
-      std::string nearest_missing_model;
-      float nearest_missing_distance_sq =
-        std::numeric_limits<float>::infinity();
-      for (const auto& set : m_house_voxel_sets) {
-        if (m_house_voxel_cache.find(set.filename) != m_house_voxel_cache.end())
-          continue;
-        float nearest_distance_sq = std::numeric_limits<float>::infinity();
-        for (const auto& center : query_centers) {
-          const glm::vec3 closest =
-            glm::clamp(center, set.world_min, set.world_max);
-          nearest_distance_sq =
-            std::min(nearest_distance_sq, glm::distance2(center, closest));
-        }
-        if (nearest_distance_sq <= preload_radius_sq &&
-            nearest_distance_sq < nearest_missing_distance_sq) {
-          nearest_missing_distance_sq = nearest_distance_sq;
-          nearest_missing_model = set.filename;
-        }
-      }
-      if (!nearest_missing_model.empty()) {
-        const std::string filename = nearest_missing_model;
-        m_house_voxel_jobs.emplace(
-          filename, std::async(std::launch::async, [filename]() {
-            return RivalGrounds::build_house_voxels_for_model(filename);
-          }));
-      }
-    }
-
-    for (auto& set : m_house_voxel_sets) {
-      bool set_preload = false;
-      bool set_build_instance = false;
-      for (const auto& center : query_centers) {
-        const glm::vec3 closest =
-          glm::clamp(center, set.world_min, set.world_max);
-        const float distance_sq = glm::distance2(center, closest);
-        if (distance_sq <= preload_radius_sq)
-          set_preload = true;
-        if (distance_sq <= instance_build_radius_sq)
-          set_build_instance = true;
-      }
-      if (!set_preload)
-        continue;
-
-      auto cache_it = m_house_voxel_cache.find(set.filename);
-      if (cache_it == m_house_voxel_cache.end()) {
-        auto job_it = m_house_voxel_jobs.find(set.filename);
-        if (job_it == m_house_voxel_jobs.end())
-          continue;
-        if (job_it->second.wait_for(std::chrono::milliseconds(0)) !=
-            std::future_status::ready)
-          continue;
-        auto generated = job_it->second.get();
-        m_house_voxel_jobs.erase(job_it);
-        cache_it =
-          m_house_voxel_cache.emplace(set.filename, std::move(generated)).first;
-      }
-
-      if (!set_build_instance)
-        continue;
-      if (!set.voxelization_attempted) {
-        set.voxelization_attempted = true;
-        set.world_cells.reserve(cache_it->second.size());
-        for (const auto& local_cell : cache_it->second) {
-          const glm::vec3 world_min =
-            set.center + local_cell.bounds.get_min() * HOUSE_SCALE;
-          const glm::vec3 world_max =
-            set.center + local_cell.bounds.get_max() * HOUSE_SCALE;
-          HouseVoxelCell world_cell;
-          world_cell.bounds.add_point(world_min);
-          world_cell.bounds.add_point(world_max);
-          world_cell.walkable_top = local_cell.walkable_top;
-          const std::size_t cell_index = set.world_cells.size();
-          set.world_cells.push_back(std::move(world_cell));
-          const glm::ivec3 bmin = spatial_bucket_coord(world_min);
-          const glm::ivec3 bmax = spatial_bucket_coord(world_max);
-          for (int bz = bmin.z; bz <= bmax.z; ++bz) {
-            for (int by = bmin.y; by <= bmax.y; ++by) {
-              for (int bx = bmin.x; bx <= bmax.x; ++bx) {
-                set.spatial_buckets[spatial_bucket_key(glm::ivec3(bx, by, bz))]
-                  .push_back(cell_index);
-              }
-            }
-          }
-        }
-      }
-      if (set.spatial_buckets.empty())
-        continue;
-
-      std::vector<std::size_t> candidates;
-      for (const auto& center : query_centers) {
-        const glm::vec3 qmin =
-          glm::max(center - glm::vec3(house_query_radius), set.world_min);
-        const glm::vec3 qmax =
-          glm::min(center + glm::vec3(house_query_radius), set.world_max);
-        if (qmin.x > qmax.x || qmin.y > qmax.y || qmin.z > qmax.z)
-          continue;
-        const glm::ivec3 bmin = spatial_bucket_coord(qmin);
-        const glm::ivec3 bmax = spatial_bucket_coord(qmax);
-        for (int z = bmin.z; z <= bmax.z; ++z) {
-          for (int y = bmin.y; y <= bmax.y; ++y) {
-            for (int x = bmin.x; x <= bmax.x; ++x) {
-              auto it = set.spatial_buckets.find(
-                spatial_bucket_key(glm::ivec3(x, y, z)));
-              if (it != set.spatial_buckets.end())
-                candidates.insert(
-                  candidates.end(), it->second.begin(), it->second.end());
-            }
-          }
-        }
-      }
-      std::sort(candidates.begin(), candidates.end());
-      candidates.erase(std::unique(candidates.begin(), candidates.end()),
-                       candidates.end());
-
-      for (const std::size_t index : candidates) {
-        if (index >= set.world_cells.size())
-          continue;
-        const auto& cell = set.world_cells[index];
-        const glm::vec3 cell_min = cell.bounds.get_min();
-        const glm::vec3 cell_max = cell.bounds.get_max();
-        for (const auto& center : query_centers) {
-          const glm::vec3 closest = glm::clamp(center, cell_min, cell_max);
-          if (glm::distance2(center, closest) <= radius_sq) {
-            colliders.push_back(cell.bounds);
-            if (walkable_house_tops && cell.walkable_top)
-              walkable_house_tops->push_back(cell.bounds);
-            break;
-          }
-        }
-      }
-    }
-
-    for (auto it = m_house_voxel_cache.begin();
-         it != m_house_voxel_cache.end();) {
-      bool model_in_use = false;
-      for (const auto& set : m_house_voxel_sets) {
-        if (set.filename != it->first)
-          continue;
-        if (set.voxelization_attempted && !set.world_cells.empty()) {
-          model_in_use = true;
-          break;
-        }
-        for (const auto& center : query_centers) {
-          const glm::vec3 closest =
-            glm::clamp(center, set.world_min, set.world_max);
-          if (glm::distance2(center, closest) <= model_unload_radius_sq) {
-            model_in_use = true;
-            break;
-          }
-        }
-        if (model_in_use)
-          break;
-      }
-      if (model_in_use) {
-        ++it;
-      } else {
-        it = m_house_voxel_cache.erase(it);
-      }
-    }
-
-    for (auto it = m_house_voxel_jobs.begin();
-         it != m_house_voxel_jobs.end();) {
-      bool model_needed = false;
-      for (const auto& set : m_house_voxel_sets) {
-        if (set.filename != it->first)
-          continue;
-        for (const auto& center : query_centers) {
-          const glm::vec3 closest =
-            glm::clamp(center, set.world_min, set.world_max);
-          if (glm::distance2(center, closest) <= model_unload_radius_sq) {
-            model_needed = true;
-            break;
-          }
-        }
-        if (model_needed)
-          break;
-      }
-      if (it->second.wait_for(std::chrono::milliseconds(0)) ==
-          std::future_status::ready) {
-        auto generated = it->second.get();
-        if (model_needed)
-          m_house_voxel_cache.emplace(it->first, std::move(generated));
-
-        it = m_house_voxel_jobs.erase(it);
-      } else {
-        ++it;
-      }
+    for (const auto& enemy : m_enemies) {
+      if (enemy && !enemy->is_dead())
+        colliders.push_back(enemy->get_hitbox());
     }
   }
 
@@ -1364,13 +515,10 @@ private:
     auto& window = m_app_cache.get_window();
 
     std::vector<BoundingBox> colliders;
-    std::vector<BoundingBox> walkable_house_tops;
-    std::size_t scene_collider_count = 0;
 #ifndef NDEBUG
     if (!m_debug_noclip)
 #endif
-      collect_game_colliders(
-        colliders, 2.5f, false, &walkable_house_tops, &scene_collider_count);
+      collect_game_colliders(colliders, false);
 
     glm::vec3 player_pos = m_player->get_local_transform().get_position();
     float feet_y = player_pos.y - PLAYER_EYE_HEIGHT;
@@ -1517,12 +665,8 @@ private:
         if (horizontal_overlap && crossed_top && b_max.y > landing_y)
           landing_y = b_max.y;
       };
-      const std::size_t ordinary_count =
-        std::min(scene_collider_count, colliders.size());
-      for (std::size_t i = 0; i < ordinary_count; ++i)
-        consider_landing(colliders[i]);
-      for (const auto& top : walkable_house_tops)
-        consider_landing(top);
+      for (const auto& collider : colliders)
+        consider_landing(collider);
 
       float mesh_landing_y = 0.0f;
       if (m_collision_world.find_landing_surface(player_pos.x,
@@ -1674,10 +818,9 @@ private:
       glm::vec3 dir = m_app_cache.get_camera().get_forward();
 
       m_gun_recoil = 0.11f;
-      m_muzzle_flash_timer = 0.06f;
 
       std::vector<BoundingBox> colliders;
-      collect_game_colliders(colliders, 18.0f, false);
+      collect_game_colliders(colliders, false);
 
       float env_t = 200.0f;
       float mesh_t = 0.0f;
@@ -1805,7 +948,7 @@ private:
       }
     }
     if (needs_enemy_occlusion)
-      collect_game_colliders(colliders, 6.0f);
+      collect_game_colliders(colliders);
 #ifndef NDEBUG
     if (m_debug_show_hitboxes) {
       std::vector<BoundingBox> debug_boxes;
@@ -1813,13 +956,6 @@ private:
 
       // Regular collidable scene objects.
       collect_colliders_recursive(m_scene_ptr, debug_boxes);
-
-      // House collision is represented by voxel AABBs, not necessarily
-      // by the scene object's render AABB.
-      for (const auto& set : m_house_voxel_sets) {
-        for (const auto& cell : set.world_cells)
-          debug_boxes.push_back(cell.bounds);
-      }
 
       // Enemy hitboxes.
       for (const auto& enemy : m_enemies) {
@@ -2135,8 +1271,6 @@ private:
     m_city_bounds_valid = false;
     m_enemies.clear();
     m_tracers.clear();
-    m_house_voxel_sets.clear();
-    m_city_object.reset();
     m_collision_world.clear();
 
     m_player->get_local_transform().set_position(m_player_spawn);
@@ -2314,7 +1448,6 @@ private:
             packet->mesh->draw();
           }));
       m_scene_ptr->add_child(city);
-      m_city_object = city;
     } else {
       for (auto& group : groups) {
         auto object = std::make_shared<SceneObject>();
@@ -2381,8 +1514,6 @@ private:
           mesh, m_app_cache.material_repo.load_material(md), std::move(draw));
         m_scene_ptr->add_child(object);
       }
-
-      m_city_object = std::make_shared<SceneObject>();
     }
 
     const glm::vec3 world_min = (local_min - local_center) * CITY_MODEL_SCALE;
@@ -2435,94 +1566,6 @@ private:
                  count);
   }
 
-  void spawn_house(const std::string& filename, const glm::vec3& pos)
-  {
-    auto house = std::make_shared<SceneObject>();
-    house->get_local_transform().set_position(pos).set_scale(
-      glm::vec3(HOUSE_SCALE));
-    house->get_physics_component().disable();
-
-    house->set_collidable(false);
-
-    auto desc =
-      from_OBJ<Vertex_PosTexNorm, TriangleIndices>(filename, GL_TRIANGLES);
-    auto mesh = m_app_cache.mesh_repo.load_mesh(desc);
-
-    glm::vec3 local_min(std::numeric_limits<float>::max());
-    glm::vec3 local_max(std::numeric_limits<float>::lowest());
-    for (const auto& vertex : desc.vertices) {
-      local_min = glm::min(local_min, vertex.position);
-      local_max = glm::max(local_max, vertex.position);
-    }
-
-    HouseVoxelSet voxel_set;
-    voxel_set.filename = filename;
-    voxel_set.center = pos;
-    voxel_set.world_min = pos + local_min * HOUSE_SCALE;
-    voxel_set.world_max = pos + local_max * HOUSE_SCALE;
-
-    m_house_voxel_sets.push_back(std::move(voxel_set));
-
-    house->set_render_packet(
-      mesh,
-      m_app_cache.material_repo.load_material(MaterialDescriptor{
-        .material_name = "mat_" + filename,
-        .shader_program_desc = { .program_name = "cube_program",
-                                 .shaders = { "cube.vert", "cube.frag" } },
-        .texture_desc_list = { { .texture_name = "concrete" } },
-        .uniforms = { { "u_diffuse", TextureName("concrete") },
-                      { "u_use_texture", 1 },
-                      { "u_is_gun", 0 } } }),
-      capture_weak(
-        house, [this](SceneObjectStrongPtr self, RenderPacketStrongPtr packet) {
-          set_view_matrix(packet);
-          set_projection_matrix(packet);
-          set_model_matrix(packet, self->get_world_transformation_mat());
-          packet->mesh->draw();
-        }));
-
-    m_scene_ptr->add_child(house);
-  }
-
-  void spawn_obj_prop(const std::string& filename,
-                      const glm::vec3& pos,
-                      const glm::vec3& scale,
-                      const glm::vec3& color,
-                      bool rotate_tent = false,
-                      bool collidable = false)
-  {
-    auto obj = std::make_shared<SceneObject>();
-    obj->get_local_transform().set_position(pos).set_scale(scale);
-    if (rotate_tent) {
-      obj->get_local_transform().rotate_deg(AXIS_X, -90.0f);
-    }
-    obj->get_physics_component().disable();
-    obj->set_collidable(collidable);
-
-    obj->set_render_packet(
-      m_app_cache.mesh_repo.load_mesh(
-        from_OBJ<Vertex_PosTexNorm, TriangleIndices>(filename, GL_TRIANGLES)),
-      m_app_cache.material_repo.load_material(MaterialDescriptor{
-        .material_name = "prop_mat_" + filename + "_" + std::to_string(pos.x),
-        .shader_program_desc = { .program_name = "cube_program",
-                                 .shaders = { "cube.vert", "cube.frag" } },
-        .texture_desc_list = {},
-        .uniforms = { { "u_color", color },
-                      { "u_use_texture", 0 },
-                      { "u_is_gun", 0 } } }),
-      capture_weak(obj,
-                   [this]([[maybe_unused]] SceneObjectStrongPtr self,
-                          RenderPacketStrongPtr packet) {
-                     set_view_matrix(packet);
-                     set_projection_matrix(packet);
-                     set_model_matrix(packet,
-                                      self->get_world_transformation_mat());
-                     packet->mesh->draw();
-                   }));
-
-    m_scene_ptr->add_child(obj);
-  }
-
   void spawn_tactical_enemies(std::mt19937& rng)
   {
     if (!m_city_bounds_valid)
@@ -2569,11 +1612,7 @@ private:
     obj->get_local_transform().set_position(pos).set_scale(scale);
 
     obj->get_physics_component().enable();
-    obj->get_physics_component()
-      .set_mass(2.5f)
-      .set_drag(0.55f)
-      .set_restitution(0.08f)
-      .set_gravity(true);
+    obj->get_physics_component().set_mass(2.5f).set_gravity(true);
     obj->set_collidable(true);
 
     obj->set_render_packet(
@@ -2712,40 +1751,4 @@ private:
     };
   }
 
-  void add_box(const glm::vec3& center,
-               const glm::vec3& size,
-               const glm::vec3& color)
-  {
-    auto obj = std::make_shared<SceneObject>();
-    obj->get_local_transform().set_position(center).set_scale(size);
-    obj->get_physics_component().disable();
-    obj->set_collidable(true);
-
-    std::string mat_name = "mat_" + std::to_string(center.x) + "_" +
-                           std::to_string(center.z) + "_" +
-                           std::to_string(size.y);
-
-    obj->set_render_packet(
-      m_app_cache.mesh_repo.load_mesh(get_sharp_box_descriptor()),
-      m_app_cache.material_repo.load_material(MaterialDescriptor{
-        .material_name = mat_name,
-        .shader_program_desc = { .program_name = "cube_program",
-                                 .shaders = { "cube.vert", "cube.frag" } },
-        .texture_desc_list = { { .texture_name = "concrete" } },
-        .uniforms = { { "u_diffuse", TextureName("concrete") },
-                      { "u_color", color },
-                      { "u_use_texture", 1 },
-                      { "u_is_gun", 0 } } }),
-      capture_weak(obj,
-                   [this]([[maybe_unused]] SceneObjectStrongPtr self,
-                          RenderPacketStrongPtr packet) {
-                     set_view_matrix(packet);
-                     set_projection_matrix(packet);
-                     set_model_matrix(packet,
-                                      self->get_world_transformation_mat());
-                     packet->mesh->draw();
-                   }));
-
-    m_scene_ptr->add_child(obj);
-  }
 };

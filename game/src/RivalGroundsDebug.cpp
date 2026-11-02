@@ -109,11 +109,6 @@ RivalGrounds::render_debug_menu()
       if (ImGui::BeginTabItem("World / Physics")) {
         ImGui::Text("Static collision meshes: %zu",
                     m_collision_world.static_mesh_count());
-        ImGui::Text("House voxel sets: %zu", m_house_voxel_sets.size());
-        std::size_t voxel_count = 0;
-        for (const auto& set : m_house_voxel_sets)
-          voxel_count += set.world_cells.size();
-        ImGui::Text("Materialized house voxels: %zu", voxel_count);
         ImGui::Text("Physics objects: %zu", get_all_physics_objects().size());
         ImGui::Text("Fixed simulation step: %.5f s", FIXED_STEP);
         ImGui::EndTabItem();

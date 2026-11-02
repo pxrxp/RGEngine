@@ -1,4 +1,5 @@
 #include <engine/components/PhysicsComponent.h>
+#include <cmath>
 #include <glm/gtc/quaternion.hpp>
 
 #ifndef NDEBUG
@@ -6,12 +7,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/io.hpp>
 #endif
-
-const glm::vec3
-PhysicsComponent::get_velocity() const
-{
-  return m_inverse_mass * m_linear_momentum_half_step;
-}
 
 const glm::vec3
 PhysicsComponent::get_angular_velocity() const
@@ -39,52 +34,6 @@ PhysicsComponent::set_gravity(bool has_gravity)
 }
 
 PhysicsComponent&
-PhysicsComponent::set_drag(float drag)
-{
-  m_drag = drag;
-  return *this;
-}
-
-PhysicsComponent&
-PhysicsComponent::set_restitution(float restitution)
-{
-  m_restitution = restitution;
-  return *this;
-}
-
-PhysicsComponent&
-PhysicsComponent::set_inverse_inertia_tensor(const glm::mat3& tensor)
-{
-  m_inverse_inertia_tensor = tensor;
-  return *this;
-}
-
-PhysicsComponent&
-PhysicsComponent::set_initial_conditions(
-  const PhysicsInitialConditions& initial)
-{
-  if (!m_initial_conditions_set) {
-    if (std::isfinite(m_mass)) {
-      m_linear_momentum_half_step = m_mass * initial.velocity;
-    } else {
-      m_linear_momentum_half_step = glm::vec3(0.f);
-    }
-
-    if (glm::dot(initial.angular_velocity, initial.angular_velocity) > 0.0001f) {
-      auto rotationMatrix = glm::mat3_cast(m_local_transform.get_rotation());
-      auto world_inertia_tensor = rotationMatrix *
-                                  glm::inverse(m_inverse_inertia_tensor) *
-                                  glm::transpose(rotationMatrix);
-      m_angular_momentum_half_step =
-        world_inertia_tensor * initial.angular_velocity;
-    }
-
-    m_initial_conditions_set = true;
-  }
-  return *this;
-}
-
-PhysicsComponent&
 PhysicsComponent::clear_forces()
 {
   m_total_force = glm::vec3(0.0f);
@@ -100,17 +49,6 @@ PhysicsComponent::apply_force(const glm::vec3& force)
 }
 
 PhysicsComponent&
-PhysicsComponent::apply_force_at_point(const glm::vec3& force,
-                                       const glm::vec3& center_of_mass,
-                                       const glm::vec3& apply_point)
-{
-  m_total_force += force;
-  glm::vec3 r = apply_point - center_of_mass;
-  m_total_torque += glm::cross(r, force);
-  return *this;
-}
-
-PhysicsComponent&
 PhysicsComponent::apply_impulse_at_point(const glm::vec3& impulse,
                                          const glm::vec3& apply_point)
 {
@@ -118,13 +56,6 @@ PhysicsComponent::apply_impulse_at_point(const glm::vec3& impulse,
   glm::vec3 center_of_mass = m_local_transform.get_position();
   glm::vec3 r = apply_point - center_of_mass;
   m_angular_momentum_half_step += glm::cross(r, impulse);
-  return *this;
-}
-
-PhysicsComponent&
-PhysicsComponent::apply_linear_impulse(const glm::vec3& impulse)
-{
-  m_linear_momentum_half_step += impulse;
   return *this;
 }
 
@@ -173,12 +104,8 @@ operator<<(std::ostream& os, const PhysicsComponent& obj)
      << "Inverse Mass:          " << obj.m_inverse_mass << "\n"
      << "Inv. Inertia Tensor:   " << obj.m_inverse_inertia_tensor << "\n"
      << "----\n"
-     << "Restitution:           " << obj.m_restitution << "\n"
-     << "Drag:                  " << obj.m_drag << "\n"
-     << "----\n"
      << std::boolalpha << "Enabled:               " << obj.m_enabled << "\n"
      << "Has Gravity:           " << obj.m_has_gravity << "\n"
-     << "Initial Cond. Set:     " << obj.m_initial_conditions_set << "\n"
      << "---------------------------\n";
   return os;
 }
