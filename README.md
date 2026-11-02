@@ -1,4 +1,9 @@
-# RGEngine
+<p align="center">
+<img width="433" height="68" alt="image" src="https://github.com/user-attachments/assets/aa12fa6b-cc89-4e8e-88c7-f0d3acd27c1e" />
+</p>
+
+![C++](https://img.shields.io/badge/c%2B%2B-%2300599C.svg?style=for-the-badge&logo=cplusplus&logoColor=white)
+![OpenGL](https://img.shields.io/badge/opengl-%235586A4.svg?style=for-the-badge&logo=opengl&logoColor=white)
 
 A small 3D engine in C++20 and OpenGL 3.3, and RivalGrounds, the first-person
 shooter it was written for.
@@ -10,14 +15,16 @@ only uses the engine's public headers. To build something else on the engine,
 
 ## The game
 
-You come down over an abandoned city on another world. Your ship doesn't make
+https://github.com/user-attachments/assets/3d660579-2300-4d22-b59b-2b279ec75bf8
+
+You come down over an abandoned city on another world. Your spaceship doesn't make
 it, and the scroll you were sent for is somewhere in the streets below. The
 people already living there don't want you around.
 
-The city is greyscale; the things that matter keep their colour — enemies, your
+The city is lifeless; the things that matter keep their color — enemies, your
 rifle, the scroll. Soldiers patrol, notice you, and shoot. Your ship scattered
-crates across the city as it broke up, and they stack, which is how you reach
-anything the scroll landed on top of.
+crates across the city as it broke up, and you can pick them up and stack them,
+which is how you reach anything the scroll landed on top of.
 
 A match starts on the title screen, drops you somewhere random with ten seconds
 of grace, and ends when you touch the scroll or run out of health.
