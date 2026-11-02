@@ -116,7 +116,7 @@ RivalGrounds::reset_match()
 {
   m_game_state = GameState::PLAYING;
   m_player_health = 100.0f;
-  m_spawn_grace_timer = 2.0f;
+  m_spawn_grace_timer = 10.0f;
   m_held_object = nullptr;
   m_city_bounds_valid = false;
   m_enemies.clear();

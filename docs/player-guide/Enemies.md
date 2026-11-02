@@ -5,7 +5,7 @@ Enemies are armoured soldiers built from grey boxes with a red visor. They are w
 ## What they do
 
 - **Patrol.** They walk between waypoints until they see you (a forward cone roughly 70° wide, up to 64 m) or hear you within 64 m.
-- **Combat.** They face you, keep their preferred distance (chase beyond 18 m, back off inside 7 m, strafe otherwise) and fire every 1.4 s within 36 m.
+- **Combat.** They face you, keep their preferred distance (chase beyond 18 m, back off inside 7 m, strafe otherwise) and fire every 2.0 s within 28 m.
 - **Dead.** They fall over, turn dark red, and stop.
 
 ## Strengths and weaknesses

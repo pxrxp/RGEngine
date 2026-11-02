@@ -9,7 +9,7 @@ Enemies have three states: `PATROL`, `COMBAT`, `DEAD`. `Enemy::update()` advance
 3. Compute the muzzle position (`pos + (0.30, 1.25, -0.45)`).
 4. Perceive: horizontal distance to the player (hearing), and `has_line_of_sight()`.
 5. If seen or heard, switch to `COMBAT` and set a 7 s alert timer.
-6. In combat: face the player, choose a target position (chase beyond 18 m, back off inside 7 m, strafe at 3.5 m otherwise), and fire when the aim is not too vertical, the cooldown is ready, and the player is within 36 m.
+6. In combat: face the player, choose a target position (chase beyond 18 m, back off inside 7 m, strafe at 3.5 m otherwise), and fire when the aim is not too vertical, the cooldown is ready, and the player is within 28 m.
 7. In patrol, advance to the next waypoint within 2.5 m.
 8. Move toward the target position at 3.4 m/s in combat or 2.0 m/s in patrol, testing X and Z separately, then snap to the ground.
 
@@ -31,7 +31,7 @@ Each step tests `pos + delta.x` and then `pos.z + delta.z` against collider AABB
 
 ## Firing
 
-Firing sets `out_fired_shot` and `out_damage = 16`. The game then checks the shot line against the world; if geometry is closer than the player, damage is discarded and the tracer is shortened to the obstruction. Firing also creates a short red tracer in the world.
+Firing sets `out_fired_shot` and `out_damage = 6` (every 2 s, and not on the first frame a fresh squad spots the player). The game then checks the shot line against the world; if geometry is closer than the player, damage is discarded and the tracer is shortened to the obstruction. Firing also creates a short red tracer in the world.
 
 ## Alert decay
 

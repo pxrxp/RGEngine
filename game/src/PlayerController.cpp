@@ -29,7 +29,7 @@ RivalGrounds::update_physics()
           window.is_key_pressed(GLFW_KEY_ENTER) ||
           window.is_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
         m_game_state = GameState::PLAYING;
-        m_spawn_grace_timer = 2.5f;
+        m_spawn_grace_timer = 10.0f;
       }
     }
     return;
@@ -496,7 +496,7 @@ RivalGrounds::update_character_controller(float dt)
         // The drop from the rooftops takes longer than the initial grace, so
         // the player would land defenceless. Start the grace on touchdown.
         m_awaiting_landing = false;
-        m_spawn_grace_timer = 3.0f;
+        m_spawn_grace_timer = 10.0f;
       }
       m_player_grounded = true;
     } else {

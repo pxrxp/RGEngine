@@ -9,7 +9,7 @@ Find the gold scroll. It is marked on the minimap and its distance is shown at t
 ## Match flow
 
 1. The intro screen shows the logo, the controls, and "Press Space or Click to Begin".
-2. On start you fall into a random part of the city. Spawn protection runs from the match start and is refreshed to 3 s when you land.
+2. On start you fall into a random part of the city with 10 s of spawn protection, refreshed to 10 s when you land.
 3. Enemies patrol; if they see or hear you they chase, strafe, and fire.
 4. Your health regenerates 4 HP/s after 6 s without damage.
 5. Finding the scroll wins. Dying ends the match. `R` restarts either way with a freshly generated world.

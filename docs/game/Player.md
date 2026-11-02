@@ -21,7 +21,7 @@ The camera applies mouse look by rotating the player object, and the controller 
 | Jump velocity 7.2 m/s, gravity 18 m/s² | controller |
 | Body extent for collision 1.65 m | `head_y = feet_y + 1.65f` |
 | Max health 100, regen 4 HP/s after a 6 s cooldown | `m_player_health`, `m_player_regen_cooldown` |
-| Spawn grace 2.5 s after starting, refreshed to 3 s on landing | `m_spawn_grace_timer`, `m_awaiting_landing` |
+| Spawn grace 10 s after starting, refreshed to 10 s on landing | `m_spawn_grace_timer`, `m_awaiting_landing` |
 
 ## Movement
 
@@ -37,7 +37,7 @@ The player never uses `Scene`'s dynamic physics; the controller is its own kinem
 
 ## Health
 
-Enemy shots reduce `m_player_health` by 10 (before spawn grace ends) and set a 6 s regen cooldown and a 0.28 s damage flash. After the cooldown, health regenerates at 4 HP/s up to 100. Reaching 0 sets `GameState::DEFEATED`.
+Enemy shots reduce `m_player_health` by 6 (before spawn grace ends) and set a 6 s regen cooldown and a 0.28 s damage flash. After the cooldown, health regenerates at 4 HP/s up to 100. Reaching 0 sets `GameState::DEFEATED`.
 
 ## Crates
 

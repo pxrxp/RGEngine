@@ -86,6 +86,8 @@ Enemy::Enemy(Scene& scene,
 
   scene.get_scene_ptr()->add_child(m_root);
   m_target_pos = m_waypoints.empty() ? spawn_pos : m_waypoints[0];
+  // Do not let a fresh squad open fire on the same frame they spot the player.
+  m_shoot_cooldown = 1.5f + static_cast<float>(m_id % 4) * 0.5f;
   m_visual_state->state = m_state;
 }
 
@@ -277,10 +279,10 @@ Enemy::update(Scene& scene,
 
       glm::vec3 aim_dir = glm::normalize(player_pos - out_gun_pos);
       if (std::abs(aim_dir.y) <= MAX_VERTICAL_AIM && m_shoot_cooldown <= 0.0f &&
-          dist_to_player <= 36.0f) {
+          dist_to_player <= 28.0f) {
         out_fired_shot = true;
-        out_damage = 10.0f;
-        m_shoot_cooldown = 1.40f;
+        out_damage = 6.0f;
+        m_shoot_cooldown = 2.0f;
       }
     }
   }
