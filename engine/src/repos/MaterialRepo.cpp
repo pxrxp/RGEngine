@@ -21,12 +21,8 @@ MaterialRepo::clear_all_slots()
 MaterialStrongPtr
 MaterialRepo::load_material(const MaterialDescriptor& desc)
 {
-  if (auto material = RepoBase::get(desc.material_name); material.has_value()) {
-    if (!desc.is_getter_desc())
-      std::cout << "Material " << desc.material_name << " already exists!"
-                << std::endl;
+  if (auto material = RepoBase::get(desc.material_name); material.has_value())
     return material.value();
-  }
 
   std::vector<TextureStrongPtr> textures;
   for (auto& desc : desc.texture_desc_list) {
@@ -67,37 +63,9 @@ MaterialRepo::assign_slot(const std::string& texture_name)
     return std::nullopt;
   }
 
-  activate_slot(slot);
+  empty_texture_slots.erase(slot);
+  full_texture_slots.insert(slot);
   return slot;
-}
-
-void
-MaterialRepo::activate_slot(unsigned int slot)
-{
-  empty_texture_slots.erase(slot);
-  full_texture_slots.insert(slot);
-}
-
-void
-MaterialRepo::deactivate_slot(unsigned int slot)
-{
-  full_texture_slots.erase(slot);
-  empty_texture_slots.insert(slot);
-}
-
-void
-MaterialRepo::activate_slot(const std::string& texture_name)
-{
-  const auto it = texture_slots_map.find(texture_name);
-  if (it == texture_slots_map.end()) {
-    std::cerr << "MaterialRepo::activate_slot(): no slot assigned for '"
-              << texture_name << "'\n";
-    return;
-  }
-
-  const unsigned int slot = it->second;
-  empty_texture_slots.erase(slot);
-  full_texture_slots.insert(slot);
 }
 
 void

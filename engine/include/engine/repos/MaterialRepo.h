@@ -28,12 +28,6 @@ struct MaterialDescriptor
   ShaderProgramDescriptor shader_program_desc;
   std::vector<TextureDescriptor> texture_desc_list;
   std::unordered_map<std::string, UniformValue> uniforms;
-
-  bool is_getter_desc() const
-  {
-    return shader_program_desc.is_getter_desc() && texture_desc_list.empty() &&
-           uniforms.empty();
-  }
 };
 
 class MaterialRepo : public RepoBase<std::string, Material>
@@ -51,8 +45,5 @@ public:
 
   MaterialStrongPtr load_material(const MaterialDescriptor& desc);
   std::optional<unsigned int> assign_slot(const std::string& texture_name);
-  void activate_slot(unsigned int slot);
-  void activate_slot(const std::string& texture_name);
-  void deactivate_slot(unsigned int slot);
   void deactivate_slot(const std::string& texture_name);
 };

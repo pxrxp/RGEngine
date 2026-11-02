@@ -51,12 +51,8 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
     std::cerr << "Provide at least one texture!" << std::endl;
     return nullptr;
   }
-  if (auto tex = RepoBase::get(desc.texture_name); tex.has_value()) {
-    if (!desc.is_getter_desc())
-      std::cout << "Texture " << desc.texture_name << " already exists!"
-                << std::endl;
+  if (auto tex = RepoBase::get(desc.texture_name); tex.has_value())
     return tex.value();
-  }
 
   TextureStrongPtr tex = nullptr;
   switch (desc.target) {
@@ -66,12 +62,9 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
     case GL_TEXTURE_CUBE_MAP:
       tex = load_cubemap(desc);
       break;
-    case GL_TEXTURE_2D_ARRAY:
-      tex = load_tex_2d_array(desc);
-      break;
     default:
       std::cerr << "Invalid target! Expected GL_TEXTURE_2D | "
-                   "GL_TEXTURE_CUBE_MAP | GL_TEXTURE_2D_ARRAY\n";
+                   "GL_TEXTURE_CUBE_MAP\n";
       break;
   }
   if (tex)
@@ -117,79 +110,6 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
     glTextureParameteri(texture, GL_TEXTURE_MAX_LEVEL, desc.max_mip_level);
   return RepoBase::create(
     desc.texture_name, texture, desc.texture_name, image.width, image.height);
-}
-
-TextureStrongPtr
-TextureRepo::load_tex_2d_array(const TextureDescriptor& desc)
-{
-  PNGImage image(desc.texture_name + "_0.png");
-  if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file " << desc.texture_name + "_0.png\n";
-    return nullptr;
-  }
-  if (image.width != image.height) {
-    std::cerr << "ERROR: Texture array source images must be square!\n";
-    return nullptr;
-  }
-  if (desc.layers <= 0) {
-    std::cerr << "ERROR: Invalid number of texture array layers!\n";
-    return nullptr;
-  }
-  const std::uint32_t width = image.width;
-  GLuint texture = 0;
-  glCreateTextures(desc.target, 1, &texture);
-  const int levels = desc.generate_mipmaps
-                       ? calculate_mip_levels(static_cast<int>(image.width),
-                                              static_cast<int>(image.height))
-                       : 1;
-  glTextureStorage3D(texture,
-                     levels,
-                     desc.internal_format,
-                     image.width,
-                     image.height,
-                     desc.layers);
-  bool have_image = false;
-  for (int i = 0; i < desc.layers; ++i) {
-    const std::string file_name =
-      desc.texture_name + "_" + std::to_string(i) + ".png";
-    if (i > 0)
-      image = PNGImage(file_name);
-    if (!image.is_valid()) {
-      std::cerr << "ERROR: Invalid file " << file_name << '\n';
-      continue;
-    }
-    if (image.width != width || image.height != width) {
-      std::cerr << "ERROR: Texture array layer " << i
-                << " has mismatched dimensions.\n";
-      continue;
-    }
-    const GLenum format = (image.channels == 4) ? GL_RGBA : GL_RGB;
-    glTextureSubImage3D(texture,
-                        0,
-                        0,
-                        0,
-                        i,
-                        width,
-                        width,
-                        1,
-                        format,
-                        GL_UNSIGNED_BYTE,
-                        image.pixels.data());
-    have_image = true;
-  }
-  if (!have_image) {
-    glDeleteTextures(1, &texture);
-    return nullptr;
-  }
-  if (desc.generate_mipmaps)
-    glGenerateTextureMipmap(texture);
-  const auto filters =
-    fix_filter(desc.generate_mipmaps, desc.min_filter, desc.mag_filter);
-  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, filters.first);
-  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, filters.second);
-  glTextureParameteri(texture, GL_TEXTURE_WRAP_S, desc.wrap_s);
-  glTextureParameteri(texture, GL_TEXTURE_WRAP_T, desc.wrap_t);
-  return RepoBase::create(desc.texture_name, texture, desc.texture_name);
 }
 
 TextureStrongPtr

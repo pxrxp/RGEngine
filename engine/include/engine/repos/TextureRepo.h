@@ -1,7 +1,6 @@
 #pragma once
 #include <engine/repos/RepoBase.h>
 #include <engine/util/opengl.h>
-#include <compare>
 #include <memory>
 #include <string>
 
@@ -21,20 +20,13 @@ struct TextureDescriptor
   GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
   GLenum mag_filter = GL_LINEAR;
   bool generate_mipmaps = true;
-  int layers = -1;
   int max_mip_level = -1;
-
-  auto operator<=>(const TextureDescriptor&) const = default;
-  bool is_getter_desc() const {
-    return *this == TextureDescriptor { .texture_name = this->texture_name };
-  }
 };
 
 class TextureRepo : public RepoBase<std::string, Texture>
 {
 private:
   TextureStrongPtr load_tex_2d(const TextureDescriptor& desc);
-  TextureStrongPtr load_tex_2d_array(const TextureDescriptor& desc);
   TextureStrongPtr load_cubemap(const TextureDescriptor& desc);
 
 public:

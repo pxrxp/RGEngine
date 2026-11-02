@@ -32,8 +32,6 @@ public:
 
   GLuint get_id() const { return m_id; }
   const std::string& get_name() const { return m_name; }
-  std::uint32_t get_width() const { return m_width; }
-  std::uint32_t get_height() const { return m_height; }
 
   float get_aspect_ratio() const
   {

@@ -1,29 +1,14 @@
 #pragma once
 
 #include <engine/repos/MaterialRepo.h>
-#include <glm/glm.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <variant>
 #include <vector>
 
 class ShaderProgram;
 class Texture;
-
-using ShaderProgramStrongPtr = std::shared_ptr<ShaderProgram>;
-using TextureStrongPtr = std::shared_ptr<Texture>;
-
-using TextureName = std::string;
-using UniformValue = std::variant<int,
-                                  float,
-                                  glm::vec2,
-                                  glm::vec3,
-                                  glm::vec4,
-                                  glm::mat3,
-                                  glm::mat4,
-                                  TextureName>;
 
 class Material
 {
@@ -59,7 +44,6 @@ public:
   ShaderProgramStrongPtr get_shader_program() const { return m_shader_program; }
 
   int get_id() { return m_id; }
-  const std::string& get_name() { return m_name; }
 
   void bind();
   void unbind();
