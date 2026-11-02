@@ -1,5 +1,7 @@
 #include <rivalgrounds/RivalGrounds.h>
 
+#include <imgui.h>
+
 #ifndef NDEBUG
 namespace {
 constexpr float DEBUG_SPAWN_OFFSET = 8.0f;
