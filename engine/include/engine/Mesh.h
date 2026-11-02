@@ -1,5 +1,6 @@
 #pragma once
 #include <engine/components/BoundingBox.h>
+#include <engine/util/definitions.h>
 #include <array>
 #include <iostream>
 #include <string>
@@ -11,7 +12,6 @@ using CollisionTriangle = std::array<glm::vec3, 3>;
 class Mesh
 {
 private:
-  std::string m_name;
   GLuint m_vao = 0;
   GLuint m_vbo = 0;
   GLuint m_ebo = 0;
@@ -26,12 +26,8 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 #endif
 
-  GLuint get_id() const;
-  void bind();
-  void unbind();
 
-  Mesh(const std::string& mesh_name,
-       GLuint vao,
+  Mesh(GLuint vao,
        GLuint vbo,
        GLuint ebo,
        std::vector<glm::vec3>& vertices_pos,
@@ -39,8 +35,7 @@ public:
        size_t index_count,
        GLenum draw_primitive,
        BoundingBox local_AABB)
-    : m_name(std::move(mesh_name))
-    , m_vao(vao)
+    : m_vao(vao)
     , m_vbo(vbo)
     , m_ebo(ebo)
     , m_vertices_pos(std::move(vertices_pos))
@@ -55,6 +50,10 @@ public:
   const BoundingBox& get_local_AABB() const;
   const std::vector<CollisionTriangle>& get_collision_triangles() const;
   ~Mesh();
+
+private:
+  void bind();
+  void unbind();
 };
 
 #undef SETUP_ATTRIB

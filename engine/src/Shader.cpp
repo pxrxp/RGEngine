@@ -24,7 +24,6 @@ Shader::operator=(Shader&& other) noexcept
       glDeleteShader(m_id);
     }
     m_id = other.m_id;
-    m_name = std::move(other.m_name);
     other.m_id = 0;
   }
   return *this;

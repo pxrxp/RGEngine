@@ -7,12 +7,8 @@
 ShaderProgramStrongPtr
 ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
 {
-  if (auto program = RepoBase::get(desc.program_name); program) {
-    if (!desc.is_getter_desc())
-      std::cout << "Shader program " << desc.program_name << " already exists!"
-                << std::endl;
+  if (auto program = RepoBase::get(desc.program_name); program)
     return program.value();
-  }
 
   const GLuint id = glCreateProgram();
   if (id == 0)
@@ -39,5 +35,5 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
     return {};
   }
 
-  return RepoBase::create(desc.program_name, desc.program_name, id);
+  return RepoBase::create(desc.program_name, id);
 }

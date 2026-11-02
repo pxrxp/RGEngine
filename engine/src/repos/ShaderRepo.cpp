@@ -45,5 +45,5 @@ ShaderRepo::load_shader(const std::string& path)
     return {};
   }
 
-  return RepoBase::create(path, path, shader);
+  return RepoBase::create(path, shader);
 }

@@ -34,12 +34,6 @@ Mesh::~Mesh()
 #endif
 }
 
-GLuint
-Mesh::get_id() const
-{
-  return m_vao;
-}
-
 void
 Mesh::bind()
 {

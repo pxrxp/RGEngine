@@ -13,8 +13,6 @@ struct ShaderProgramDescriptor
 {
   std::string program_name;
   std::vector<std::string> shaders;
-
-  bool is_getter_desc() const { return shaders.empty(); }
 };
 
 class ShaderProgramRepo : public RepoBase<std::string, ShaderProgram>

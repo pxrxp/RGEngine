@@ -22,12 +22,6 @@ struct MeshDescriptor
   GLenum draw_primitive = GL_TRIANGLES;
   GLenum usage = GL_STATIC_DRAW;
 
-  bool is_getter_desc() const
-  {
-    return vertices.empty() && indices.empty() &&
-           draw_primitive == GL_TRIANGLES && usage == GL_STATIC_DRAW;
-  }
-
 #ifndef NDEBUG
   MeshDescriptor& print()
   {
@@ -157,14 +151,8 @@ public:
                   std::is_same<Indices, TriangleIndices>::value);
 
     if (auto mesh = RepoBase::get(desc.mesh_name); mesh.has_value()) {
-      if (!reload) {
-        if (!desc.is_getter_desc()) {
-          std::cout << "Mesh " << desc.mesh_name << " already exists!"
-                    << std::endl;
-        }
-
+      if (!reload)
         return mesh.value();
-      }
 
       remove(desc.mesh_name);
     }
@@ -257,7 +245,6 @@ public:
     }
 
     return RepoBase::create(desc.mesh_name,
-                            desc.mesh_name,
                             vao,
                             vbo,
                             ebo,

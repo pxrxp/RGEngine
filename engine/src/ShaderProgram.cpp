@@ -25,7 +25,6 @@ ShaderProgram::operator=(ShaderProgram&& other) noexcept
       glDeleteProgram(m_id);
     }
     m_id = other.m_id;
-    m_name = std::move(other.m_name);
     other.m_id = 0;
   }
   return *this;
@@ -35,12 +34,6 @@ void
 ShaderProgram::bind()
 {
   glUseProgram(m_id);
-}
-
-void
-ShaderProgram::unbind()
-{
-  glUseProgram(0);
 }
 
 ShaderProgram&
