@@ -12,6 +12,8 @@ The game logs:
 
 The engine also prints resource destruction messages in debug builds (`Deleting shader ...`, `Destroying Mesh ID ...`), which is useful for spotting lifetime bugs.
 
+All of this goes through `Util::log_out()` / `Util::log_err()` (`engine/include/engine/util/log.h`). Both return a null stream when `NDEBUG` is defined, so release builds stay silent on stdout and stderr; only the fatal start-up errors in `App::init()` write to `std::cerr` unconditionally. Use the two helpers for new messages instead of `std::cout`/`printf`, or the output will leak into release builds.
+
 ## Sanitizers
 
 `ENABLE_ASAN_UBSAN` defaults to `ON`. AddressSanitizer catches out-of-bounds and use-after-free, UndefinedBehaviorSanitizer catches invalid arithmetic and casts. Sanitizers complicate debugger stepping; disable them while stepping with a debugger:

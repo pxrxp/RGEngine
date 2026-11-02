@@ -1,3 +1,4 @@
+#include <engine/util/log.h>
 #include <rivalgrounds/RivalGrounds.h>
 
 #include <engine/Material.h>
@@ -10,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <iomanip>
 #include <limits>
 #include <random>
 
@@ -244,9 +246,8 @@ RivalGrounds::build_massive_city(std::mt19937& rng)
     from_OBJ<Vertex_PosTexNorm, TriangleIndices>("city.obj", GL_TRIANGLES);
   auto desc = cached_city_desc;
   if (desc.vertices.empty() || desc.indices.empty()) {
-    std::fprintf(stderr,
-                 "Rival Grounds: city.obj has no triangle geometry; city not "
-                 "spawned.\n");
+    Util::log_err() << "Rival Grounds: city.obj has no triangle geometry; "
+                       "city not spawned.\n";
     return;
   }
 
@@ -410,11 +411,10 @@ RivalGrounds::build_massive_city(std::mt19937& rng)
 
   const auto count = m_collision_world.add_static_mesh(
     collision_mesh->get_collision_triangles(), city_world);
-  std::fprintf(stderr,
-               "Rival Grounds: city mesh loaded at scale %.2f (%zu collision "
-               "triangles); boundary walls added.\n",
-               CITY_MODEL_SCALE,
-               count);
+  Util::log_err() << "Rival Grounds: city mesh loaded at scale " << std::fixed
+                  << std::setprecision(2) << CITY_MODEL_SCALE << " (" << count
+                  << " collision triangles); boundary walls "
+                     "added.\n";
 }
 
 std::shared_ptr<Enemy>
@@ -513,10 +513,9 @@ RivalGrounds::spawn_tactical_enemies()
                          glm::distance(glm::vec2(enemy_pos.x, enemy_pos.z),
                                        glm::vec2(player_pos.x, player_pos.z)));
     }
-    std::fprintf(stderr,
-                 "Rival Grounds: %zu enemies spawned, nearest %.1f m away.\n",
-                 m_enemies.size(),
-                 nearest);
+    Util::log_err() << "Rival Grounds: " << m_enemies.size()
+                    << " enemies spawned, nearest " << std::setprecision(1)
+                    << nearest << " m away.\n";
   }
 }
 

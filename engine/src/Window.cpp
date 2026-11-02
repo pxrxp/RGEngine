@@ -1,4 +1,5 @@
 #include <engine/Window.h>
+#include <engine/util/log.h>
 #include <engine/util/opengl.h>
 #include <iostream>
 
@@ -76,14 +77,14 @@ Window::~Window()
 {
   if (m_raw_window) {
 #ifndef NDEBUG
-    std::cout << "Destroying window" << std::endl;
+    Util::log_out() << "Destroying window" << std::endl;
 #endif
 
     glfwDestroyWindow(m_raw_window);
   }
 
 #ifndef NDEBUG
-  std::cout << "Terminating windowing library" << std::endl;
+  Util::log_out() << "Terminating windowing library" << std::endl;
 #endif
 
   glfwTerminate();

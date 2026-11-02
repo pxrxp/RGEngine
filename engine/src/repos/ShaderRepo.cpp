@@ -1,7 +1,8 @@
-#include <engine/repos/ShaderRepo.h>
 #include <engine/Shader.h>
-#include <engine/util/opengl.h>
+#include <engine/repos/ShaderRepo.h>
 #include <engine/util/filesystem.h>
+#include <engine/util/log.h>
+#include <engine/util/opengl.h>
 #include <iostream>
 
 std::unordered_map<char, int> shader_map = {
@@ -25,7 +26,7 @@ ShaderRepo::load_shader(const std::string& path)
 
   const auto shader_type = shader_map.find(path.back());
   if (shader_type == shader_map.end()) {
-    std::cerr << "Unknown shader type for " << path << '\n';
+    Util::log_err() << "Unknown shader type for " << path << '\n';
     return {};
   }
 
@@ -40,7 +41,8 @@ ShaderRepo::load_shader(const std::string& path)
   if (success != GL_TRUE) {
     char info[512] = {};
     glGetShaderInfoLog(shader, sizeof(info), nullptr, info);
-    std::cerr << "Error while compiling " << path << ":\n" << info << '\n';
+    Util::log_err() << "Error while compiling " << path << ":\n"
+                    << info << '\n';
     glDeleteShader(shader);
     return {};
   }

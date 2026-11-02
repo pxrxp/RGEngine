@@ -1,5 +1,6 @@
-#include <engine/repos/TextureRepo.h>
 #include <engine/Texture.h>
+#include <engine/repos/TextureRepo.h>
+#include <engine/util/log.h>
 #include <engine/util/png_image.h>
 
 #include <algorithm>
@@ -48,7 +49,7 @@ TextureStrongPtr
 TextureRepo::load_texture(const TextureDescriptor& desc)
 {
   if (desc.texture_name.empty()) {
-    std::cerr << "Provide at least one texture!" << std::endl;
+    Util::log_err() << "Provide at least one texture!" << std::endl;
     return nullptr;
   }
   if (auto tex = RepoBase::get(desc.texture_name); tex.has_value())
@@ -63,8 +64,8 @@ TextureRepo::load_texture(const TextureDescriptor& desc)
       tex = load_cubemap(desc);
       break;
     default:
-      std::cerr << "Invalid target! Expected GL_TEXTURE_2D | "
-                   "GL_TEXTURE_CUBE_MAP\n";
+      Util::log_err() << "Invalid target! Expected GL_TEXTURE_2D | "
+                         "GL_TEXTURE_CUBE_MAP\n";
       break;
   }
   if (tex)
@@ -77,7 +78,7 @@ TextureRepo::load_tex_2d(const TextureDescriptor& desc)
 {
   PNGImage image(desc.texture_name + ".png");
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file " << desc.texture_name + ".png\n";
+    Util::log_err() << "ERROR: Invalid file " << desc.texture_name + ".png\n";
     return nullptr;
   }
   GLuint texture = 0;
@@ -120,13 +121,13 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
                                                 "_front.png", "_back.png" };
   PNGImage image(desc.texture_name + suffixes[0]);
   if (!image.is_valid()) {
-    std::cerr << "ERROR: Invalid file " << desc.texture_name + suffixes[0]
-              << '\n';
+    Util::log_err() << "ERROR: Invalid file " << desc.texture_name + suffixes[0]
+                    << '\n';
     return nullptr;
   }
   const std::uint32_t width = image.width, height = image.height;
   if (width != height) {
-    std::cerr << "ERROR: Cubemap faces must be square!\n";
+    Util::log_err() << "ERROR: Cubemap faces must be square!\n";
     return nullptr;
   }
   GLuint texture = 0;
@@ -140,8 +141,8 @@ TextureRepo::load_cubemap(const TextureDescriptor& desc)
     if (i > 0)
       image = PNGImage(desc.texture_name + suffixes[i]);
     if (!image.is_valid() || image.width != width || image.height != height) {
-      std::cerr << "ERROR: Invalid/mismatched cubemap face "
-                << desc.texture_name + suffixes[i] << '\n';
+      Util::log_err() << "ERROR: Invalid/mismatched cubemap face "
+                      << desc.texture_name + suffixes[i] << '\n';
       glDeleteTextures(1, &texture);
       return nullptr;
     }

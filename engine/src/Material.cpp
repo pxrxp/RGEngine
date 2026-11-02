@@ -1,6 +1,7 @@
 #include <engine/Material.h>
 #include <engine/ShaderProgram.h>
 #include <engine/Texture.h>
+#include <engine/util/log.h>
 #include <engine/util/opengl.h>
 #include <iostream>
 #include <type_traits>
@@ -11,8 +12,8 @@ void
 Material::bind()
 {
   if (!m_shader_program) {
-    std::cerr << "Material::bind(): material '" << m_name
-              << "' has no shader program; skipping bind\n";
+    Util::log_err() << "Material::bind(): material '" << m_name
+                    << "' has no shader program; skipping bind\n";
     return;
   }
 
@@ -39,16 +40,18 @@ Material::bind()
                                             static_cast<GLint>(slot.value()));
               m_active_texture_names.insert(actual_name);
             } else {
-              std::cerr << "Material::bind(): no texture slot available for '"
-                        << actual_name << "' in material '" << m_name << "'\n";
+              Util::log_err()
+                << "Material::bind(): no texture slot available for '"
+                << actual_name << "' in material '" << m_name << "'\n";
             }
             break;
           }
 
           if (!found_texture) {
-            std::cerr << "Material::bind(): material '" << m_name
-                      << "' has no loaded texture named '" << requested_name
-                      << "' for uniform '" << uniform_name << "'\n";
+            Util::log_err()
+              << "Material::bind(): material '" << m_name
+              << "' has no loaded texture named '" << requested_name
+              << "' for uniform '" << uniform_name << "'\n";
           }
         } else {
           m_shader_program->set_uniform(uniform_name.c_str(), arg);

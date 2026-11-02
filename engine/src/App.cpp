@@ -1,7 +1,8 @@
+#include <algorithm>
 #include <engine/App.h>
 #include <engine/ShaderProgram.h>
 #include <engine/util/gl_debug.h>
-#include <algorithm>
+#include <engine/util/log.h>
 #include <iostream>
 
 #include <imgui_impl_glfw.h>
@@ -41,11 +42,8 @@ App::init()
 
   m_window.m_dimensions = { width, height };
   m_window.m_title = m_config.window_title;
-  m_window.m_raw_window = glfwCreateWindow(width,
-                                           height,
-                                           m_window.m_title.c_str(),
-                                           nullptr,
-                                           nullptr);
+  m_window.m_raw_window =
+    glfwCreateWindow(width, height, m_window.m_title.c_str(), nullptr, nullptr);
 
   if (!m_window.m_raw_window) {
     std::cerr << "Failed to create GLFW window\n";
@@ -169,8 +167,9 @@ App::set_post_process(const ShaderProgramDescriptor& program)
 
   if (!m_postprocess_program || m_postprocess_program->get_id() == 0) {
     m_postprocess_program.reset();
-    std::cerr << "Post-process program could not be loaded; scene will be "
-                 "presented without it.\n";
+    Util::log_err()
+      << "Post-process program could not be loaded; scene will be "
+         "presented without it.\n";
     return false;
   }
 
@@ -228,8 +227,8 @@ App::create_scene_framebuffer(int width, int height)
 
   GLint maximum_samples = 1;
   glGetIntegerv(GL_MAX_SAMPLES, &maximum_samples);
-  const int requested_samples =
-    std::max(1, std::min(m_config.msaa_samples, static_cast<int>(maximum_samples)));
+  const int requested_samples = std::max(
+    1, std::min(m_config.msaa_samples, static_cast<int>(maximum_samples)));
 
   auto allocate_framebuffers = [this, width, height](int samples) {
     glGenFramebuffers(1, &m_scene_framebuffer);
@@ -349,7 +348,8 @@ App::create_scene_framebuffer(int width, int height)
                      static_cast<GLuint>(previous_renderbuffer));
 
   if (!complete) {
-    std::cerr << "Scene framebuffer is incomplete; rendering directly to the window.\n";
+    Util::log_err()
+      << "Scene framebuffer is incomplete; rendering directly to the window.\n";
     delete_framebuffer_resources();
     return false;
   }
@@ -359,9 +359,9 @@ App::create_scene_framebuffer(int width, int height)
   m_scene_framebuffer_ready = true;
 
   if (actual_samples > 1)
-    std::cout << "Scene antialiasing: " << actual_samples << "x MSAA\n";
+    Util::log_out() << "Scene antialiasing: " << actual_samples << "x MSAA\n";
   else
-    std::cout << "Scene antialiasing: single-sample fallback\n";
+    Util::log_out() << "Scene antialiasing: single-sample fallback\n";
 
   return true;
 }

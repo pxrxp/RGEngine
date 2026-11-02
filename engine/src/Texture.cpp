@@ -1,4 +1,5 @@
 #include <engine/Texture.h>
+#include <engine/util/log.h>
 #include <engine/util/opengl.h>
 #include <glad/glad.h>
 #include <iostream>
@@ -7,7 +8,7 @@ Texture::~Texture()
 {
   if (m_id) {
 #ifndef NDEBUG
-    std::cout << "Deleting textures " << m_id << std::endl;
+    Util::log_out() << "Deleting textures " << m_id << std::endl;
 #endif
 
     glDeleteTextures(1, &m_id);
@@ -31,7 +32,7 @@ Texture::operator=(Texture&& other) noexcept
   if (this != &other) {
     if (m_id != 0) {
 #ifndef NDEBUG
-      std::cout << "Deleting textures " << m_id << std::endl;
+      Util::log_out() << "Deleting textures " << m_id << std::endl;
 #endif
       glDeleteTextures(1, &m_id);
     }

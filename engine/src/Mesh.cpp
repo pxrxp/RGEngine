@@ -1,36 +1,37 @@
 #include <engine/Mesh.h>
+#include <engine/util/log.h>
 #include <engine/util/opengl.h>
 
 Mesh::~Mesh()
 {
 #ifndef NDEBUG
-  std::cout << "Destroying Mesh ID: " << m_vao << std::endl;
+  Util::log_out() << "Destroying Mesh ID: " << m_vao << std::endl;
 #endif
 
   if (m_ebo) {
     glDeleteBuffers(1, &m_ebo);
 
 #ifndef NDEBUG
-    std::cout << "Deleted element buffer object " << m_ebo << std::endl;
+    Util::log_out() << "Deleted element buffer object " << m_ebo << std::endl;
 #endif
   }
   if (m_vbo) {
     glDeleteBuffers(1, &m_vbo);
 
 #ifndef NDEBUG
-    std::cout << "Deleted vertex buffer object " << m_vbo << std::endl;
+    Util::log_out() << "Deleted vertex buffer object " << m_vbo << std::endl;
 #endif
   }
   if (m_vao) {
     glDeleteVertexArrays(1, &m_vao);
 
 #ifndef NDEBUG
-    std::cout << "Deleted vertex array object " << m_vao << std::endl;
+    Util::log_out() << "Deleted vertex array object " << m_vao << std::endl;
 #endif
   }
 
 #ifndef NDEBUG
-  std::cout << std::endl;
+  Util::log_out() << std::endl;
 #endif
 }
 
@@ -66,10 +67,13 @@ Mesh::draw(unsigned int instance_count)
     }
   } else {
     if (instance_count == 1) {
-      glDrawArrays(m_draw_primitive, 0, static_cast<int>(m_vertices_pos.size()));
+      glDrawArrays(
+        m_draw_primitive, 0, static_cast<int>(m_vertices_pos.size()));
     } else {
-      glDrawArraysInstanced(
-        m_draw_primitive, 0, static_cast<int>(m_vertices_pos.size()), instance_count);
+      glDrawArraysInstanced(m_draw_primitive,
+                            0,
+                            static_cast<int>(m_vertices_pos.size()),
+                            instance_count);
     }
   }
   this->unbind();
@@ -92,11 +96,11 @@ std::ostream&
 operator<<(std::ostream& os, const Mesh& mesh)
 {
   os << "Mesh(vao=" << mesh.m_vao << ", vbo=" << mesh.m_vbo
-     << ", ebo=" << mesh.m_ebo << ", vertex_count=" << mesh.m_vertices_pos.size()
+     << ", ebo=" << mesh.m_ebo
+     << ", vertex_count=" << mesh.m_vertices_pos.size()
      << ", index_count=" << mesh.m_index_count
      << ", draw_primitive=" << mesh.m_draw_primitive
      << ", local_AABB=" << mesh.m_local_AABB << ")";
   return os;
 }
 #endif
-

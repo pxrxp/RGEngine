@@ -3,23 +3,24 @@
 #include <engine/components/vertex_formats.h>
 #include <engine/repos/MeshRepo.h>
 #include <engine/util/filesystem.h>
+#include <engine/util/log.h>
 
-#include <charconv>
-#include <cstdio>
-#include <string>
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <map>
-#include <type_traits>
 #include <algorithm>
 #include <cctype>
+#include <charconv>
+#include <cstdio>
+#include <filesystem>
+#include <fstream>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <map>
 #include <optional>
 #include <ranges>
+#include <sstream>
+#include <string>
 #include <string_view>
 #include <system_error>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -189,8 +190,9 @@ from_OBJ(const std::string& path,
           }
           if constexpr (requires { new_vertex.texture; }) {
             if (key.tex_idx != -1)
-              new_vertex.texture = glm::vec2(tex_coords_storage[key.tex_idx].x,
-                                             1.0f - tex_coords_storage[key.tex_idx].y);
+              new_vertex.texture =
+                glm::vec2(tex_coords_storage[key.tex_idx].x,
+                          1.0f - tex_coords_storage[key.tex_idx].y);
           }
           if constexpr (requires { new_vertex.normal; }) {
             if (key.norm_idx != -1)
@@ -224,7 +226,7 @@ from_OBJ(const std::string& path,
 struct ObjMtlMaterial
 {
   std::string name;
-  glm::vec3 diffuse{1.0f};
+  glm::vec3 diffuse{ 1.0f };
   float opacity = 1.0f;
   std::filesystem::path diffuse_texture;
 };
@@ -234,43 +236,53 @@ struct ObjMaterialMeshGroup
 {
   std::string material_name;
   std::filesystem::path diffuse_texture;
-  glm::vec3 diffuse{1.0f};
+  glm::vec3 diffuse{ 1.0f };
   float opacity = 1.0f;
   MeshDescriptor<Vertex, Indices> mesh;
 };
 
 namespace obj_mtl_detail {
-inline std::string trim(std::string s)
+inline std::string
+trim(std::string s)
 {
   const auto first = s.find_first_not_of(" \t\r\n");
-  if (first == std::string::npos) return {};
+  if (first == std::string::npos)
+    return {};
   const auto last = s.find_last_not_of(" \t\r\n");
   return s.substr(first, last - first + 1);
 }
 
-inline std::filesystem::path resource_path(const std::string& path)
+inline std::filesystem::path
+resource_path(const std::string& path)
 {
   std::filesystem::path p(path);
-  if (p.is_absolute() || std::filesystem::exists(p)) return p;
+  if (p.is_absolute() || std::filesystem::exists(p))
+    return p;
   return std::filesystem::path("resources") / p;
 }
 
-inline std::filesystem::path resolve_map_path(
-  const std::filesystem::path& mtl_path, const std::string& raw_path)
+inline std::filesystem::path
+resolve_map_path(const std::filesystem::path& mtl_path,
+                 const std::string& raw_path)
 {
   auto raw = std::filesystem::path(trim(raw_path));
-  if (raw.empty()) return {};
-  if (raw.is_absolute() && std::filesystem::exists(raw)) return raw;
+  if (raw.empty())
+    return {};
+  if (raw.is_absolute() && std::filesystem::exists(raw))
+    return raw;
 
   const auto base = mtl_path.parent_path();
   auto candidate = (base / raw).lexically_normal();
-  if (std::filesystem::exists(candidate)) return candidate;
+  if (std::filesystem::exists(candidate))
+    return candidate;
 
   auto res_cand = (std::filesystem::path("resources") / raw).lexically_normal();
-  if (std::filesystem::exists(res_cand)) return res_cand;
+  if (std::filesystem::exists(res_cand))
+    return res_cand;
 
   auto fn_cand = (base / raw.filename()).lexically_normal();
-  if (std::filesystem::exists(fn_cand)) return fn_cand;
+  if (std::filesystem::exists(fn_cand))
+    return fn_cand;
 
   return candidate;
 }
@@ -281,14 +293,17 @@ read_mtl(const std::filesystem::path& mtl_path)
   std::unordered_map<std::string, ObjMtlMaterial> materials;
   std::ifstream file(mtl_path);
   if (!file) {
-    std::fprintf(stderr, "OBJ loader: could not open MTL '%s'\n", mtl_path.string().c_str());
+    std::fprintf(stderr,
+                 "OBJ loader: could not open MTL '%s'\n",
+                 mtl_path.string().c_str());
     return materials;
   }
   ObjMtlMaterial* current = nullptr;
   std::string line;
   while (std::getline(file, line)) {
     line = trim(std::move(line));
-    if (line.empty() || line[0] == '#') continue;
+    if (line.empty() || line[0] == '#')
+      continue;
     std::istringstream in(line);
     std::string command;
     in >> command;
@@ -303,7 +318,8 @@ read_mtl(const std::filesystem::path& mtl_path)
       in >> current->diffuse.r >> current->diffuse.g >> current->diffuse.b;
     } else if (current && (command == "d" || command == "Tr")) {
       float value = 1.0f;
-      if (in >> value) current->opacity = command == "Tr" ? 1.0f - value : value;
+      if (in >> value)
+        current->opacity = command == "Tr" ? 1.0f - value : value;
     } else if (current && command == "map_Kd") {
       std::string path;
       std::getline(in, path);
@@ -317,14 +333,17 @@ read_mtl(const std::filesystem::path& mtl_path)
         rest = trim(std::move(rest));
         if (option == "-s" || option == "-o" || option == "-t") {
           std::istringstream values(rest);
-          float ignored; int count = 0;
-          while (count < 3 && values >> ignored) ++count;
+          float ignored;
+          int count = 0;
+          while (count < 3 && values >> ignored)
+            ++count;
           std::string remaining;
           std::getline(values, remaining);
           path = trim(std::move(remaining));
         } else {
           const auto split = rest.find_first_of(" \t");
-          path = split == std::string::npos ? std::string{} : trim(rest.substr(split + 1));
+          path = split == std::string::npos ? std::string{}
+                                            : trim(rest.substr(split + 1));
         }
       }
       current->diffuse_texture = resolve_map_path(mtl_path, path);
@@ -351,7 +370,9 @@ from_OBJ_material_groups(const std::string& path,
   const fs::path obj_path = obj_mtl_detail::resource_path(path);
   std::ifstream obj_file(obj_path);
   if (!obj_file) {
-    std::fprintf(stderr, "OBJ loader: could not open OBJ '%s'\n", obj_path.string().c_str());
+    std::fprintf(stderr,
+                 "OBJ loader: could not open OBJ '%s'\n",
+                 obj_path.string().c_str());
     return {};
   }
 
@@ -363,14 +384,16 @@ from_OBJ_material_groups(const std::string& path,
   std::unordered_map<std::string, ObjMtlMaterial> materials;
   std::string active_material = "__default__";
 
-  struct Builder {
+  struct Builder
+  {
     std::vector<Vertex> vertices;
     std::vector<Indices> indices;
     std::unordered_map<VertexKey, GLuint, VertexKeyHasher> unique;
   };
   std::unordered_map<std::string, Builder> builders;
   auto ensure_group = [&](const std::string& name) {
-    if (!builders.contains(name)) material_order.push_back(name);
+    if (!builders.contains(name))
+      material_order.push_back(name);
     builders.try_emplace(name);
   };
   ensure_group(active_material);
@@ -378,26 +401,33 @@ from_OBJ_material_groups(const std::string& path,
   std::string line;
   while (std::getline(obj_file, line)) {
     line = obj_mtl_detail::trim(std::move(line));
-    if (line.empty() || line[0] == '#') continue;
+    if (line.empty() || line[0] == '#')
+      continue;
     std::istringstream in(line);
     std::string command;
     in >> command;
     if (command == "v") {
       glm::vec3 v;
-      if (in >> v.x >> v.y >> v.z) positions.push_back(v);
+      if (in >> v.x >> v.y >> v.z)
+        positions.push_back(v);
     } else if (command == "vt") {
       glm::vec2 v;
-      if (in >> v.x >> v.y) texcoords.push_back(v);
+      if (in >> v.x >> v.y)
+        texcoords.push_back(v);
     } else if (command == "vn") {
       glm::vec3 v;
-      if (in >> v.x >> v.y >> v.z) normals.push_back(v);
+      if (in >> v.x >> v.y >> v.z)
+        normals.push_back(v);
     } else if (command == "mtllib") {
       std::string mtl_name;
-      while (in >> mtl_name) mtl_paths.push_back((obj_path.parent_path() / mtl_name).lexically_normal());
+      while (in >> mtl_name)
+        mtl_paths.push_back(
+          (obj_path.parent_path() / mtl_name).lexically_normal());
     } else if (command == "usemtl") {
       std::getline(in, active_material);
       active_material = obj_mtl_detail::trim(std::move(active_material));
-      if (active_material.empty()) active_material = "__default__";
+      if (active_material.empty())
+        active_material = "__default__";
       ensure_group(active_material);
     } else if (command == "f") {
       std::string corner;
@@ -405,38 +435,66 @@ from_OBJ_material_groups(const std::string& path,
       std::vector<GLuint> corners;
       while (in >> corner) {
         const auto first = corner.find('/');
-        const auto second = first == std::string::npos ? std::string::npos : corner.find('/', first + 1);
-        auto parse_index = [](std::string_view sv, size_t count) -> std::optional<int> {
-          if (sv.empty()) return std::nullopt;
+        const auto second = first == std::string::npos
+                              ? std::string::npos
+                              : corner.find('/', first + 1);
+        auto parse_index = [](std::string_view sv,
+                              size_t count) -> std::optional<int> {
+          if (sv.empty())
+            return std::nullopt;
           int raw = 0;
-          auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), raw);
-          if (ec != std::errc() || ptr != sv.data() + sv.size() || raw == 0) return std::nullopt;
+          auto [ptr, ec] =
+            std::from_chars(sv.data(), sv.data() + sv.size(), raw);
+          if (ec != std::errc() || ptr != sv.data() + sv.size() || raw == 0)
+            return std::nullopt;
           const int index = raw > 0 ? raw - 1 : static_cast<int>(count) + raw;
-          if (index < 0 || static_cast<size_t>(index) >= count) return std::nullopt;
+          if (index < 0 || static_cast<size_t>(index) >= count)
+            return std::nullopt;
           return index;
         };
-        auto op = parse_index(first == std::string::npos ? std::string_view(corner) : std::string_view(corner).substr(0, first), positions.size());
-        if (!op) continue;
+        auto op = parse_index(first == std::string::npos
+                                ? std::string_view(corner)
+                                : std::string_view(corner).substr(0, first),
+                              positions.size());
+        if (!op)
+          continue;
         std::optional<int> ot, on;
         if (first != std::string::npos) {
-          const auto tex_end = second == std::string::npos ? corner.size() : second;
-          ot = parse_index(std::string_view(corner).substr(first + 1, tex_end - first - 1), texcoords.size());
-          if (second != std::string::npos) on = parse_index(std::string_view(corner).substr(second + 1), normals.size());
+          const auto tex_end =
+            second == std::string::npos ? corner.size() : second;
+          ot = parse_index(
+            std::string_view(corner).substr(first + 1, tex_end - first - 1),
+            texcoords.size());
+          if (second != std::string::npos)
+            on = parse_index(std::string_view(corner).substr(second + 1),
+                             normals.size());
         }
-        VertexKey key; key.pos_idx = *op;
-        if constexpr (requires { Vertex::texture; }) { if (ot) key.tex_idx = *ot; }
-        if constexpr (requires { Vertex::normal; }) { if (on) key.norm_idx = *on; }
+        VertexKey key;
+        key.pos_idx = *op;
+        if constexpr (requires { Vertex::texture; }) {
+          if (ot)
+            key.tex_idx = *ot;
+        }
+        if constexpr (requires { Vertex::normal; }) {
+          if (on)
+            key.norm_idx = *on;
+        }
         auto found = builder.unique.find(key);
-        if (found != builder.unique.end()) corners.push_back(found->second);
+        if (found != builder.unique.end())
+          corners.push_back(found->second);
         else {
           Vertex v{};
-          if constexpr (requires { v.position; }) v.position = positions[key.pos_idx];
+          if constexpr (requires { v.position; })
+            v.position = positions[key.pos_idx];
           if constexpr (requires { v.texture; }) {
             if (key.tex_idx >= 0) {
-              v.texture = glm::vec2(texcoords[key.tex_idx].x, 1.0f - texcoords[key.tex_idx].y);
+              v.texture = glm::vec2(texcoords[key.tex_idx].x,
+                                    1.0f - texcoords[key.tex_idx].y);
             }
           }
-          if constexpr (requires { v.normal; }) if (key.norm_idx >= 0) v.normal = normals[key.norm_idx];
+          if constexpr (requires { v.normal; })
+            if (key.norm_idx >= 0)
+              v.normal = normals[key.norm_idx];
           builder.vertices.push_back(v);
           const auto index = static_cast<GLuint>(builder.vertices.size() - 1);
           builder.unique.emplace(key, index);
@@ -450,25 +508,30 @@ from_OBJ_material_groups(const std::string& path,
 
   for (const auto& mtl_path : mtl_paths) {
     auto loaded = obj_mtl_detail::read_mtl(mtl_path);
-    for (auto& [name, material] : loaded) materials[name] = std::move(material);
+    for (auto& [name, material] : loaded)
+      materials[name] = std::move(material);
   }
 
   std::vector<ObjMaterialMeshGroup<Vertex, Indices>> result;
   result.reserve(material_order.size());
   for (const auto& name : material_order) {
     auto it = builders.find(name);
-    if (it == builders.end() || it->second.indices.empty()) continue;
+    if (it == builders.end() || it->second.indices.empty())
+      continue;
     ObjMtlMaterial material;
     material.name = name;
-    if (auto mat = materials.find(name); mat != materials.end()) material = mat->second;
-    MeshDescriptor<Vertex, Indices> desc{
-      path + "#" + name,
-      std::move(it->second.vertices),
-      std::move(it->second.indices),
-      draw_primitive,
-      usage
-    };
-    result.push_back({ name, material.diffuse_texture, material.diffuse, material.opacity, std::move(desc) });
+    if (auto mat = materials.find(name); mat != materials.end())
+      material = mat->second;
+    MeshDescriptor<Vertex, Indices> desc{ path + "#" + name,
+                                          std::move(it->second.vertices),
+                                          std::move(it->second.indices),
+                                          draw_primitive,
+                                          usage };
+    result.push_back({ name,
+                       material.diffuse_texture,
+                       material.diffuse,
+                       material.opacity,
+                       std::move(desc) });
   }
   return result;
 }

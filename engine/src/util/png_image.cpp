@@ -1,7 +1,8 @@
-#include <engine/util/png_image.h>
-#include <engine/util/filesystem.h>
 #include <cstdio>
 #include <cstring>
+#include <engine/util/filesystem.h>
+#include <engine/util/log.h>
+#include <engine/util/png_image.h>
 #include <png.h>
 #include <stdexcept>
 
@@ -30,32 +31,32 @@ PNGImage::PNGImage(const std::string& relative_path)
   try {
     png_data = Util::read_file_bytes("resources/" + relative_path);
   } catch (const std::runtime_error& e) {
-    fprintf(stderr, "png_image: %s\n", e.what());
+    Util::log_err() << "png_image: " << e.what() << '\n';
     return;
   }
 
   if (png_data.size() < 8 || png_sig_cmp(png_data.data(), 0, 8) != 0) {
-    fprintf(
-      stderr, "png_image: Not a valid PNG file: %s\n", relative_path.c_str());
+    Util::log_err() << "png_image: Not a valid PNG file: " << relative_path
+                    << '\n';
     return;
   }
 
   png_structp png_ptr =
     png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!png_ptr) {
-    fprintf(stderr, "png_image: png_create_read_struct failed.\n");
+    Util::log_err() << "png_image: png_create_read_struct failed.\n";
     return;
   }
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr) {
-    fprintf(stderr, "png_image: png_create_info_struct failed.\n");
+    Util::log_err() << "png_image: png_create_info_struct failed.\n";
     png_destroy_read_struct(&png_ptr, nullptr, nullptr);
     return;
   }
 
   if (setjmp(png_jmpbuf(png_ptr))) {
-    fprintf(stderr, "png_image: Error during PNG read.\n");
+    Util::log_err() << "png_image: Error during PNG read.\n";
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
     return;
   }

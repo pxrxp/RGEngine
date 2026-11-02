@@ -1,6 +1,7 @@
-#include <engine/repos/ShaderProgramRepo.h>
 #include <engine/Shader.h>
 #include <engine/ShaderProgram.h>
+#include <engine/repos/ShaderProgramRepo.h>
+#include <engine/util/log.h>
 #include <engine/util/opengl.h>
 #include <iostream>
 
@@ -30,7 +31,7 @@ ShaderProgramRepo::load_program(const ShaderProgramDescriptor& desc)
   if (success != GL_TRUE) {
     char info[512] = {};
     glGetProgramInfoLog(id, sizeof(info), nullptr, info);
-    std::cerr << "Program link error:\n" << info << std::endl;
+    Util::log_err() << "Program link error:\n" << info << std::endl;
     glDeleteProgram(id);
     return {};
   }
