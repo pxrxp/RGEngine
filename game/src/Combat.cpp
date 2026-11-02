@@ -120,6 +120,8 @@ RivalGrounds::handle_object_grab()
                          glm::vec3(0.0f, -0.1f, 0.0f);
     m_held_object->get_local_transform().set_position(hold_pos).set_rotation(
       glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    m_held_object->get_physics_component().set_linear_momentum({ 0, 0, 0 });
+    m_held_object->get_physics_component().set_angular_momentum({ 0, 0, 0 });
     m_held_object->visible = !m_held_object_hidden;
   }
 }

@@ -89,6 +89,8 @@ RivalGrounds::update_physics()
   std::vector<BoundingBox> colliders;
   collect_game_colliders(colliders);
 
+  cull_distant_enemies();
+
   m_reinforcement_timer -= dt;
   if (m_reinforcement_timer <= 0.0f) {
     m_reinforcement_timer = 14.0f;
@@ -99,25 +101,8 @@ RivalGrounds::update_physics()
         ++living;
     }
 
-    if (living < 14) {
-      std::random_device rd;
-      std::mt19937 rng(rd());
-      std::uniform_real_distribution<float> angle_dist(0.0f, 6.2831853f);
-      std::uniform_real_distribution<float> dist_dist(55.0f, 115.0f);
-
-      float ang = angle_dist(rng);
-      float d = dist_dist(rng);
-      glm::vec3 spawn_pos(player_pos.x + std::cos(ang) * d,
-                          0.0f,
-                          player_pos.z + std::sin(ang) * d);
-
-      std::vector<glm::vec3> patrol_route = {
-        spawn_pos + glm::vec3(25.0f, 0.0f, 0.0f),
-        spawn_pos - glm::vec3(25.0f, 0.0f, 0.0f)
-      };
-      m_enemies.push_back(
-        std::make_shared<Enemy>(*this, spawn_pos, patrol_route));
-    }
+    if (living < 14)
+      spawn_enemy_near_player(45.0f, 75.0f);
   }
 
   for (auto& enemy : m_enemies) {

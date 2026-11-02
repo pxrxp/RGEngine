@@ -62,6 +62,8 @@ public:
   std::optional<RenderPacketStrongPtr> get_render_packet();
 
   void add_child(SceneObjectStrongPtr child);
+  // Detaches a direct child without destroying it. No-op if it is not a child.
+  void remove_child(const SceneObjectStrongPtr& child);
   SceneObjectStrongPtr get_parent() const;
 
   auto begin() noexcept { return m_children.begin(); }

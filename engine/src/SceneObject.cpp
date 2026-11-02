@@ -1,9 +1,10 @@
-#include <engine/SceneObject.h>
+#include <algorithm>
+#include <cmath>
 #include <engine/App.h>
 #include <engine/Mesh.h>
 #include <engine/Scene.h>
+#include <engine/SceneObject.h>
 #include <engine/components/BoundingBox.h>
-#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -57,18 +58,17 @@ SceneObject::update_world_AABB()
     // Cache world transform once instead of 8 times!
     const glm::mat4 world_mat = get_world_transformation_mat();
 
-    const glm::vec3 corners[8] = {
-      { mn.x, mn.y, mn.z }, { mx.x, mn.y, mn.z },
-      { mn.x, mx.y, mn.z }, { mx.x, mx.y, mn.z },
-      { mn.x, mn.y, mx.z }, { mx.x, mn.y, mx.z },
-      { mn.x, mx.y, mx.z }, { mx.x, mx.y, mx.z }
-    };
+    const glm::vec3 corners[8] = { { mn.x, mn.y, mn.z }, { mx.x, mn.y, mn.z },
+                                   { mn.x, mx.y, mn.z }, { mx.x, mx.y, mn.z },
+                                   { mn.x, mn.y, mx.z }, { mx.x, mn.y, mx.z },
+                                   { mn.x, mx.y, mx.z }, { mx.x, mx.y, mx.z } };
 
     glm::vec3 world_min(std::numeric_limits<float>::max());
     glm::vec3 world_max(std::numeric_limits<float>::lowest());
 
     for (int i = 0; i < 8; ++i) {
-      glm::vec3 transformed = glm::vec3(world_mat * glm::vec4(corners[i], 1.0f));
+      glm::vec3 transformed =
+        glm::vec3(world_mat * glm::vec4(corners[i], 1.0f));
       world_min = glm::min(world_min, transformed);
       world_max = glm::max(world_max, transformed);
     }
@@ -93,6 +93,21 @@ SceneObject::add_child(std::shared_ptr<SceneObject> child)
 {
   m_children.push_back(child);
   child->m_parent = this->shared_from_this();
+}
+
+void
+SceneObject::remove_child(const std::shared_ptr<SceneObject>& child)
+{
+  const auto it =
+    std::find_if(m_children.begin(), m_children.end(), [&](const auto& entry) {
+      return entry == child;
+    });
+  if (it == m_children.end())
+    return;
+
+  if (auto parent = it->get()->m_parent.lock(); parent.get() == this)
+    it->get()->m_parent.reset();
+  m_children.erase(it);
 }
 
 SceneObjectStrongPtr

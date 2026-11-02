@@ -143,7 +143,11 @@ private:
   void render_game_hud();
   void reset_match();
   void build_massive_city(std::mt19937& rng);
-  void spawn_tactical_enemies(std::mt19937& rng);
+  void spawn_tactical_enemies();
+  std::shared_ptr<Enemy> spawn_enemy_near_player(float min_distance,
+                                                 float max_distance);
+  void cull_distant_enemies();
+  std::mt19937 m_rng{ std::random_device{}() };
   void spawn_physics_obj_prop(const std::string& filename,
                               const glm::vec3& pos,
                               const glm::vec3& scale,

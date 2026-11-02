@@ -229,7 +229,7 @@ RivalGrounds::reset_match()
       }));
   m_scene_ptr->add_child(m_scroll_objective);
 
-  spawn_tactical_enemies(rng);
+  spawn_tactical_enemies();
 }
 
 void
@@ -417,8 +417,69 @@ RivalGrounds::build_massive_city(std::mt19937& rng)
                count);
 }
 
+std::shared_ptr<Enemy>
+RivalGrounds::spawn_enemy_near_player(float min_distance, float max_distance)
+{
+  if (!m_city_bounds_valid || max_distance <= min_distance)
+    return nullptr;
+
+  constexpr float CITY_INSET = 12.0f;
+  const glm::vec3 player_pos = m_player->get_local_transform().get_position();
+  std::uniform_real_distribution<float> angle_dist(0.0f, 6.2831853f);
+  std::uniform_real_distribution<float> distance_dist(min_distance,
+                                                      max_distance);
+  std::uniform_real_distribution<float> offset_dist(-18.0f, 18.0f);
+
+  auto is_walkable = [this](const glm::vec3& p) {
+    float ground = 0.0f;
+    if (!m_collision_world.find_ground_height(
+          p.x, p.z, p.y + 6.0f, p.y - 2.0f, ground))
+      return false;
+    return !m_collision_world.blocks_vertical_capsule(
+      p.x, p.z, p.x, p.z, ground + 0.15f, ground + 1.75f, 0.4f);
+  };
+
+  for (int attempt = 0; attempt < 64; ++attempt) {
+    const float angle = angle_dist(m_rng);
+    const float distance = distance_dist(m_rng);
+    const float x = player_pos.x + std::cos(angle) * distance;
+    const float z = player_pos.z + std::sin(angle) * distance;
+
+    if (x < m_city_world_min.x + CITY_INSET ||
+        x > m_city_world_max.x - CITY_INSET ||
+        z < m_city_world_min.z + CITY_INSET ||
+        z > m_city_world_max.z - CITY_INSET)
+      continue;
+
+    float ground = 0.0f;
+    if (!m_collision_world.find_ground_height(x, z, 6.0f, -2.0f, ground))
+      continue;
+    if (m_collision_world.blocks_vertical_capsule(
+          x, z, x, z, ground + 0.15f, ground + 1.75f, 0.4f))
+      continue;
+
+    const glm::vec3 spawn_pos(x, ground, z);
+    const float ox = offset_dist(m_rng);
+    const float oz = offset_dist(m_rng);
+    std::vector<glm::vec3> patrol_route = { spawn_pos };
+    // Skip patrol legs that would run the enemy into a wall.
+    const glm::vec3 leg_a = spawn_pos + glm::vec3(ox, 0.0f, oz);
+    const glm::vec3 leg_b = spawn_pos - glm::vec3(ox, 0.0f, oz);
+    if (is_walkable(leg_a))
+      patrol_route.push_back(leg_a);
+    if (is_walkable(leg_b))
+      patrol_route.push_back(leg_b);
+
+    auto enemy = std::make_shared<Enemy>(*this, spawn_pos, patrol_route);
+    m_enemies.push_back(enemy);
+    return enemy;
+  }
+
+  return nullptr;
+}
+
 void
-RivalGrounds::spawn_tactical_enemies(std::mt19937& rng)
+RivalGrounds::spawn_tactical_enemies()
 {
   if (!m_city_bounds_valid)
     return;
@@ -438,68 +499,13 @@ RivalGrounds::spawn_tactical_enemies(std::mt19937& rng)
     { 5, 52.0f, 74.0f },
   };
 
-  constexpr float CITY_INSET = 12.0f;
-  const glm::vec3 player_pos = m_player->get_local_transform().get_position();
-
-  auto is_walkable = [this](const glm::vec3& p) {
-    float ground = 0.0f;
-    if (!m_collision_world.find_ground_height(
-          p.x, p.z, p.y + 6.0f, p.y - 2.0f, ground))
-      return false;
-    return !m_collision_world.blocks_vertical_capsule(
-      p.x, p.z, p.x, p.z, ground + 0.15f, ground + 1.75f, 0.4f);
-  };
-
-  std::uniform_real_distribution<float> angle_dist(0.0f, 6.2831853f);
-  std::uniform_real_distribution<float> offset_dist(-18.0f, 18.0f);
-
   for (const SpawnRing& ring : rings) {
-    std::uniform_real_distribution<float> distance_dist(ring.min_distance,
-                                                        ring.max_distance);
-    for (int i = 0; i < ring.count; ++i) {
-      glm::vec3 spawn_pos(0.0f);
-      bool found_spawn = false;
-      for (int attempt = 0; attempt < 64 && !found_spawn; ++attempt) {
-        const float angle = angle_dist(rng);
-        const float distance = distance_dist(rng);
-        const float x = player_pos.x + std::cos(angle) * distance;
-        const float z = player_pos.z + std::sin(angle) * distance;
-
-        if (x < m_city_world_min.x + CITY_INSET ||
-            x > m_city_world_max.x - CITY_INSET ||
-            z < m_city_world_min.z + CITY_INSET ||
-            z > m_city_world_max.z - CITY_INSET)
-          continue;
-
-        float ground = 0.0f;
-        if (!m_collision_world.find_ground_height(x, z, 6.0f, -2.0f, ground))
-          continue;
-        if (m_collision_world.blocks_vertical_capsule(
-              x, z, x, z, ground + 0.15f, ground + 1.75f, 0.4f))
-          continue;
-
-        spawn_pos = glm::vec3(x, ground, z);
-        found_spawn = true;
-      }
-      if (!found_spawn)
-        continue;
-
-      const float ox = offset_dist(rng);
-      const float oz = offset_dist(rng);
-      std::vector<glm::vec3> patrol_route = { spawn_pos };
-      // Skip patrol legs that would run the enemy into a wall.
-      const glm::vec3 leg_a = spawn_pos + glm::vec3(ox, 0.0f, oz);
-      const glm::vec3 leg_b = spawn_pos - glm::vec3(ox, 0.0f, oz);
-      if (is_walkable(leg_a))
-        patrol_route.push_back(leg_a);
-      if (is_walkable(leg_b))
-        patrol_route.push_back(leg_b);
-      m_enemies.push_back(
-        std::make_shared<Enemy>(*this, spawn_pos, patrol_route));
-    }
+    for (int i = 0; i < ring.count; ++i)
+      spawn_enemy_near_player(ring.min_distance, ring.max_distance);
   }
 
   if (!m_enemies.empty()) {
+    const glm::vec3 player_pos = m_player->get_local_transform().get_position();
     float nearest = std::numeric_limits<float>::max();
     for (const auto& enemy : m_enemies) {
       const glm::vec3 enemy_pos = enemy->get_position();
@@ -511,6 +517,39 @@ RivalGrounds::spawn_tactical_enemies(std::mt19937& rng)
                  "Rival Grounds: %zu enemies spawned, nearest %.1f m away.\n",
                  m_enemies.size(),
                  nearest);
+  }
+}
+
+void
+RivalGrounds::cull_distant_enemies()
+{
+  // Enemies left behind on the far side of the city are dead weight: remove
+  // them and put a living replacement near the player so the fight stays local.
+  constexpr float CULL_DISTANCE = 170.0f;
+  const glm::vec3 player_pos = m_player->get_local_transform().get_position();
+
+  for (auto it = m_enemies.begin(); it != m_enemies.end();) {
+    const auto& enemy = *it;
+    if (!enemy) {
+      it = m_enemies.erase(it);
+      continue;
+    }
+
+    const glm::vec3 pos = enemy->get_position();
+    const float distance = glm::distance(glm::vec2(pos.x, pos.z),
+                                         glm::vec2(player_pos.x, player_pos.z));
+    if (distance <= CULL_DISTANCE) {
+      ++it;
+      continue;
+    }
+
+    const bool was_alive = !enemy->is_dead();
+    if (auto root = enemy->get_root())
+      m_scene_ptr->remove_child(root);
+    it = m_enemies.erase(it);
+
+    if (was_alive)
+      spawn_enemy_near_player(60.0f, 90.0f);
   }
 }
 

@@ -1,7 +1,7 @@
 #pragma once
-#include <engine/SceneObject.h>
 #include <atomic>
 #include <cstdint>
+#include <engine/SceneObject.h>
 #include <memory>
 #include <vector>
 
@@ -79,5 +79,6 @@ public:
   bool is_dead() const { return m_state == EnemyState::DEAD; }
   float get_damage_flash() const { return m_damage_flash; }
   glm::vec3 get_position() const;
+  SceneObjectStrongPtr get_root() const { return m_root; }
   BoundingBox get_hitbox() const;
 };
