@@ -6,7 +6,6 @@ App::register_callbacks()
 {
   glfwSetFramebufferSizeCallback(m_window.m_raw_window,
                                  framebuffer_size_callback);
-  glfwSetKeyCallback(m_window.m_raw_window, key_callback);
   glfwSetCursorPosCallback(m_window.m_raw_window, mouse_move_callback);
 }
 
@@ -21,23 +20,6 @@ App::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 void
-App::key_callback(GLFWwindow* window,
-                  int key,
-                  [[maybe_unused]] int scancode,
-                  int action,
-                  [[maybe_unused]] int mods)
-{
-  if (action != GLFW_PRESS)
-    return;
-
-  if (key == GLFW_KEY_ESCAPE)
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-  if (key == GLFW_KEY_TAB)
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-}
-
-void
 App::mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 {
   App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
@@ -45,9 +27,9 @@ App::mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
   glm::dvec2 new_pos = { xpos, ypos };
   glm::dvec2 old_pos = app->m_window.m_mouse;
 
-  if (app->m_first_mouse_update) {
+  if (app->m_window.m_first_mouse_update) {
     old_pos = new_pos;
-    m_first_mouse_update = false;
+    app->m_window.m_first_mouse_update = false;
   }
 
   app->m_window.m_mouse_accumulator += (new_pos - old_pos);

@@ -7,8 +7,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-namespace {
-constexpr int SCENE_SAMPLE_COUNT = 4;
+App::App(AppConfig config)
+  : m_config(std::move(config))
+{
 }
 
 void
@@ -19,25 +20,29 @@ App::init()
     exit(EXIT_FAILURE);
   }
 
-  glfwWindowHint(GLFW_SAMPLES, SCENE_SAMPLE_COUNT);
+  glfwWindowHint(GLFW_SAMPLES, m_config.msaa_samples);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-  glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+  glfwWindowHint(GLFW_DECORATED, m_config.decorated ? GLFW_TRUE : GLFW_FALSE);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  auto video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+  int width = m_config.width;
+  int height = m_config.height;
+  if (width <= 0 || height <= 0) {
+    const auto video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    width = video_mode->width / 2;
+    height = video_mode->height / 2;
+  }
 
-  m_window.m_dimensions.x = video_mode->width / 2;
-  m_window.m_dimensions.y = video_mode->height / 2;
-  m_window.m_title = "RivalGrounds";
-
-  m_window.m_raw_window = glfwCreateWindow(m_window.m_dimensions.x,
-                                           m_window.m_dimensions.y,
+  m_window.m_dimensions = { width, height };
+  m_window.m_title = m_config.window_title;
+  m_window.m_raw_window = glfwCreateWindow(width,
+                                           height,
                                            m_window.m_title.c_str(),
                                            nullptr,
                                            nullptr);
@@ -52,7 +57,6 @@ App::init()
   glfwSwapInterval(1);
   glfwSetWindowUserPointer(m_window.m_raw_window, this);
 
-  m_window.set_cursor_mode(GLFW_CURSOR_DISABLED);
   register_callbacks();
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -62,20 +66,19 @@ App::init()
 
   Util::init_gl_debug();
 
-  int width, height;
-  glfwGetFramebufferSize(m_window.m_raw_window, &width, &height);
-  glViewport(0, 0, width, height);
+  int framebuffer_width = 0;
+  int framebuffer_height = 0;
+  glfwGetFramebufferSize(
+    m_window.m_raw_window, &framebuffer_width, &framebuffer_height);
+  glViewport(0, 0, framebuffer_width, framebuffer_height);
 
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
 
-  create_postprocess_program();
-  create_scene_framebuffer(width, height);
+  glGenVertexArrays(1, &m_postprocess_vertex_array);
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO();
-  (void)io;
   ImGui::StyleColorsDark();
   ImGui_ImplGlfw_InitForOpenGL(m_window.m_raw_window, true);
   ImGui_ImplOpenGL3_Init("#version 330");
@@ -159,26 +162,27 @@ App::cleanup()
 }
 
 bool
-App::create_postprocess_program()
+App::set_post_process(const ShaderProgramDescriptor& program)
 {
-  m_postprocess_program = material_repo.shader_program_repo.load_program(
-    { .program_name = "grayscale_postprocess",
-      .shaders = { "postprocess.vert", "postprocess.frag" } });
+  m_postprocess_program =
+    material_repo.shader_program_repo.load_program(program);
 
-  if (!m_postprocess_program || m_postprocess_program->get_id() == 0)
+  if (!m_postprocess_program || m_postprocess_program->get_id() == 0) {
+    m_postprocess_program.reset();
+    std::cerr << "Post-process program could not be loaded; scene will be "
+                 "presented without it.\n";
     return false;
+  }
 
   m_postprocess_program->set_uniform("u_scene", 0);
-  m_postprocess_program->set_uniform("u_scene_mask", 1);
-  glGenVertexArrays(1, &m_postprocess_vertex_array);
-  return m_postprocess_vertex_array != 0;
+  m_postprocess_program->set_uniform("u_scene_aux", 1);
+  return true;
 }
 
 bool
 App::create_scene_framebuffer(int width, int height)
 {
-  if (width <= 0 || height <= 0 || !m_postprocess_program ||
-      m_postprocess_vertex_array == 0)
+  if (width <= 0 || height <= 0)
     return false;
 
   if (m_scene_framebuffer_ready && width == m_scene_buffer_width &&
@@ -201,21 +205,21 @@ App::create_scene_framebuffer(int width, int height)
       glDeleteFramebuffers(1, &m_scene_resolve_framebuffer);
     if (m_scene_color_texture)
       glDeleteTextures(1, &m_scene_color_texture);
-    if (m_scene_color_mask_texture)
-      glDeleteTextures(1, &m_scene_color_mask_texture);
+    if (m_scene_aux_texture)
+      glDeleteTextures(1, &m_scene_aux_texture);
     if (m_scene_color_buffer)
       glDeleteRenderbuffers(1, &m_scene_color_buffer);
-    if (m_scene_color_mask_buffer)
-      glDeleteRenderbuffers(1, &m_scene_color_mask_buffer);
+    if (m_scene_aux_buffer)
+      glDeleteRenderbuffers(1, &m_scene_aux_buffer);
     if (m_scene_depth_buffer)
       glDeleteRenderbuffers(1, &m_scene_depth_buffer);
 
     m_scene_framebuffer = 0;
     m_scene_resolve_framebuffer = 0;
     m_scene_color_texture = 0;
-    m_scene_color_mask_texture = 0;
+    m_scene_aux_texture = 0;
     m_scene_color_buffer = 0;
-    m_scene_color_mask_buffer = 0;
+    m_scene_aux_buffer = 0;
     m_scene_depth_buffer = 0;
     m_scene_framebuffer_ready = false;
   };
@@ -224,8 +228,8 @@ App::create_scene_framebuffer(int width, int height)
 
   GLint maximum_samples = 1;
   glGetIntegerv(GL_MAX_SAMPLES, &maximum_samples);
-  const int requested_samples = std::max(
-    1, std::min(SCENE_SAMPLE_COUNT, static_cast<int>(maximum_samples)));
+  const int requested_samples =
+    std::max(1, std::min(m_config.msaa_samples, static_cast<int>(maximum_samples)));
 
   auto allocate_framebuffers = [this, width, height](int samples) {
     glGenFramebuffers(1, &m_scene_framebuffer);
@@ -243,8 +247,8 @@ App::create_scene_framebuffer(int width, int height)
                               GL_RENDERBUFFER,
                               m_scene_color_buffer);
 
-    glGenRenderbuffers(1, &m_scene_color_mask_buffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_scene_color_mask_buffer);
+    glGenRenderbuffers(1, &m_scene_aux_buffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_scene_aux_buffer);
     if (samples > 1)
       glRenderbufferStorageMultisample(
         GL_RENDERBUFFER, samples, GL_R8, width, height);
@@ -253,7 +257,7 @@ App::create_scene_framebuffer(int width, int height)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                               GL_COLOR_ATTACHMENT1,
                               GL_RENDERBUFFER,
-                              m_scene_color_mask_buffer);
+                              m_scene_aux_buffer);
 
     glGenRenderbuffers(1, &m_scene_depth_buffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_scene_depth_buffer);
@@ -293,13 +297,13 @@ App::create_scene_framebuffer(int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER,
-                            GL_COLOR_ATTACHMENT0,
-                            GL_TEXTURE_2D,
-                            m_scene_color_texture,
-                            0);
+                           GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D,
+                           m_scene_color_texture,
+                           0);
 
-    glGenTextures(1, &m_scene_color_mask_texture);
-    glBindTexture(GL_TEXTURE_2D, m_scene_color_mask_texture);
+    glGenTextures(1, &m_scene_aux_texture);
+    glBindTexture(GL_TEXTURE_2D, m_scene_aux_texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_R8,
@@ -314,10 +318,10 @@ App::create_scene_framebuffer(int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER,
-                            GL_COLOR_ATTACHMENT1,
-                            GL_TEXTURE_2D,
-                            m_scene_color_mask_texture,
-                            0);
+                           GL_COLOR_ATTACHMENT1,
+                           GL_TEXTURE_2D,
+                           m_scene_aux_texture,
+                           0);
 
     const GLenum resolve_draw_buffers[] = { GL_COLOR_ATTACHMENT0,
                                             GL_COLOR_ATTACHMENT1 };
@@ -380,23 +384,23 @@ App::begin_scene_render()
   glGetIntegerv(GL_VIEWPORT, m_previous_viewport);
   glBindFramebuffer(GL_FRAMEBUFFER, m_scene_framebuffer);
   glViewport(0, 0, m_scene_buffer_width, m_scene_buffer_height);
-  const GLfloat clear_mask = 0.0f;
-  glClearBufferfv(GL_COLOR, 1, &clear_mask);
+  const GLfloat clear_aux = 0.0f;
+  glClearBufferfv(GL_COLOR, 1, &clear_aux);
   m_scene_pass_active = true;
 }
 
 void
 App::end_scene_render()
 {
-  if (!m_scene_pass_active || !m_scene_framebuffer_ready || m_scene_framebuffer == 0 ||
-      !m_postprocess_program)
+  if (!m_scene_pass_active || !m_scene_framebuffer_ready ||
+      m_scene_framebuffer == 0)
     return;
 
   GLint previous_program = 0;
   GLint previous_vertex_array = 0;
   GLint previous_active_texture = 0;
   GLint previous_texture = 0;
-  GLint previous_mask_texture = 0;
+  GLint previous_aux_texture = 0;
   const GLboolean depth_was_enabled = glIsEnabled(GL_DEPTH_TEST);
   const GLboolean blend_was_enabled = glIsEnabled(GL_BLEND);
   const GLboolean scissor_was_enabled = glIsEnabled(GL_SCISSOR_TEST);
@@ -409,7 +413,7 @@ App::end_scene_render()
   glActiveTexture(GL_TEXTURE0);
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_texture);
   glActiveTexture(GL_TEXTURE1);
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_mask_texture);
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_aux_texture);
 
   glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -440,22 +444,40 @@ App::end_scene_render()
                     GL_COLOR_BUFFER_BIT,
                     GL_NEAREST);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  const auto target_framebuffer = static_cast<GLuint>(m_previous_framebuffer);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target_framebuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, m_scene_resolve_framebuffer);
   glViewport(0, 0, m_scene_buffer_width, m_scene_buffer_height);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_BLEND);
-  glDisable(GL_SCISSOR_TEST);
-  glDisable(GL_CULL_FACE);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  m_postprocess_program->bind();
-  glBindVertexArray(m_postprocess_vertex_array);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, m_scene_color_texture);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, m_scene_color_mask_texture);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
 
-  glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(previous_mask_texture));
+  if (m_postprocess_program) {
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_CULL_FACE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    m_postprocess_program->bind();
+    glBindVertexArray(m_postprocess_vertex_array);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_scene_color_texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_scene_aux_texture);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+  } else {
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(target_framebuffer == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+    glBlitFramebuffer(0,
+                      0,
+                      m_scene_buffer_width,
+                      m_scene_buffer_height,
+                      0,
+                      0,
+                      m_scene_buffer_width,
+                      m_scene_buffer_height,
+                      GL_COLOR_BUFFER_BIT,
+                      GL_NEAREST);
+  }
+
+  glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(previous_aux_texture));
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(previous_texture));
   glActiveTexture(static_cast<GLenum>(previous_active_texture));
@@ -483,9 +505,9 @@ App::end_scene_render()
               previous_color_mask[3]);
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
-                     static_cast<GLuint>(m_previous_framebuffer));
+                    static_cast<GLuint>(m_previous_framebuffer));
   glBindFramebuffer(GL_READ_FRAMEBUFFER,
-                     static_cast<GLuint>(m_previous_read_framebuffer));
+                    static_cast<GLuint>(m_previous_read_framebuffer));
   glViewport(m_previous_viewport[0],
              m_previous_viewport[1],
              m_previous_viewport[2],
@@ -502,12 +524,12 @@ App::destroy_scene_render_resources()
     glDeleteFramebuffers(1, &m_scene_resolve_framebuffer);
   if (m_scene_color_texture)
     glDeleteTextures(1, &m_scene_color_texture);
-  if (m_scene_color_mask_texture)
-    glDeleteTextures(1, &m_scene_color_mask_texture);
+  if (m_scene_aux_texture)
+    glDeleteTextures(1, &m_scene_aux_texture);
   if (m_scene_color_buffer)
     glDeleteRenderbuffers(1, &m_scene_color_buffer);
-  if (m_scene_color_mask_buffer)
-    glDeleteRenderbuffers(1, &m_scene_color_mask_buffer);
+  if (m_scene_aux_buffer)
+    glDeleteRenderbuffers(1, &m_scene_aux_buffer);
   if (m_scene_depth_buffer)
     glDeleteRenderbuffers(1, &m_scene_depth_buffer);
   if (m_postprocess_vertex_array)
@@ -516,9 +538,9 @@ App::destroy_scene_render_resources()
   m_scene_framebuffer = 0;
   m_scene_resolve_framebuffer = 0;
   m_scene_color_texture = 0;
-  m_scene_color_mask_texture = 0;
+  m_scene_aux_texture = 0;
   m_scene_color_buffer = 0;
-  m_scene_color_mask_buffer = 0;
+  m_scene_aux_buffer = 0;
   m_scene_depth_buffer = 0;
   m_postprocess_vertex_array = 0;
   m_scene_framebuffer_ready = false;
@@ -535,31 +557,6 @@ App::init_debug_gui()
 void
 App::render_debug_gui()
 {
-
-  if (m_window.get_cursor_mode() == GLFW_CURSOR_DISABLED) {
-    ImDrawList* draw_list = ImGui::GetForegroundDrawList();
-    const ImGuiIO& io = ImGui::GetIO();
-    ImVec2 center(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
-
-    draw_list->AddCircleFilled(center, 2.0f, IM_COL32(255, 255, 255, 230));
-    draw_list->AddLine(ImVec2(center.x - 9, center.y),
-                       ImVec2(center.x - 4, center.y),
-                       IM_COL32(255, 255, 255, 180),
-                       1.5f);
-    draw_list->AddLine(ImVec2(center.x + 4, center.y),
-                       ImVec2(center.x + 9, center.y),
-                       IM_COL32(255, 255, 255, 180),
-                       1.5f);
-    draw_list->AddLine(ImVec2(center.x, center.y - 9),
-                       ImVec2(center.x, center.y - 4),
-                       IM_COL32(255, 255, 255, 180),
-                       1.5f);
-    draw_list->AddLine(ImVec2(center.x, center.y + 4),
-                       ImVec2(center.x, center.y + 9),
-                       IM_COL32(255, 255, 255, 180),
-                       1.5f);
-  }
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
