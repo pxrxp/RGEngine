@@ -58,8 +58,6 @@ if [ ! -d "./vcpkg" ]; then
 fi
 
 BUILD_DIR="build"
-SHADERS_DIR="engine/shaders"
-RESOURCES_DIR="resources"
 
 if [ "$CLEAN" = true ]; then
     echo "Cleaning CMake cache..."
@@ -82,11 +80,5 @@ fi
 
 echo "Building..."
 cmake --build "$BUILD_DIR" --parallel "$(nproc)"
-echo "Copying shaders..."
-[ -d "$BUILD_DIR/game/shaders" ] && rm -rf "$BUILD_DIR/game/shaders"
-cp "$SHADERS_DIR" "$BUILD_DIR/game/shaders" -r
-echo "Copying resources..."
-[ -d "$BUILD_DIR/game/resources" ] && rm -rf "$BUILD_DIR/game/resources"
-cp "$RESOURCES_DIR" "$BUILD_DIR/game/resources" -r
 
 cd "$ORIGINAL_DIR"

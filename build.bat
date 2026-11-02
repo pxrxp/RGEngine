@@ -60,7 +60,6 @@ IF NOT EXIST ".\vcpkg" (
 )
 
 SET BUILD_DIR=build
-SET SHADERS_DIR=engine\shaders
 IF NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 
 REM Clean only CMake cache/files if requested
@@ -84,24 +83,6 @@ IF NOT EXIST "%BUILD_DIR%\CMakeCache.txt" (
 
 echo Building...
 cmake --build "%BUILD_DIR%" --parallel %NUMBER_OF_PROCESSORS%
-
-echo Copying shaders...
-REM Remove the build shaders folder if it exists
-if exist "%BUILD_DIR%\shaders" (
-    rmdir /s /q "%BUILD_DIR%\shaders"
-)
-
-REM Copy shaders folder recursively
-xcopy "%SHADERS_DIR%" "%BUILD_DIR%\game\shaders" /E /I /Y
-
-echo Copying resources...
-REM Remove the build resources folder if it exists
-if exist "%BUILD_DIR%\game\resources" (
-    rmdir /s /q "%BUILD_DIR%\game\resources"
-)
-
-REM Copy resources folder recursively
-xcopy "resources" "%BUILD_DIR%\game\resources" /E /I /Y
 
 set INSTALLED_BIN_DIR=
 if /I "%BUILD_TYPE%"=="Debug" (
