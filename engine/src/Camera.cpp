@@ -3,69 +3,15 @@
 #include <engine/SceneObject.h>
 #include <cmath>
 
+#ifndef NDEBUG
 #include <engine/debug.h>
-
-glm::vec3
-Camera::get_camera_move_dir(App& app) const
-{
-  glm::vec3 direction(0.f);
-
-  bool go_forward = app.get_window().is_key_pressed(GLFW_KEY_W) ||
-                    app.get_window().is_key_pressed(GLFW_KEY_UP);
-  bool go_backward = app.get_window().is_key_pressed(GLFW_KEY_S) ||
-                     app.get_window().is_key_pressed(GLFW_KEY_DOWN);
-  bool go_left = app.get_window().is_key_pressed(GLFW_KEY_A) ||
-                 app.get_window().is_key_pressed(GLFW_KEY_LEFT);
-  bool go_right = app.get_window().is_key_pressed(GLFW_KEY_D) ||
-                  app.get_window().is_key_pressed(GLFW_KEY_RIGHT);
-  bool go_up = app.get_window().is_key_pressed(GLFW_KEY_E);
-  bool go_down = app.get_window().is_key_pressed(GLFW_KEY_Q);
-  bool go_fast = app.get_window().is_key_pressed(GLFW_KEY_LEFT_CONTROL) ||
-                 app.get_window().is_key_pressed(GLFW_KEY_RIGHT_CONTROL);
-  bool go_slow = app.get_window().is_key_pressed(GLFW_KEY_LEFT_SHIFT) ||
-                 app.get_window().is_key_pressed(GLFW_KEY_RIGHT_SHIFT);
-
-  if (go_forward)
-    direction.z += 1.0f;
-  if (go_backward)
-    direction.z -= 1.0f;
-  if (go_left)
-    direction.x -= 1.0f;
-  if (go_right)
-    direction.x += 1.0f;
-  if (go_up)
-    direction.y += 1.0f;
-  if (go_down)
-    direction.y -= 1.0f;
-
-  if (glm::dot(direction, direction) > 0.0f) {
-    direction = glm::normalize(direction);
-  }
-
-  if (go_fast)
-    direction *= 2.0f;
-  if (go_slow)
-    direction /= 2.0f;
-
-  return direction;
-}
+#endif
 
 Camera&
 Camera::setup(SceneObjectStrongPtr player)
 {
   m_target_player = player;
   return *this;
-}
-
-const BoundingBox&
-Camera::get_AABB()
-{
-  if (m_frustum_worldspace_updated) {
-    m_AABB = BoundingBox(get_frustum_worldspace());
-    m_frustum_worldspace_updated = false;
-  }
-
-  return m_AABB;
 }
 
 glm::vec3
@@ -75,40 +21,6 @@ Camera::get_forward()
     return glm::vec3(0.0f, 0.0f, -1.0f);
   return m_target_player->get_local_transform().get_rotation() *
          glm::vec3(0.0f, 0.0f, -1.0f);
-}
-
-const std::vector<Vertex_Pos>&
-Camera::get_frustum_worldspace()
-{
-  auto& frustum_viewspace = get_frustum_viewspace();
-
-  if (!m_view_dirty && !m_frustum_viewspace_updated)
-    return m_frustum_worldspace;
-
-  if (m_view_dirty)
-    update_view_matrix();
-
-  m_frustum_worldspace.clear();
-  for (auto& point : frustum_viewspace) {
-    m_frustum_worldspace.push_back(
-      { glm::vec3(glm::inverse(m_view) * glm::vec4(point.position, 1.0f)) });
-  }
-
-  m_frustum_worldspace_updated = true;
-  m_frustum_viewspace_updated = true;
-
-  return m_frustum_worldspace;
-}
-
-const std::vector<Vertex_Pos>&
-Camera::get_frustum_viewspace()
-{
-  if (m_proj_dirty) {
-    update_projection_matrix(m_aspect_ratio_cache);
-    m_frustum_viewspace_updated = true;
-  }
-
-  return m_frustum_viewspace;
 }
 
 void
@@ -140,22 +52,6 @@ Camera::update_projection_matrix(float aspect_ratio)
   m_aspect_ratio_cache = aspect_ratio;
   m_proj =
     glm::perspective(m_fovy_rad, m_aspect_ratio_cache, m_z_near, m_z_far);
-
-  float tangent = tan(m_fovy_rad / 2);
-
-  float top_far = m_z_far * tangent;
-  float right_far = top_far * m_aspect_ratio_cache;
-
-  float top_near = m_z_near * tangent;
-  float right_near = top_near * m_aspect_ratio_cache;
-
-  m_frustum_viewspace = {
-    { -right_near, -top_near, -m_z_near }, { -right_near, top_near, -m_z_near },
-    { right_near, -top_near, -m_z_near },  { right_near, top_near, -m_z_near },
-    { -right_far, -top_far, -m_z_far },    { -right_far, top_far, -m_z_far },
-    { right_far, -top_far, -m_z_far },     { right_far, top_far, -m_z_far },
-  };
-
   m_proj_dirty = false;
 }
 
@@ -289,8 +185,7 @@ operator<<(std::ostream& os, const Camera& cam)
      << "  view_dirty=" << cam.m_view_dirty
      << ", proj_dirty=" << cam.m_proj_dirty << ",\n"
      << "  view_matrix=" << cam.m_view << ",\n"
-     << "  projection_matrix=" << cam.m_proj << ",\n"
-     << "  frustum_worldspace=" << cam.m_frustum_worldspace << "\n"
+     << "  projection_matrix=" << cam.m_proj << "\n"
      << ")";
   return os;
 }

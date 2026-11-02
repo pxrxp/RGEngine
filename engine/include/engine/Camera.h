@@ -1,10 +1,7 @@
 #pragma once
 
 #include <engine/Renderer.h>
-#include <engine/components/BoundingBox.h>
-#include <engine/components/vertex_formats.h>
 #include <glm/glm.hpp>
-#include <vector>
 
 class App;
 
@@ -23,7 +20,6 @@ public:
   glm::mat4 get_projection_matrix();
 
   void set_view_matrix_dirty() { m_view_dirty = true; }
-  void set_projection_matrix_dirty() { m_proj_dirty = true; }
 
   void reset_mouse_cache();
 
@@ -51,10 +47,6 @@ public:
   float get_near_plane() const { return m_z_near; }
   Camera& set_near_plane(float z_near);
 
-  const std::vector<Vertex_Pos>& get_frustum_worldspace();
-  const std::vector<Vertex_Pos>& get_frustum_viewspace();
-  const BoundingBox& get_AABB();
-
 private:
   glm::vec3 get_camera_move_dir(App& app) const;
   void update_view_matrix();
@@ -71,14 +63,8 @@ private:
   float m_z_far = 800.f;
   float m_aspect_ratio_cache = 16.f / 9.f;
 
-  bool m_frustum_viewspace_updated = true;
-  bool m_frustum_worldspace_updated = true;
   bool m_view_dirty = true;
   bool m_proj_dirty = true;
   glm::mat4 m_view = glm::mat4(1.f);
   glm::mat4 m_proj = glm::mat4(1.f);
-
-  std::vector<Vertex_Pos> m_frustum_viewspace;
-  std::vector<Vertex_Pos> m_frustum_worldspace;
-  BoundingBox m_AABB;
 };
