@@ -18,7 +18,7 @@ export TRIPLET=x64-linux          # or x64-mingw-dynamic on Windows
 export BUILD_TYPE=Debug           # Debug or Release
 export ENABLE_ASAN_UBSAN=ON       # OFF for a release run
 export ENABLE_WERROR=ON
-export GLFW_BACKEND=wayland       # wayland | x11 | windows
+export GLFW_BACKEND=wayland       # wayland | x11 | windows (wayland also runs on X11)
 
 ./build.sh            # add -c to clear the CMake cache first
 ```

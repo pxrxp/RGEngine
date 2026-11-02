@@ -73,7 +73,7 @@ The wrappers read a few environment variables:
 | `BUILD_TYPE` | `Debug`, `Release` | CMake build type |
 | `ENABLE_ASAN_UBSAN` | `ON`, `OFF` | Address/UB sanitizers (debug builds) |
 | `ENABLE_WERROR` | `ON`, `OFF` | Treat warnings as errors |
-| `GLFW_BACKEND` | `wayland`, `x11`, `windows` | GLFW backend feature (Unix only) |
+| `GLFW_BACKEND` | `wayland`, `x11`, `windows` | GLFW backend feature (Unix only); `wayland` covers both Wayland and X11 |
 
 Linux:
 

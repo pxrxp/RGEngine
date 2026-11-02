@@ -13,10 +13,20 @@
 | `ENABLE_WERROR` | `ON` | Adds `-Werror` to `-Wall -Wextra -pedantic` |
 | `ENABLE_ASAN_UBSAN` | `ON` | `-fsanitize=address,undefined` |
 | `ENABLE_TSAN` | `OFF` | `-fsanitize=thread` (only if ASan/UBSan are off) |
-| `USE_WAYLAND` | `ON` (Unix) | Selects the GLFW Wayland backend feature |
-| `USE_X11` | `OFF` (Unix) | Selects the GLFW X11 backend feature |
+| `USE_WAYLAND` | `ON` (Unix) | Adds the GLFW Wayland backend on top of X11 |
+| `USE_X11` | `OFF` (Unix) | Leaves Wayland out and builds the X11 backend only |
 
 Sanitizer flags are added globally (`add_compile_options`/`add_link_options`).
+
+### One Linux build, both display servers
+
+GLFW 3.4 compiles its X11 backend on every Linux build and adds Wayland when
+the `wayland` vcpkg feature is enabled. With both compiled in, `glfwInit()`
+picks the backend from the session at start-up, so the default
+`-DVCPKG_MANIFEST_FEATURES=wayland` binary runs under Wayland and X11 alike and
+you do not need a second build per display server. `x11` selects nothing extra;
+it exists only so `GLFW_BACKEND=x11` is a valid choice that produces a smaller
+X11-only binary.
 
 ## Configuration and build
 

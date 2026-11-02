@@ -24,8 +24,12 @@ if (WIN32)
         set(VCPKG_APPLOCAL_DEPS ON)
     endif()
 elseif (UNIX)
-    option(USE_WAYLAND "Use Wayland backend for GLFW" ON)
-    option(USE_X11 "Use X11 backend for GLFW" OFF)
+    # GLFW 3.4 always compiles its X11 backend on Linux and adds Wayland with
+    # the `wayland` feature, then picks one at runtime from the session it
+    # finds. The Wayland feature therefore also produces an X11-capable binary,
+    # so one Linux build runs under both display servers.
+    option(USE_WAYLAND "Compile the Wayland backend in addition to X11" ON)
+    option(USE_X11 "X11-only GLFW build (no Wayland support)" OFF)
 
     if (NOT DEFINED VCPKG_MANIFEST_FEATURES)
         if (USE_WAYLAND)

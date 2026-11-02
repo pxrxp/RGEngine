@@ -18,13 +18,7 @@
   ],
   "features": {
     "x11": {
-      "description": "Enable X11 support for GLFW",
-      "dependencies": [
-        {
-          "name": "glfw3",
-          "features": ["x11"]
-        }
-      ]
+      "description": "GLFW's X11 backend, which is on by default on Linux"
     },
     "wayland": {
       "description": "Enable Wayland support for GLFW",
