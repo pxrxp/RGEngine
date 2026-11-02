@@ -2,16 +2,6 @@
 #include <engine/util/opengl.h>
 #include <iostream>
 
-glm::ivec2
-Window::get_dimensions() const
-{
-  return m_dimensions;
-}
-int
-Window::get_width() const
-{
-  return m_dimensions.x;
-}
 int
 Window::get_height() const
 {
@@ -33,15 +23,6 @@ Window::is_key_pressed(int key) const
 }
 
 bool
-Window::is_key_released(int key) const
-{
-  if (!m_raw_window)
-    return false;
-
-  return glfwGetKey(m_raw_window, key) == GLFW_RELEASE;
-}
-
-bool
 Window::is_mouse_button_pressed(int button) const
 {
   if (!m_raw_window)
@@ -50,25 +31,10 @@ Window::is_mouse_button_pressed(int button) const
   return glfwGetMouseButton(m_raw_window, button) == GLFW_PRESS;
 }
 
-bool
-Window::is_mouse_button_released(int button) const
-{
-  if (!m_raw_window)
-    return false;
-
-  return glfwGetMouseButton(m_raw_window, button) == GLFW_RELEASE;
-}
-
 glm::dvec2
 Window::get_delta_mouse() const
 {
   return m_mouse_accumulator;
-}
-
-glm::dvec2
-Window::get_mouse_pos() const
-{
-  return m_mouse;
 }
 
 void
