@@ -64,7 +64,7 @@ RivalGrounds::render_game_hud()
                   backstory,
                   nullptr,
                   story_width);
-    top_y += story_height + 30.0f;
+    top_y += story_height + 54.0f;
 
     const char* controls[] = {
       "WASD  Move",  "Ctrl  Sprint",     "Shift  Sneak",
