@@ -4,6 +4,7 @@
 #include <engine/SceneObject.h>
 #include <cassert>
 #include <optional>
+#include <string>
 #include <vector>
 
 template<typename F>

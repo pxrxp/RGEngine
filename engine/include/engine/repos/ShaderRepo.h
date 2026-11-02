@@ -2,6 +2,7 @@
 
 #include <engine/repos/RepoBase.h>
 #include <memory>
+#include <string>
 
 class Shader;
 using ShaderStrongPtr = std::shared_ptr<Shader>;

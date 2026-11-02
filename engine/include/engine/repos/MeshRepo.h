@@ -6,6 +6,7 @@
 #include <engine/util/opengl.h>
 #include <engine/repos/RepoBase.h>
 #include <memory>
+#include <string>
 #include <ranges>
 #include <vector>
 

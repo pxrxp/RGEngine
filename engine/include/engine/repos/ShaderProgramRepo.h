@@ -3,6 +3,7 @@
 #include <engine/repos/RepoBase.h>
 #include <engine/repos/ShaderRepo.h>
 #include <memory>
+#include <string>
 #include <vector>
 
 class ShaderProgram;
