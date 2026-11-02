@@ -1,6 +1,6 @@
 # Installation
 
-RivalGrounds is built from source with CMake and vcpkg. There is no installer or packaged build in this repository.
+RivalGrounds is built from source with CMake and vcpkg. Release archives (executable, shaders and assets in one zip) can be produced with `cmake --build build --target package`; there is no platform installer.
 
 ## Requirements
 

@@ -1,6 +1,6 @@
-# Engine
+# RGEngine
 
-The engine lives in `engine/` and is built as the static library `engine`. It provides the window, input, camera, scene graph, renderer, resource repositories, collision queries, physics component, and asset utilities that the game is built on.
+RGEngine lives in `engine/` and is built as the static library `engine`. It provides the window, input, camera, scene graph, renderer, resource repositories, collision queries, physics component, and asset utilities that the game is built on.
 
 It contains no game content: no window title, no player, no post-process look, no HUD, and no asset names. The game supplies all of that through `AppConfig`, `Scene` subclasses, and its own shaders.
 

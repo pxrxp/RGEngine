@@ -1,7 +1,9 @@
 # Project structure
 
 ```text
-CMakeLists.txt        top-level project, options, sanitizers, vcpkg, find_package
+CMakeLists.txt        top-level project (RGEngine), options, sanitizers, vcpkg,
+                      install and CPack rules
+cmake/                toolchain-mingw.cmake: Windows cross-compilation
 vcpkg.json            dependencies and GLFW backend features
 build.sh / build.bat  configure + build wrappers
 run.sh / run.bat      run the executable (optionally under a debugger)

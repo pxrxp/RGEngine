@@ -38,6 +38,54 @@ build/game/resources/ <- resources/
 
 The engine resolves shaders from `shaders/<name>.glsl` and assets from `resources/<path>` relative to the executable directory (see `Util::get_exe_dir()`), so a CMake build is runnable without extra copying. There is no separate manual copy step in the build scripts anymore.
 
+## Release archives
+
+```bash
+cmake --build build --target package
+```
+
+CPack writes `build/RGEngine-RivalGrounds-<version>-<system>-<arch>.zip` containing
+the executable, the merged `shaders/` directory, `resources/`, `LICENSE` and
+`LICENSES.md`. Assets are resolved relative to the executable, so the archive
+runs as soon as it is extracted. Assets dominate the size (about 60 MB
+compressed).
+
+## Cross-compiling for Windows
+
+`cmake/toolchain-mingw.cmake` builds a 64-bit Windows executable from Linux with
+[llvm-mingw](https://github.com/mstorsjo/llvm-mingw) and the vcpkg
+`x64-mingw-static` triplet:
+
+```bash
+export LLVM_MINGW_ROOT=/path/to/llvm-mingw-<date>-ucrt-ubuntu-22.04-x86_64
+export PATH="$LLVM_MINGW_ROOT/bin:$PATH"
+cmake -B build-win -S . \
+  -DCMAKE_TOOLCHAIN_FILE="$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+  -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$PWD/cmake/toolchain-mingw.cmake" \
+  -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
+  -DVCPKG_HOST_TRIPLET=x64-linux \
+  -DCMAKE_BUILD_TYPE=Release -DENABLE_ASAN_UBSAN=OFF -DENABLE_WERROR=ON
+cmake --build build-win --parallel
+cmake --build build-win --target package
+```
+
+Notes:
+
+- The toolchain file sets `CMAKE_FIND_ROOT_PATH` to the MinGW sysroot. Without it
+  CMake finds the host's `libOpenGL.so` and the link fails.
+- `MINGW` builds get `-static`, so the C++ runtime and unwinder are linked in.
+  The executable then imports only Windows system DLLs (`kernel32`, `user32`,
+  `gdi32`, `shell32`, `api-ms-win-crt-*`).
+- Cross builds disable the vcpkg app-local step, which needs a Windows host to
+  run PowerShell; the static triplet does not need it.
+- Sanitizers are not available for the MinGW runtime, so keep
+  `ENABLE_ASAN_UBSAN=OFF`.
+
+Verified with llvm-mingw 20261020 (clang 23, libc++): configure, build and
+package succeed and `llvm-objdump -p` shows no non-system imports. The resulting
+`RivalGrounds.exe` was not executed here, since this machine has no Windows host
+or Wine.
+
 ## Tests
 
 ```bash

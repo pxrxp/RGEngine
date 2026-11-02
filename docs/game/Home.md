@@ -1,6 +1,6 @@
 # Game
 
-RivalGrounds is a single-player first-person shooter built on the engine in `engine/`. The game lives in `game/`:
+RivalGrounds is a single-player first-person shooter built on RGEngine in `engine/`. The game lives in `game/`:
 
 ```text
 game/

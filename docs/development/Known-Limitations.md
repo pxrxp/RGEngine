@@ -36,7 +36,8 @@
 
 ## Platform
 
-- Build scripts exist for Linux/macOS (`build.sh`, `run.sh`) and Windows (`build.bat`, `run.bat`, MinGW via vcpkg).
+- Build scripts exist for Linux/macOS (`build.sh`, `run.sh`) and Windows (`build.bat`, `run.bat`, MinGW via vcpkg). Releases are produced with CPack (`cmake --build build --target package`) on either platform, or cross-compiled for Windows from Linux with `cmake/toolchain-mingw.cmake`.
+- The Windows cross build is verified to compile and package, but has not been run here (no Windows host or Wine).
 - The engine's filesystem and GL includes have Windows, macOS, and Linux branches; other platforms are untested.
 
 ## Testing
