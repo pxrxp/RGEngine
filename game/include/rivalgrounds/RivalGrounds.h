@@ -65,7 +65,8 @@ private:
   std::vector<BulletTracer> m_tracers;
 
   SceneObjectStrongPtr m_held_object = nullptr;
-  float m_held_object_hide_cooldown = 2.0f;
+  bool m_held_object_hidden = false;
+  bool m_hide_key_was_pressed = false;
 
   SceneObjectStrongPtr m_scroll_objective;
   std::vector<std::shared_ptr<Enemy>> m_enemies;

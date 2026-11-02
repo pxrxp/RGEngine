@@ -16,6 +16,13 @@ RivalGrounds::handle_object_grab()
   auto& window = m_app_cache.get_window();
   bool right_pressed = window.is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT);
 
+  // Held-key polling, so track the edge ourselves instead of toggling every
+  // frame the key is down.
+  const bool hide_pressed = window.is_key_pressed(GLFW_KEY_H);
+  if (m_held_object && hide_pressed && !m_hide_key_was_pressed)
+    m_held_object_hidden = !m_held_object_hidden;
+  m_hide_key_was_pressed = hide_pressed;
+
   if (right_pressed && !m_right_mouse_was_pressed) {
     if (m_held_object) {
       glm::vec3 origin = m_player->get_local_transform().get_position();
@@ -67,6 +74,7 @@ RivalGrounds::handle_object_grab()
       m_held_object->get_local_transform().set_position(place_pos).set_rotation(
         glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
+      m_held_object->visible = true;
       m_held_object->set_collidable(true);
       auto& phys = m_held_object->get_physics_component();
       phys.enable();
@@ -97,6 +105,7 @@ RivalGrounds::handle_object_grab()
 
       if (closest_obj) {
         m_held_object = closest_obj;
+        m_held_object_hidden = false;
 
         m_held_object->set_collidable(false);
         m_held_object->get_physics_component().disable();
@@ -111,7 +120,7 @@ RivalGrounds::handle_object_grab()
                          glm::vec3(0.0f, -0.1f, 0.0f);
     m_held_object->get_local_transform().set_position(hold_pos).set_rotation(
       glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    m_held_object->visible = true;
+    m_held_object->visible = !m_held_object_hidden;
   }
 }
 

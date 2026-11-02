@@ -11,7 +11,7 @@ State it owns:
 | Session | `GameState m_game_state`, `m_logo_texture`, `m_scroll_pos`, `m_scroll_objective` |
 | Player | `m_player`, health/regen, vertical velocity, grounded/jump state, spawn grace |
 | Weapon | `m_weapon_viewmodel`, `m_gun_recoil`, mouse latch, tracers, hit marker, damage flash |
-| Interaction | `m_held_object`, hide cooldown |
+| Interaction | `m_held_object`, `m_held_object_hidden`, hide-key latch |
 | World | `m_collision_world`, `m_city_world_min/max`, `m_city_bounds_valid`, `m_enemies`, `m_reinforcement_timer` |
 | Debug | `m_debug_menu_open`, `m_debug_noclip`, `m_debug_invincible`, `m_debug_show_hitboxes` |
 

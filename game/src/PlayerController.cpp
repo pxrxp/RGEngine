@@ -363,15 +363,6 @@ RivalGrounds::update_character_controller(float dt)
     speed = 3.8f;
   }
 
-  if (m_held_object && window.is_key_pressed(GLFW_KEY_H)) {
-    if (m_held_object_hide_cooldown >= 0) {
-      m_held_object_hide_cooldown -= 0.4f;
-    } else {
-      m_held_object->visible = !m_held_object->visible;
-      m_held_object_hide_cooldown = 2.0f;
-    }
-  }
-
   glm::quat rot = m_player->get_local_transform().get_rotation();
   glm::vec3 fwd_raw = rot * glm::vec3(AXIS_NEG_Z);
   glm::vec3 rgt_raw = rot * glm::vec3(AXIS_X);

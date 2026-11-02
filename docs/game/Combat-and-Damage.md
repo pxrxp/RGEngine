@@ -12,6 +12,20 @@ Combat is symmetric hitscan: the player and enemies both trace a ray and apply d
 
 Enemy hitboxes are AABBs, so shots are resolved against the box, not the visible body parts.
 
+## Grabbing and hiding
+
+`handle_object_grab()` runs every frame. Right click picks the nearest physics
+crate within 4 m of the view ray (it becomes non-collidable and loses physics),
+or throws the held crate when one is already held, snapping it on top of or next
+to the crate it is aimed at. While held, the crate is repositioned 2.2 m in front
+of the camera.
+
+`H` toggles `m_held_object_hidden`, and the held crate's `visible` flag follows
+that state each frame (`visible = !m_held_object_hidden`). Because input is
+polled, the toggle is edge-detected with `m_hide_key_was_pressed`, so holding `H`
+does not flip the crate every frame. Grabbing resets the state to visible, and
+throwing always sets `visible = true` so a crate never lands invisible.
+
 ## Enemy shot resolution
 
 `Enemy::update()` reports a shot and the muzzle position. The game then:
