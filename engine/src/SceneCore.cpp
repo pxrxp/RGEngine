@@ -7,12 +7,8 @@
 void
 Scene::init()
 {
-  SceneObjectStrongPtr player = std::make_shared<SceneObject>();
-  player->get_physics_component().disable();
-  player->get_local_transform().translate(AXIS_Y);
-  m_scene_ptr->add_child(player);
-
-  m_app_cache.get_camera().setup(player);
+  // A scene is an empty root by default. Games populate it and wire the
+  // camera to whatever object they want it to follow.
 }
 
 void

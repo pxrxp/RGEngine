@@ -33,7 +33,6 @@ protected:
   App& m_app_cache;
   SceneObjectStrongPtr m_scene_ptr;
 
-  void debug_object(std::weak_ptr<SceneObject> weak_object, const char* header);
   void debug_camera();
   void setup_skybox(const SceneObjectStrongPtr& skybox,
                     const std::string& texture_name);
