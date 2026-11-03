@@ -5,8 +5,8 @@
 ![C++](https://img.shields.io/badge/c%2B%2B-%2300599C.svg?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![OpenGL](https://img.shields.io/badge/opengl-%235586A4.svg?style=for-the-badge&logo=opengl&logoColor=white)
 
-A small 3D engine in C++20 and OpenGL 3.3, and RivalGrounds, the first-person
-shooter it was written for.
+A small 3D engine in C++20 and OpenGL 3.3, and RivalGrounds, a first-person
+shooter written using the engine.
 
 `engine/` handles the window, the renderer, the scene graph, collision and the
 asset loaders. `game/` holds the city, the player, the enemies and the rules, and
