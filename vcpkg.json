@@ -4,7 +4,9 @@
   "dependencies": [
     {
       "name": "glad",
-      "features": ["extensions"]
+      "features": [
+        "extensions"
+      ]
     },
     "glfw3",
     "opengl",
@@ -13,7 +15,10 @@
     "libpng",
     {
       "name": "imgui",
-      "features": ["glfw-binding", "opengl3-binding"]
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
     }
   ],
   "features": {
@@ -25,7 +30,9 @@
       "dependencies": [
         {
           "name": "glfw3",
-          "features": ["wayland"]
+          "features": [
+            "wayland"
+          ]
         }
       ]
     },
@@ -38,5 +45,6 @@
         }
       ]
     }
-  }
+  },
+  "builtin-baseline": "9eec002df1cd109f8f104cd966a763daf9751489"
 }
